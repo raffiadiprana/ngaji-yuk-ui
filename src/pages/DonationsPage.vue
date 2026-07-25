@@ -59,12 +59,18 @@
             
               <q-badge
                 outline
-                :color="item.is_verified ? 'green' : 'red'"
+                :color="item.is_verified == 1 ? 'green' : 
+                        item.is_verified == 2 ? 'red' : 'orange'"
                 class="q-mt-sm"
                 align="left"
               >
-                {{ item.is_verified ? 'Terverifikasi' : 'Belum Diverifikasi' }}
+                {{ item.is_verified == 1? 'Terverifikasi' : 
+                        item.is_verified == 2 ? 'Ditolak' : 'Menunggu Verifikasi' }}
               </q-badge>
+
+              <div v-if="item.reject_reason" class="text-negative q-mt-sm">
+                Alasan Penolakan: {{ item.reject_reason }}
+              </div>
             </q-item-section>            
           </q-item>
         </q-list>
@@ -145,7 +151,9 @@ const submitForm = async () => {
       }
     })
 
-    $q.notify({ type: 'positive', message: 'Donasi berhasil dikirim' })
+    $q.notify({ type: 'positive', message: 'Donasi berhasil dikirim' , timeout: 2000, onDismiss: () => {
+      window.location.reload()
+    }})
     await loadHistory()
     form.value = {
       account_name: '',
@@ -155,7 +163,10 @@ const submitForm = async () => {
       proof: null,
       is_verified : 0
     }
+
+
     if (formRef.value) formRef.value.resetValidation()
+
   } catch (err) {
     console.error(err)
     $q.notify({ type: 'negative', message: 'Gagal mengirim donasi' })

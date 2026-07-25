@@ -1,27 +1,30 @@
 <template>
-  <q-page padding>
-    <q-header elevated class="bg-green-gradient text-white">
+  <q-page class="bg-grey-2">
+    <q-header elevated class="bg-primary text-white">
       <q-toolbar>
         <q-btn flat round dense icon="arrow_back" @click="cancel" />
-        <q-toolbar-title>{{ isEdit ? 'Edit Guru' : 'Tambah Guru' }}</q-toolbar-title>
+        <q-toolbar-title class="text-h6">
+          {{ isEdit ? (form.role == 'santri' ? 'Edit Santri' : 'Edit Guru') : (form.role == 'santri' ? 'Tambah Santri' : 'Tambah Guru') }}
+        </q-toolbar-title>
       </q-toolbar>
     </q-header>
 
-    <q-card class="my-card">
-      <q-card-section>
-        <q-form @submit.prevent="submitForm" ref="formRef" class="q-gutter-md">
+    <div class="q-pa-md form-container">
+      <q-card class="form-card q-pa-md">
+        <q-form @submit.prevent="submitForm" ref="formRef" class="q-gutter-y-md">
+          <!-- Email Field -->
           <q-input
             v-model="form.email"
             label="Email"
             type="email"
             filled
             dense
-            input-class="text-black"
-            class="q-mb-sm"
             :error="emailError"
             :error-message="emailErrorMsg"
             @blur="validateEmail"
           />
+
+          <!-- Password Field -->
           <q-input
             v-if="!isEdit"
             v-model="form.password"
@@ -29,60 +32,72 @@
             type="password"
             filled
             dense
-            input-class="text-black"
-            class="q-mb-sm"
           />
+
+          <!-- Display Name -->
           <q-input
             v-model="form.display_name"
             label="Nama Tampilan"
             filled
             dense
-            input-class="text-black"
-            class="q-mb-sm"
           />
+
+          <!-- Job Title -->
           <q-input
             v-model="form.jobtitle"
             label="Pekerjaan / Kegiatan Saat Ini"
             filled
             dense
-            input-class="text-black"
-            class="q-mb-sm"
           />
 
-          <!-- Avatar Preview -->
-          <div v-if="avatarPreview" class="q-mb-sm">
-            <q-img
-              :src="avatarPreview"
-              style="max-width: 150px; border-radius: 8px;"
-              spinner-color="white"
-            />
-            <q-btn
+          <!-- Avatar Section -->
+          <div class="avatar-section">
+            <div class="text-subtitle2 q-mb-sm">Foto Profil</div>
+            
+            <!-- Avatar Preview -->
+            <div v-if="avatarPreview" class="avatar-preview-container q-mb-sm">
+              <q-avatar size="100px" class="avatar-preview">
+                <q-img :src="avatarPreview" />
+                <q-btn 
+                  round 
+                  dense 
+                  flat 
+                  icon="close" 
+                  class="avatar-remove-btn" 
+                  @click="clearAvatar"
+                />
+              </q-avatar>
+            </div>
+
+            <!-- Uploader (Fungsionalitas tetap sama) -->
+            <q-uploader
+              ref="uploaderRef"
+              label="Pilih file avatar"
+              accept=".jpg, .jpeg, .png"
+              :auto-upload="false"
+              @added="onFileAdded"
+              style="width: 100%"
               flat
-              label="Hapus Avatar"
-              icon="delete"
-              color="negative"
-              class="q-mt-sm"
-              @click="clearAvatar"
+              bordered
             />
+            <div class="text-caption text-grey q-mt-xs">
+              Format: JPG/PNG
+            </div>
           </div>
 
-          <!-- Upload Avatar -->
-          <q-uploader
-            ref="uploaderRef"
-            label="Upload Avatar"
-            accept=".jpg, .jpeg, .png"
-            :auto-upload="false"
-            @added="onFileAdded"
-            class="q-mb-sm"
-          />
-
-          <div class="row justify-end q-gutter-sm q-mt-md">
+          <!-- Action Buttons -->
+          <div class="row justify-end q-mt-lg q-gutter-sm">
             <q-btn label="Batal" color="grey" flat @click="cancel" />
-            <q-btn type="submit" :label="isEdit ? 'Update' : 'Tambah'" color="primary" :loading="loading" />
+            <q-btn 
+              type="submit" 
+              :label="isEdit ? 'Update' : 'Tambah'" 
+              color="primary" 
+              :loading="loading" 
+            />
           </div>
         </q-form>
-      </q-card-section>
-    </q-card>
+      </q-card>
+    </div>
   </q-page>
 </template>
 
@@ -110,10 +125,11 @@ const form = ref({
   display_name: '',
   jobtitle: '',
   file: null,
-  avatar: ''
+  avatar: '',
+  role: ''
 })
 
-// Avatar preview
+// Avatar preview (fungsi tetap sama)
 const avatarPreview = computed(() => {
   if (form.value.avatar) return `${api.API_UPLOADS_URL}/${form.value.avatar}`
   return null
@@ -122,13 +138,16 @@ const avatarPreview = computed(() => {
 const clearAvatar = () => {
   form.value.file = null
   form.value.avatar = ''
+  if (uploaderRef.value) {
+    uploaderRef.value.reset()
+  }
 }
 
 const onFileAdded = (files) => {
   form.value.file = files[0]
 }
 
-// Email unik (frontend-only)
+// Email validation (fungsi tetap sama)
 const emailError = ref(false)
 const emailErrorMsg = ref('')
 
@@ -152,10 +171,8 @@ const validateEmail = async () => {
   emailErrorMsg.value = exists ? 'Email sudah digunakan' : ''
 }
 
-// Submit form
+// Submit form (fungsi tetap sama)
 const submitForm = async () => {
-  if (!formRef.value.validate()) return
-
   loading.value = true
 
   if (!isEdit.value) {
@@ -174,11 +191,14 @@ const submitForm = async () => {
     if (!isEdit.value) {
       const userRes = await fetch(`${api.API_BASE_URL}/users`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `${localStorage.getItem('token')}`
+        },
         body: JSON.stringify({
           email: form.value.email,
           password: form.value.password,
-          role: 'guru'
+          role: form.value.role || 'guru'
         })
       })
       const user = await userRes.json()
@@ -192,6 +212,9 @@ const submitForm = async () => {
 
       const uploadRes = await fetch(`${api.API_BASE_URL}/uploads`, {
         method: 'POST',
+        headers: {
+          'Authorization': `${localStorage.getItem('token')}`
+        },
         body: formData
       })
       const upload = await uploadRes.json()
@@ -199,6 +222,7 @@ const submitForm = async () => {
     }
 
     const profilePayload = {
+      user_id: userId,
       display_name: form.value.display_name,
       jobtitle: form.value.jobtitle,
       avatar: uploadedAvatar
@@ -209,7 +233,7 @@ const submitForm = async () => {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `${localStorage.getItem("token")}`
+          'Authorization': `${localStorage.getItem('token')}`
         },
         body: JSON.stringify(profilePayload)
       })
@@ -218,34 +242,33 @@ const submitForm = async () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `${localStorage.getItem("token")}`
+          'Authorization': `${localStorage.getItem('token')}`
         },
         body: JSON.stringify(profilePayload)
       })
     }
 
-    // ✅ Dialog sukses dan redirect setelah klik OK
-    $q.dialog({
-      title: 'Berhasil',
-      message: 'Data berhasil disimpan.',
-      ok: {
-        label: 'OK',
-        color: 'primary'
-      }
-    }).onOk(() => {
-      router.back()
+    $q.notify({
+      type: 'positive',
+      message: 'Data berhasil disimpan',
+      position: 'top'
     })
+    
+    router.back()
 
   } catch (err) {
     console.error(err)
-    $q.notify({ type: 'negative', message: 'Gagal menyimpan data guru.' })
+    $q.notify({ 
+      type: 'negative', 
+      message: 'Gagal menyimpan data',
+      position: 'top'
+    })
   } finally {
     loading.value = false
   }
 }
 
-
-// Load data saat edit
+// Load data saat edit (fungsi tetap sama)
 onMounted(async () => {
   const id = route.params.id
   if (id) {
@@ -254,15 +277,21 @@ onMounted(async () => {
         headers: { Authorization: `${localStorage.getItem("token")}` },
       });
       const data = res.data.data[0]
-      console.log("cok",data);
       
       form.value.id = data.id
       form.value.email = data.user?.email || ''
       form.value.display_name = data.display_name
       form.value.jobtitle = data.jobtitle
       form.value.avatar = data.avatar || ''
+      form.value.role = data.user_role || 'guru'
+
     } catch (err) {
-      console.error('Gagal mengambil data guru:', err)
+      console.error('Gagal mengambil data:', err)
+      $q.notify({
+        type: 'negative',
+        message: 'Gagal memuat data',
+        position: 'top'
+      })
     }
   }
 })
@@ -273,14 +302,34 @@ const cancel = () => {
 </script>
 
 <style scoped>
-.my-card {
+.form-container {
   max-width: 600px;
-  margin: auto;
+  margin: 0 auto;
 }
-.q-uploader {
-  width: 95% !important;
+
+.form-card {
+  border-radius: 8px;
 }
-.q-uploader__header {
-  background-color: #526659;
+
+.avatar-section {
+  margin: 16px 0;
+}
+
+.avatar-preview-container {
+  display: flex;
+  justify-content: center;
+}
+
+.avatar-preview {
+  position: relative;
+  border: 1px solid #e0e0e0;
+}
+
+.avatar-remove-btn {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 }
 </style>

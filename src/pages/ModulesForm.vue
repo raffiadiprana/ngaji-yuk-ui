@@ -46,37 +46,6 @@
             placeholder="Opsional"
           />
 
-          <!-- Thumbnail Preview -->
-          <q-img
-            v-if="thumbnailPreview"
-            :src="thumbnailPreview"
-            alt="Thumbnail Preview"
-            class="q-mb-md"
-            style="max-width: 200px; border-radius: 8px;"
-          />
-
-          <!-- Tombol Hapus Thumbnail -->
-          <q-btn
-            v-if="thumbnailPreview"
-            label="Hapus Gambar"
-            color="negative"
-            flat
-            icon="delete"
-            class="q-mb-md"
-            @click="clearThumbnail"
-          />
-
-          <!-- Upload Thumbnail -->
-          <q-uploader
-            filled
-            style="padding-right: 15px;"
-            v-model="form.thumbnailFile"
-            label="Thumbnail Image"
-            accept="image/*"
-            @added="onThumbnailFileChange"
-            :rules="[val => !!thumbnailPreview || 'Thumbnail wajib dipilih']"
-          />
-
           <div class="row justify-end q-gutter-sm q-mt-md">
             <q-btn label="Batal" color="grey" flat @click="cancel" />
             <q-btn type="submit" :label="isEdit ? 'Update' : 'Tambah'" color="primary" :loading="loading" />

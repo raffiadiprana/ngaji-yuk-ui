@@ -4,7 +4,7 @@
       <q-header elevated class="bg-green-gradient text-white">
         <q-toolbar>
           <q-btn flat round dense icon="arrow_back" @click="goBack" />
-          <q-toolbar-title>{{ form.title || 'Tambah Pelatihan' }}</q-toolbar-title>
+          <q-toolbar-title>{{ form.title || 'Tambah Materi Tajwid' }}</q-toolbar-title>
         </q-toolbar>
       </q-header>
   

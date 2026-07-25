@@ -18,8 +18,8 @@
     </div>
 
     <!-- Instructor Profile -->
-    <div class="q-mt-md q-px-sm q-pb-md row items-center">
-      <q-avatar size="50px">
+    <div class="instructor-section q-mt-xl">
+      <q-avatar size="56px">
         <img :src="lessons?.module_detail?.instructor_profile?.avatar ? api.API_UPLOADS_URL + '/' +lessons?.module_detail?.instructor_profile?.avatar : 'https://placehold.co/100'" />
       </q-avatar>
       <div class="q-ml-md">
@@ -33,7 +33,7 @@
     </div>
 
     <!-- Description -->
-    <div class="q-mt-md q-px-sm q-pb-md row items-center">
+    <div class="description-section q-mt-xl">
       {{ lessons?.description || '' }}
     </div>
   </q-page>
@@ -225,13 +225,73 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
+/* Layout Utama */
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.content-wrapper {
+  padding: 0 16px;
+}
+
+/* Video Container */
 .video-container {
   width: 100%;
-  max-width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+  margin-bottom: 24px;
 }
+
 .video-js {
   width: 100%;
-  height: 250px;
+  height: 0;
+  padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
   border-radius: 8px;
 }
+
+/* Instructor Section */
+.instructor-section {
+  display: flex;
+  align-items: center;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 8px;
+}
+
+.instructor-info {
+  margin-left: 16px;
+}
+
+/* Description Section */
+.description-section {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 8px;
+  line-height: 1.6;
+}
+
+/* Responsive Breakpoints */
+@media (min-width: 600px) {
+  .content-wrapper {
+    padding: 0 24px;
+  }
+  
+  .video-js {
+    height: 450px;
+    padding-bottom: 0;
+  }
+}
+
+@media (min-width: 1024px) {
+  .content-wrapper {
+    padding: 0;
+  }
+  
+  .instructor-section,
+  .description-section {
+    padding: 0;
+  }
+}
+
 </style>

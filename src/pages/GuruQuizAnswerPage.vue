@@ -349,9 +349,9 @@ const startRecording = async () => {
 };
 
 const handleRecordingStop = async () => {
-  const blob = new Blob(chunks.value, { type: 'audio/webm' });
-  const filename = `audio_${userId}_${Date.now()}.webm`;
-  const file = new File([blob], filename, { type: 'audio/webm' });
+  const blob = new Blob(chunks.value, { type: 'audio/mp3' });
+  const filename = `audio_${userId}_${Date.now()}.mp3`;
+  const file = new File([blob], filename, { type: 'audio/mp3' });
   const formData = new FormData();
   formData.append('file', file);
 
@@ -393,6 +393,12 @@ onMounted(async () => {
   });
   quiz.value = quizRes.data?.data?.[0] || null;
   await fetchAnswers();
+
+  setInterval(() => {
+    if (quiz.value) {
+      fetchAnswers()
+    }
+  }, 1000);
 });
 </script>
 

@@ -1,178 +1,212 @@
 <template>
-  <div class="q-pa-md">
+  <div class="page-container q-pa-md">
     <!-- Welcome Section -->
-    <div class="row items-center hp-profil-header">
-      <div class="col">
-        <h5 class="text-bold">
+    <div class="welcome-section">
+      <div class="welcome-content">
+        <h4 class="welcome-title">
           Welcome <span class="text-primary">{{ profile.display_name || 'Guest' }}</span>
-        </h5>               
+        </h4>
+        <p class="welcome-subtitle">Kelola modul, materi, dan quiz pembelajaran tajwid</p>
       </div>
-      <q-avatar size="36px" class="q-mr-sm" @click="$router.push('/profile')">
+      <q-avatar size="48px" class="profile-avatar" @click="$router.push('/profile')">
         <img :src="profile.avatar ? api.API_UPLOADS_URL + '/' + profile.avatar : 'https://placehold.co/100?text=👤'" alt="Avatar" />
       </q-avatar>
     </div>
 
-    <!-- Header -->
-    <div class="row items-center justify-between q-mb-md">
-      <h6 class="text-bold">Daftar Modul Tajwid</h6>
-      <q-btn label="Tambah Modul" color="green" flat rounded dense @click="onAddModule" />
+    <!-- Module Section -->
+    <div class="section-card">
+      <div class="section-header">
+        <h5 class="section-title">
+          <q-icon name="collections_bookmark" color="primary" class="q-mr-sm" />
+          Daftar Modul Tajwid
+        </h5>
+        <q-btn 
+          label="Tambah Modul" 
+          color="primary" 
+          icon="add" 
+          rounded 
+          dense 
+          @click="onAddModule"
+        />
+      </div>
+
+      <div class="card-grid">
+        <q-card
+          v-for="course in courses"
+          :key="course.id"
+          class="content-card"
+          @click="editCourse(course)"
+        >
+          <q-card-section class="card-header">
+            <q-icon name="collections_bookmark" color="primary" size="sm" />
+            <div class="text-subtitle1 text-weight-bold q-ml-sm">{{ course.title }}</div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions align="right" class="card-actions">
+            <q-btn flat round dense icon="more_vert" @click.stop>
+              <q-menu auto-close>
+                <q-list>
+                  <q-item clickable @click="editCourse(course)">
+                    <q-item-section avatar>
+                      <q-icon name="edit" color="primary" />
+                    </q-item-section>
+                    <q-item-section>Edit</q-item-section>
+                  </q-item>
+                  <q-item clickable @click="deleteModul(course)">
+                    <q-item-section avatar>
+                      <q-icon name="delete" color="negative" />
+                    </q-item-section>
+                    <q-item-section>Hapus</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </q-card-actions>
+        </q-card>
+      </div>
+
+      <q-btn
+        v-if="hasMoreCourses"
+        label="Tampilkan lebih banyak"
+        outline
+        color="primary"
+        class="full-width q-mt-md"
+        @click="loadMoreCourses"
+        :loading="loadingCourses"
+      />
     </div>
 
-    <!-- Course List as a List (using q-item) -->
-    <div class="q-gutter-md">
-      <q-item
-        v-for="course in courses"
-        :key="course.id"
-        class="q-mb-md"
-        clickable
-        @click="editCourse(course)"
-        bordered
-      >
-        <q-item-section>
-          <q-item-label class="text-h6 text-weight-medium">{{ course.title }}</q-item-label>
-        </q-item-section>
+    <!-- Lessons Section -->
+    <div class="section-card q-mt-lg">
+      <div class="section-header">
+        <h5 class="section-title">
+          <q-icon name="ondemand_video" color="primary" class="q-mr-sm" />
+          Daftar Materi Tajwid
+        </h5>
+        <q-btn 
+          label="Tambah Materi" 
+          color="primary" 
+          icon="add" 
+          rounded 
+          dense 
+          @click="onAddLesson"
+        />
+      </div>
 
-        <q-item-section side>
-          <q-btn
-            flat
-            dense
-            round
-            size="xs"
-            icon="more_vert"
-            @click.stop
-          >
-            <q-menu auto-close>
-              <q-list style="min-width: 100px;">
-                <q-item clickable @click="editCourse(course)">
-                  <q-item-section>Edit</q-item-section>
-                </q-item>
-                <q-item clickable @click="deleteModul(course)">
-                  <q-item-section>Delete</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-btn>
-        </q-item-section>
-      </q-item>
+      <div class="card-grid">
+        <q-card
+          v-for="lesson in lessons"
+          :key="lesson.id"
+          class="content-card"
+          @click="editLesson(lesson)"
+        >
+          <q-card-section class="card-header">
+            <q-icon name="ondemand_video" color="primary" size="sm" />
+            <div class="text-subtitle1 text-weight-bold q-ml-sm">{{ lesson.title }}</div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions align="right" class="card-actions">
+            <q-btn flat round dense icon="more_vert" @click.stop>
+              <q-menu auto-close>
+                <q-list>
+                  <q-item clickable @click="editLesson(lesson)">
+                    <q-item-section avatar>
+                      <q-icon name="edit" color="primary" />
+                    </q-item-section>
+                    <q-item-section>Edit</q-item-section>
+                  </q-item>
+                  <q-item clickable @click="deleteLesson(lesson)">
+                    <q-item-section avatar>
+                      <q-icon name="delete" color="negative" />
+                    </q-item-section>
+                    <q-item-section>Hapus</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </q-card-actions>
+        </q-card>
+      </div>
+
+      <q-btn
+        v-if="hasMoreLessons"
+        label="Tampilkan lebih banyak"
+        outline
+        color="primary"
+        class="full-width q-mt-md"
+        @click="loadMoreLessons"
+        :loading="loadingLessons"
+      />
     </div>
 
-    <!-- Load More Button for Courses -->
-    <q-btn
-      label="Tampilkan lebih banyak"
-      flat
-      class="full-width q-mt-md"
-      @click="loadMoreCourses"
-      :loading="loadingCourses"
-      :disable="loadingCourses || !hasMoreCourses"
-    />
+    <!-- Quiz Section -->
+    <div class="section-card q-mt-lg">
+      <div class="section-header">
+        <h5 class="section-title">
+          <q-icon name="quiz" color="primary" class="q-mr-sm" />
+          Daftar Quiz
+        </h5>
+        <q-btn 
+          label="Tambah Quiz" 
+          color="primary" 
+          icon="add" 
+          rounded 
+          dense 
+          @click="onAddQuiz"
+        />
+      </div>
 
-    <!-- List Lessons -->
-    <div class="row items-center justify-between q-mt-md q-mb-md">
-      <h6 class="text-bold">Daftar Materi Tajwid</h6>
-      <q-btn label="Tambah Materi" color="green" flat rounded dense @click="onAddLesson" />
+      <div class="card-grid">
+        <q-card
+          v-for="quiz in quizzes"
+          :key="quiz.id"
+          class="content-card"
+          @click="editQuiz(quiz)"
+        >
+          <q-card-section class="card-header">
+            <q-icon name="quiz" color="primary" size="sm" />
+            <div class="text-subtitle1 text-weight-bold q-ml-sm ellipsis-text">{{ quiz.question }}</div>
+          </q-card-section>
+
+          <q-separator />
+
+          <q-card-actions align="right" class="card-actions">
+            <q-btn flat round dense icon="more_vert" @click.stop>
+              <q-menu auto-close>
+                <q-list>
+                  <q-item clickable @click="editQuiz(quiz)">
+                    <q-item-section avatar>
+                      <q-icon name="edit" color="primary" />
+                    </q-item-section>
+                    <q-item-section>Edit</q-item-section>
+                  </q-item>
+                  <q-item clickable @click="deleteQuiz(quiz)">
+                    <q-item-section avatar>
+                      <q-icon name="delete" color="negative" />
+                    </q-item-section>
+                    <q-item-section>Hapus</q-item-section>
+                  </q-item>
+                </q-list>
+              </q-menu>
+            </q-btn>
+          </q-card-actions>
+        </q-card>
+      </div>
+
+      <q-btn
+        v-if="hasMoreQuizzes"
+        label="Tampilkan lebih banyak"
+        outline
+        color="primary"
+        class="full-width q-mt-md"
+        @click="loadMoreQuizzes"
+        :loading="loadingQuizzes"
+      />
     </div>
-
-    <!-- Lessons List as a List (using q-item) -->
-    <div class="q-gutter-md">
-      <q-item
-        v-for="lesson in lessons"
-        :key="lesson.id"
-        class="q-mb-md"
-        clickable
-        @click="editLesson(lesson)"
-        bordered
-      >
-        <q-item-section>
-          <q-item-label class="text-h6 text-weight-medium">{{ lesson.title }}</q-item-label>
-        </q-item-section>
-
-        <q-item-section side>
-          <q-btn
-            flat
-            dense
-            round
-            size="xs"
-            icon="more_vert"
-            @click.stop
-          >
-            <q-menu auto-close>
-              <q-list style="min-width: 100px;">
-                <q-item clickable @click="editLesson(lesson)">
-                  <q-item-section>Edit</q-item-section>
-                </q-item>
-                <q-item clickable @click="deleteLesson(lesson)">
-                  <q-item-section>Delete</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-btn>
-        </q-item-section>
-      </q-item>
-    </div>
-
-    <!-- Load More Button for Lessons -->
-    <q-btn
-      label="Tampilkan lebih banyak"
-      flat
-      class="full-width q-mt-md"
-      @click="loadMoreLessons"
-      :loading="loadingLessons"
-      :disable="loadingLessons || !hasMoreLessons"
-    />
-
-    <!-- List Quiz -->
-    <div class="row items-center justify-between q-mt-md q-mb-md">
-      <h6 class="text-bold">Daftar Quiz</h6>
-      <q-btn label="Tambah Quiz" color="green" flat rounded dense @click="onAddQuiz" />
-    </div>
-
-    <!-- Quiz List as a List (using q-item) -->
-    <div class="q-gutter-md">
-      <q-item
-        v-for="quiz in quizzes"
-        :key="quiz.id"
-        class="q-mb-md"
-        clickable
-        @click="editQuiz(quiz)"
-        bordered
-      >
-        <q-item-section>
-          <q-item-label class="text-h6 text-weight-medium ellipsis-text">{{ quiz.question }}</q-item-label>
-        </q-item-section>
-
-        <q-item-section side>
-          <q-btn
-            flat
-            dense
-            round
-            size="xs"
-            icon="more_vert"
-            @click.stop
-          >
-            <q-menu auto-close>
-              <q-list style="min-width: 100px;">
-                <q-item clickable @click="editQuiz(quiz)">
-                  <q-item-section>Edit</q-item-section>
-                </q-item>
-                <q-item clickable @click="deleteQuiz(quiz)">
-                  <q-item-section>Delete</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-btn>
-        </q-item-section>
-      </q-item>
-    </div>
-
-    <!-- Load More Button for Quizzes -->
-    <q-btn
-      label="Tampilkan lebih banyak"
-      flat
-      class="full-width q-mt-md"
-      @click="loadMoreQuizzes"
-      :loading="loadingQuizzes"
-      :disable="loadingQuizzes || !hasMoreQuizzes"
-    />
   </div>
 </template>
 
@@ -210,6 +244,8 @@
   const limitLessons = 10;
   const loadingLessons = ref(false);
   const hasMoreLessons = ref(true);
+
+  
   
   // Ambil profile dari localStorage
   onMounted(async () => {
@@ -485,9 +521,113 @@
 </script>
 
 <style scoped>
-  .ellipsis-text {
-    white-space: nowrap;        /* Mencegah teks membungkus */
-    overflow: hidden;           /* Menyembunyikan teks yang terpotong */
-    text-overflow: ellipsis;    /* Menambahkan "..." di akhir teks */
+  .page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.welcome-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.welcome-content {
+  flex: 1;
+}
+
+.welcome-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.welcome-subtitle {
+  font-size: 1rem;
+  color: #666;
+}
+
+.profile-avatar {
+  cursor: pointer;
+  border: 2px solid #eee;
+  transition: transform 0.2s;
+}
+
+.profile-avatar:hover {
+  transform: scale(1.05);
+}
+
+.section-card {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.content-card {
+  border-radius: 10px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.content-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+}
+
+.card-actions {
+  padding: 8px;
+}
+
+.ellipsis-text {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+@media (max-width: 768px) {
+  .card-grid {
+    grid-template-columns: 1fr;
   }
+  
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .welcome-section {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+}
 </style>

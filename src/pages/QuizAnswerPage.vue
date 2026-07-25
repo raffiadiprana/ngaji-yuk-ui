@@ -212,11 +212,12 @@ const submitTextAnswer = async () => {
       headers: { Authorization: accessToken }
     });
     answerInput.value = '';
-    
+
     // Update checked_by after submit
     await updateCheckedBy();
     await fetchAnswers();
   } catch (err) {
+    alert("Failed to submit answer. Please try again.");
     console.error('Submit text answer failed:', err);
   }
 };
@@ -269,9 +270,9 @@ const startRecording = async () => {
 };
 
 const handleRecordingStop = async () => {
-  const blob = new Blob(chunks.value, { type: 'audio/webm' });
-  const filename = `audio_${userId}_${Date.now()}.webm`;
-  const file = new File([blob], filename, { type: 'audio/webm' });
+  const blob = new Blob(chunks.value, { type: 'audio/mp3' });
+  const filename = `audio_${userId}_${Date.now()}.mp3`;
+  const file = new File([blob], filename, { type: 'audio/mp3' });
   const formData = new FormData();
   formData.append('file', file);
 
@@ -314,6 +315,12 @@ onMounted(async () => {
   });
   quiz.value = quizRes.data?.data?.[0] || null;
   await fetchAnswers();
+
+  setInterval(async () => {
+    if (quiz.value) {
+     await fetchAnswers();
+    }
+  }, 3000)
 });
 </script>
 
@@ -321,7 +328,22 @@ onMounted(async () => {
 .text-h6 {
   font-weight: bold;
 }
+
+/* default untuk mobile */
 .q-page {
-  padding-bottom: 100px;
+  padding-bottom: 70px;
+}
+.input-container {
+  padding-bottom: 70px;
+}
+
+/* untuk laptop (>= 1024px) */
+@media screen and (min-width: 1024px) {
+  .q-page {
+    padding-bottom: 100px;
+  }
+  .input-container {
+    padding-bottom: 100px;
+  }
 }
 </style>

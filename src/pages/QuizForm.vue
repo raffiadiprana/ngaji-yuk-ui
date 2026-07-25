@@ -35,40 +35,9 @@
           />
 
           <!-- File Preview -->
-          <div v-if="filePreviewUrl" class="q-mb-md">
-            <audio
-              v-if="filePreviewUrl.endsWith('.mp3')"
-              :src="filePreviewUrl"
-              controls
-              style="width: 100%;"
-            ></audio>
+          
 
-            <video
-              v-else-if="filePreviewUrl.endsWith('.webm')"
-              :src="filePreviewUrl"
-              controls
-              style="width: 100%; max-height: 300px; border-radius: 8px;"
-            ></video>
-
-            <q-btn
-              label="Hapus Media"
-              icon="delete"
-              color="negative"
-              flat
-              class="q-mt-sm"
-              @click="clearFile"
-            />
-          </div>
-
-          <!-- File Upload -->
-          <q-uploader
-            filled
-            style="padding-right: 15px;"
-            v-model="form.file"
-            label="Upload File"
-            accept=".mp3, .webm"
-            @added="onFileChange"
-          />
+         
 
           <div class="row justify-end q-gutter-sm q-mt-md">
             <q-btn label="Batal" color="grey" flat @click="cancel" />

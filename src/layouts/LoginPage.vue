@@ -77,6 +77,7 @@ import { useRouter } from "vue-router";
 import { useQuasar } from "quasar";
 import usersData from "src/data/users.json";
 import api from "src/config/api";
+import { authHeader } from "src/config/auth";
 
 const $q = useQuasar();
 const username = ref("");
@@ -94,40 +95,38 @@ const handleLogin = async () => {
 
     const { accessToken, user } = res.data;
 
-    const res2 = await axios.get(`${api.API_BASE_URL}/profiles?user_id=${user.id}`, {
-      headers: {
-        Authorization: `${accessToken}`
-      }
-    });
-
-    const { data } = res2.data;
-    
-    console.log("profile :",data);
-    //const profile = dataprofile.total > 0 ? dataprofile.data[0] : null;
-
-    // Simpan token dan informasi user
+    // Simpan token dulu supaya request profil & guard berikutnya valid
     localStorage.setItem("token", accessToken);
     localStorage.setItem("id", user.id);
     localStorage.setItem("email", user.email);
     localStorage.setItem("role", user.role || "user");
-    localStorage.setItem("profile", JSON.stringify(data[0]));
 
-    // Redirect ke dashboard
-    if(user.role == "admin"){
-      router.push("/dashboardadmin");
-    }else if(user.role == "guru"){
-      router.push("/dashboardguru");
-    }else{
-      router.push("/dashboardsantri");
+    let profileData = {};
+    try {
+      const res2 = await axios.get(`${api.API_BASE_URL}/profiles?user_id=${user.id}`, {
+        headers: authHeader()
+      });
+      profileData = res2.data.data?.[0] || {};
+    } catch (e) {
+      console.error("Gagal ambil profil:", e);
     }
-    
+    localStorage.setItem("profile", JSON.stringify(profileData));
+
+    // Redirect ke dashboard berdasarkan role
+    const target =
+      user.role === "admin" ? "/dashboardadmin"
+      : user.role === "guru" ? "/dashboardguru"
+      : "/dashboardsantri";
 
     $q.notify({
       type: "positive",
       message: "Login berhasil!",
       position: "top",
     });
+
+    await router.push(target);
   } catch (err) {
+    console.error(err);
     $q.notify({
       type: "negative",
       message: "Login gagal: " + (err.response?.data?.message || "Server error"),

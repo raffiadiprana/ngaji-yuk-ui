@@ -38,6 +38,51 @@
       </q-card-section>
     </q-card>
 
+    <!-- Keamanan Akun: Ganti Password -->
+    <q-card class="my-card q-mt-lg">
+      <q-card-section>
+        <div class="text-h6 q-mb-md">Keamanan Akun</div>
+
+        <q-form @submit.prevent="changePassword" class="q-gutter-md">
+          <q-input
+            v-model="pwd.current"
+            label="Password Saat Ini"
+            :type="showPwd ? 'text' : 'password'"
+            filled
+            dense
+          >
+            <template #append>
+              <q-icon
+                :name="showPwd ? 'visibility' : 'visibility_off'"
+                class="cursor-pointer"
+                @click="showPwd = !showPwd"
+              />
+            </template>
+          </q-input>
+
+          <q-input
+            v-model="pwd.next"
+            label="Password Baru"
+            :type="showPwd ? 'text' : 'password'"
+            filled
+            dense
+          />
+
+          <q-input
+            v-model="pwd.confirm"
+            label="Konfirmasi Password Baru"
+            :type="showPwd ? 'text' : 'password'"
+            filled
+            dense
+          />
+
+          <div class="row justify-end q-gutter-sm">
+            <q-btn label="Ubah Password" color="secondary" :loading="pwdLoading" type="submit" />
+          </div>
+        </q-form>
+      </q-card-section>
+    </q-card>
+
     <!-- Riwayat Video -->
     <q-card class="my-card q-mt-lg">
       <q-card-section>
@@ -227,6 +272,46 @@ const submitProfile = async () => {
     $q.notify({ type: 'negative', message: 'Gagal memperbarui profil' })
   } finally {
     loading.value = false
+  }
+}
+
+// Ganti Password (P3a)
+const showPwd = ref(false)
+const pwdLoading = ref(false)
+const pwd = ref({ current: '', next: '', confirm: '' })
+
+const changePassword = async () => {
+  if (pwd.value.next.length < 6) {
+    $q.notify({ type: 'negative', message: 'Password baru minimal 6 karakter' })
+    return
+  }
+  if (pwd.value.next !== pwd.value.confirm) {
+    $q.notify({ type: 'negative', message: 'Konfirmasi password tidak cocok' })
+    return
+  }
+  pwdLoading.value = true
+  try {
+    // 1. Verifikasi password saat ini
+    const check = await axios.post(`${API_BASE_URL}/authentication`, {
+      strategy: 'local',
+      email: JSON.parse(localStorage.getItem('email') || '""'),
+      password: pwd.value.current
+    })
+    if (!check.data?.accessToken) throw new Error('Password saat ini salah')
+
+    // 2. PATCH password baru (API akan menghash)
+    await axios.patch(`${API_BASE_URL}/users/${userId}`, {
+      password: pwd.value.next
+    }, { headers: authHeader() })
+
+    $q.notify({ type: 'positive', message: 'Password berhasil diubah' })
+    pwd.value = { current: '', next: '', confirm: '' }
+  } catch (err) {
+    console.error(err)
+    const msg = err?.response?.data?.message || 'Gagal mengubah password'
+    $q.notify({ type: 'negative', message: msg })
+  } finally {
+    pwdLoading.value = false
   }
 }
 

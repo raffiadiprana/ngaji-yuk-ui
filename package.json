@@ -44,7 +44,7 @@
     "workbox-strategies": "7.0.x"
   },
   "engines": {
-    "node": "20.x",
+    "node": "24.x",
     "npm": ">= 6.13.4",
     "yarn": ">= 1.21.1"
   }

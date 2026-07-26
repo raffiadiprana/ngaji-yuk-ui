@@ -440,6 +440,3 @@ onMounted(async () => {
     height: 120px;
   }
 }
-</style>
-
-jarak tulisan list hukum tajwid dengan lanjutkan pembelajaran terlalu jauh, buat lebih dekat

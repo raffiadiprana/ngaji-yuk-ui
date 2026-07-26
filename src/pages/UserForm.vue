@@ -50,6 +50,18 @@
             dense
           />
 
+          <!-- Role -->
+          <q-select
+            v-model="form.role"
+            :options="roleOptions"
+            label="Peran"
+            filled
+            dense
+            emit-value
+            map-options
+            :rules="[val => !!val || 'Peran wajib dipilih']"
+          />
+
           <!-- Avatar Section -->
           <div class="avatar-section">
             <div class="text-subtitle2 q-mb-sm">Foto Profil</div>
@@ -118,15 +130,22 @@ const formRef = ref(null)
 
 const isEdit = computed(() => !!route.params.id)
 
+const roleOptions = [
+  { label: 'Guru', value: 'guru' },
+  { label: 'Santri', value: 'santri' },
+  { label: 'Admin', value: 'admin' }
+]
+
 const form = ref({
   id: null,
+  user_id: null,
   email: '',
   password: '',
   display_name: '',
   jobtitle: '',
   file: null,
   avatar: '',
-  role: ''
+  role: 'guru'
 })
 
 // Avatar preview (fungsi tetap sama)
@@ -203,6 +222,20 @@ const submitForm = async () => {
       })
       const user = await userRes.json()
       userId = user.id
+      form.value.user_id = user.id
+    } else {
+      // Update email/role ke tabel users
+      await fetch(`${api.API_BASE_URL}/users/${form.value.user_id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          email: form.value.email,
+          role: form.value.role
+        })
+      })
     }
 
     let uploadedAvatar = form.value.avatar
@@ -222,7 +255,7 @@ const submitForm = async () => {
     }
 
     const profilePayload = {
-      user_id: userId,
+      user_id: form.value.user_id || userId,
       display_name: form.value.display_name,
       jobtitle: form.value.jobtitle,
       avatar: uploadedAvatar
@@ -279,11 +312,12 @@ onMounted(async () => {
       const data = res.data.data[0]
       
       form.value.id = data.id
+      form.value.user_id = data.user?.id || id
       form.value.email = data.user?.email || ''
       form.value.display_name = data.display_name
       form.value.jobtitle = data.jobtitle
       form.value.avatar = data.avatar || ''
-      form.value.role = data.user_role || 'guru'
+      form.value.role = data.user_role || data.user?.role || 'guru'
 
     } catch (err) {
       console.error('Gagal mengambil data:', err)

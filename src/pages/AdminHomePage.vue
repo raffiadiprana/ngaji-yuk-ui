@@ -122,13 +122,13 @@
         </q-list>
 
         <q-btn
-          v-if="hasMoreGuru"
+          v-if="hasMoreSantri"
           label="Tampilkan lebih banyak"
           outline
           color="primary"
           class="full-width q-mt-md"
-          @click="loadMoreCourses"
-          :loading="loadingGuru"
+          @click="loadMoreSantris"
+          :loading="loadingSantri"
         />
       </div>
 
@@ -273,12 +273,12 @@ const fetchGuru = async () => {
 }
 
 const fetchSantris = async () => {
-  if (loadingGuru.value) return
-  loadingGuru.value = true
+  if (loadingSantri.value) return
+  loadingSantri.value = true
 
   try {
     const res = await axios.get(`${api.API_BASE_URL}/users`, {
-      headers: { Authorization: ` ${accessToken}` },
+      headers: { Authorization: *** ${accessToken}` },
       params: {
         role: 'santri',
         $skip: skipSantris.value,
@@ -291,18 +291,18 @@ const fetchSantris = async () => {
       santris.value.push(...fetchedSantris)
     }
 
-    hasMoreGuru.value = fetchedSantris.length === limitSantris
+    hasMoreSantri.value = fetchedSantris.length === limitSantris
   } catch (err) {
     console.error('Failed to fetch santris:', err)
   } finally {
-    loadingGuru.value = false
+    loadingSantri.value = false
   }
 }
 
-const loadMoreCourses = () => {
-  if (!loadingGuru.value && hasMoreGuru.value) {
-    skipGurus.value += limitGurus
-    fetchGuru()
+const loadMoreSantris = () => {
+  if (!loadingSantri.value && hasMoreSantri.value) {
+    skipSantris.value += limitSantris
+    fetchSantris()
   }
 }
 

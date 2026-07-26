@@ -119,7 +119,11 @@ export default {
     }
 
     const logout = () => {
-      localStorage.clear()
+      localStorage.removeItem('token')
+      localStorage.removeItem('id')
+      localStorage.removeItem('email')
+      localStorage.removeItem('role')
+      localStorage.removeItem('profile')
       router.push('/')
     }
 

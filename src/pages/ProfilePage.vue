@@ -305,8 +305,8 @@ const loadQuizHistory = async () => {
 }
 
 const openModule = (item) => {
-  // Contoh: navigasi ke halaman detail jawaban atau pemutar voice note
-  router.push(`/module/${item.id}`) // atau sesuai route yang kamu punya
+  // item.parent_id = module id (videologs.parent_id)
+  router.push(`/module/${item.parent_id}`)
 }
 
 const openAnswer = (item) => {

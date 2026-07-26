@@ -83,6 +83,7 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import api from 'src/config/api'
+import { authHeader } from 'src/config/auth'
 import { useQuasar } from 'quasar'
 
 const $q = useQuasar()
@@ -131,8 +132,7 @@ const submitForm = async () => {
       const res = await axios.post(`${API_BASE_URL}/uploads`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: ` ${accessToken}`
-        }
+      ...authHeader()}
       })
       proofFilename = res.data.filename
     }
@@ -147,7 +147,7 @@ const submitForm = async () => {
       is_verified : form.value.is_verified
     }, {
       headers: {
-        Authorization: ` ${accessToken}`
+        headers: authHeader()
       }
     })
 
@@ -178,7 +178,7 @@ const submitForm = async () => {
 const loadHistory = async () => {
   try {
     const res = await axios.get(`${API_BASE_URL}/donations`, {
-      headers: { Authorization: ` ${accessToken}` },
+      headers: authHeader(),
       params: { 
         user_id: userId,
         $sort: {

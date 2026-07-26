@@ -34,7 +34,8 @@
   import { ref, computed, onMounted, watch } from "vue";
   import { useRouter, useRoute } from "vue-router";
   import axios from "axios";
-  import api from "src/config/api";
+  import api from "src/config/api"
+import { authHeader } from "src/config/auth";
   
   const $q = useQuasar()
   const router = useRouter()
@@ -60,7 +61,7 @@
       loading.value = true
       try {
         const res = await axios.get(`${api.API_BASE_URL}/sections/${id}`, {
-          headers: { Authorization: `${localStorage.getItem("token")}` },
+          headers: authHeader(),
         });
         const data = res.data
         form.value.id = data.id
@@ -85,11 +86,11 @@
   
       if (isEdit.value) {
         await axios.patch(`${api.API_BASE_URL}/sections/${form.value.id}`, payload, {
-          headers: { Authorization: `${localStorage.getItem("token")}` },
+          headers: authHeader(),
         })
       } else {
         await axios.post(`${api.API_BASE_URL}/sections`, payload, {
-          headers: { Authorization: `${localStorage.getItem("token")}` },
+          headers: authHeader(),
         })
       }
   

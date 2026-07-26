@@ -134,7 +134,8 @@
 import { ref, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
-import api from 'src/config/api';
+import api from 'src/config/api'
+import { authHeader } from 'src/config/auth';
 
 const route = useRoute();
 const router = useRouter();
@@ -184,7 +185,7 @@ const getAudioUrl = (filename) => filename ? `${api.API_BASE_URL}/uploads/${file
 const fetchAnswers = async () => {
   const instructorId = userId;
   const res = await axios.get(`${api.API_BASE_URL}/answers`, {
-    headers: { Authorization: accessToken },
+    headers: authHeader(),
     params: {
       quiz_id: quizId,
       'user_id[$in]': [santriId, instructorId],
@@ -218,7 +219,7 @@ const updateCheckedBy = async () => {
     // Send update requests to the server for the filtered answers (only send checked_by)
     const updatePromises = updatedAnswers.map((updatedAnswer, index) =>
       axios.patch(`${api.API_BASE_URL}/answers/${answersToUpdate[index].id}`, updatedAnswer, {
-        headers: { Authorization: accessToken },
+        headers: authHeader(),
       })
     );
 
@@ -249,7 +250,7 @@ const submitTextAnswer = async () => {
       score: 0,
       review_notes: ""
     }, {
-      headers: { Authorization: accessToken }
+      headers: authHeader(),
     });
 
     answerInput.value = '';
@@ -287,7 +288,7 @@ const tandaiLulus= async () => {
       score: 100,
       review_notes: ""
     }, {
-      headers: { Authorization: accessToken }
+      headers: authHeader(),
     });
 
     answerInput.value = '';
@@ -358,9 +359,7 @@ const handleRecordingStop = async () => {
   try {
     const uploadRes = await fetch(`${api.API_BASE_URL}/uploads`, {
       method: "POST",
-      headers: {
-        Authorization: accessToken
-      },
+      headers: { ...authHeader(),},
       body: formData
     });
     const upload = await uploadRes.json();
@@ -378,7 +377,7 @@ const handleRecordingStop = async () => {
       score: 0,
       review_notes: ""
     }, {
-      headers: { Authorization: accessToken }
+      headers: authHeader(),
     });
     await updateCheckedBy();
     await fetchAnswers();
@@ -389,7 +388,7 @@ const handleRecordingStop = async () => {
 
 onMounted(async () => {
   const quizRes = await axios.get(`${api.API_BASE_URL}/quiz?id=${quizId}`, {
-    headers: { Authorization: accessToken }
+    headers: authHeader(),
   });
   quiz.value = quizRes.data?.data?.[0] || null;
   await fetchAnswers();

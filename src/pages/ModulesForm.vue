@@ -63,6 +63,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import axios from 'axios'
 import api from 'src/config/api'
+import { authHeader } from 'src/config/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -120,7 +121,7 @@ const uploadThumbnail = async () => {
   const response = await axios.post(`${api.API_BASE_URL}/uploads`, formData, {
     headers: {
       'Content-Type': 'multipart/form-data',
-      Authorization: ` ${localStorage.getItem('token')}`
+      ...authHeader()
     }
   })
 
@@ -147,11 +148,11 @@ const submitForm = async () => {
 
     if (isEdit.value) {
       await axios.patch(`${api.API_BASE_URL}/modules/${form.value.id}`, payload, {
-        headers: { Authorization: ` ${localStorage.getItem('token')}` }
+        headers: authHeader(),
       })
     } else {
       await axios.post(`${api.API_BASE_URL}/modules`, payload, {
-        headers: { Authorization: ` ${localStorage.getItem('token')}` }
+        headers: authHeader(),
       })
     }
 
@@ -178,7 +179,7 @@ const submitForm = async () => {
 onMounted(async () => {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/sections`, {
-      headers: { Authorization: ` ${localStorage.getItem('token')}` }
+      headers: authHeader(),
     })
     sectionsOptions.value = res.data.data
   } catch (error) {
@@ -189,7 +190,7 @@ onMounted(async () => {
   if (id) {
     try {
       const res = await axios.get(`${api.API_BASE_URL}/modules/${id}`, {
-        headers: { Authorization: ` ${localStorage.getItem('token')}` }
+        headers: authHeader(),
       })
       const data = res.data
       form.value.id = data.id

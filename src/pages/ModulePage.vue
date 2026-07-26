@@ -131,7 +131,8 @@
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
-import api from 'src/config/api';
+import api from 'src/config/api'
+import { authHeader } from 'src/config/auth';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
 import 'videojs-youtube';
@@ -177,7 +178,7 @@ const goToAnswerPage = (question) => {
 const checkIfQuizPassed = async (quizId) => {
   try {
     const response = await axios.get(`${api.API_BASE_URL}/answers`, {
-      headers: { Authorization: `${accessToken}` },
+      headers: authHeader(),
       params: { quiz_id: quizId, reply_to: userId, is_passed: 1 }
     });
     isPassed.value[quizId] = response.data?.data?.length > 0;
@@ -189,7 +190,7 @@ const checkIfQuizPassed = async (quizId) => {
 const checkIfLessonPassed = async (lessonid) => {
   try {
     const response = await axios.get(`${api.API_BASE_URL}/videologs`, {
-      headers: { Authorization: `${accessToken}` },
+      headers: authHeader(),
       params: { parent_id: lessonid, user_id: userId, is_complete: 1 }
     });
     isLessonPassed.value[lessonid] = response.data?.data?.length > 0;
@@ -230,13 +231,13 @@ onMounted(async () => {
   try {
     const [moduleRes, lessonsRes, quizRes] = await Promise.all([
       axios.get(`${api.API_BASE_URL}/modules?id=${moduleId}&is_deleted=0`, {
-        headers: { Authorization: `${accessToken}` }
+        headers: authHeader(),
       }),
       axios.get(`${api.API_BASE_URL}/lessons?module_id=${moduleId}&is_deleted=0`, {
-        headers: { Authorization: `${accessToken}` }
+        headers: authHeader(),
       }),
       axios.get(`${api.API_BASE_URL}/quiz?modules_id=${moduleId}&is_deleted=0`, {
-        headers: { Authorization: `${accessToken}` }
+        headers: authHeader(),
       })
     ]);
 

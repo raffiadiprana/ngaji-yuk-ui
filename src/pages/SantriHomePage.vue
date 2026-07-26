@@ -148,7 +148,8 @@
 <script setup>
 import axios from "axios";
 import { ref, onMounted } from "vue";
-import api from "src/config/api";
+import api from "src/config/api"
+import { authHeader } from "src/config/auth";
 
 const profile = ref({});
 const courses = ref([]);
@@ -168,7 +169,7 @@ const fetchSections = async () => {
     }
 
     const sectionsRes = await axios.get(`${api.API_BASE_URL}/sections`, {
-      headers: { Authorization: ` ${accessToken}` },
+      headers: authHeader(),
       params
     });
 
@@ -185,7 +186,7 @@ const fetchModules = async (sectionId) => {
 
   try {
     const res = await axios.get(`${api.API_BASE_URL}/modules`, {
-      headers: { Authorization: ` ${accessToken}` },
+      headers: authHeader(),
       params: { section_id: sectionId, is_deleted: 0 }
     });
     modulesMap.value[sectionId] = res.data.data || [];
@@ -209,10 +210,10 @@ onMounted(async () => {
 
   const [modulesResult, logsResult] = await Promise.allSettled([
     axios.get(`${api.API_BASE_URL}/modules`, {
-      headers: { Authorization: ` ${accessToken}` }
+      headers: authHeader(),
     }),
     axios.get(`${api.API_BASE_URL}/videologs`, {
-      headers: { Authorization: ` ${accessToken}` },
+      headers: authHeader(),
       params: { user_id: userId }
     })
   ]);

@@ -54,7 +54,8 @@ import { useQuasar } from 'quasar'
 import { ref, computed, onMounted, watch } from "vue";
 import { useRouter, useRoute } from "vue-router";
 import axios from "axios";
-import api from "src/config/api";
+import api from "src/config/api"
+import { authHeader } from "src/config/auth";
 
 const $q = useQuasar()
 const router = useRouter()
@@ -107,7 +108,7 @@ const onFileChange = (files) => {
 const fetchModules = async () => {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/modules`, {
-      headers: { Authorization: `${localStorage.getItem("token")}` },
+      headers: { ...authHeader(),},
       params: { instructor_id: form.value.instructor_id },
     });
     modulesOptions.value = res.data.data || []
@@ -123,7 +124,7 @@ const fetchQuizData = async () => {
     loading.value = true
     try {
       const res = await axios.get(`${api.API_BASE_URL}/quiz/${id}`, {
-        headers: { Authorization: `${localStorage.getItem("token")}` },
+        headers: authHeader(),
       });
       const data = res.data
       form.value.id = data.id
@@ -157,8 +158,7 @@ const submitForm = async () => {
 
       const fileRes = await axios.post(`${api.API_BASE_URL}/uploads`, formData, {
         headers: {
-          "Content-Type": "multipart/form-data",
-          Authorization: `${localStorage.getItem("token")}`,
+          "Content-Type": "multipart/form-data", ...authHeader(),
         },
       })
       payload.media_id = fileRes.data.filename
@@ -168,11 +168,11 @@ const submitForm = async () => {
 
     if (isEdit.value) {
       await axios.patch(`${api.API_BASE_URL}/quiz/${form.value.id}`, payload, {
-        headers: { Authorization: `${localStorage.getItem("token")}` },
+        headers: authHeader(),
       })
     } else {
       await axios.post(`${api.API_BASE_URL}/quiz`, payload, {
-        headers: { Authorization: `${localStorage.getItem("token")}` },
+        headers: authHeader(),
       })
     }
 

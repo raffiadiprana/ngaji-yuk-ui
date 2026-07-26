@@ -201,6 +201,7 @@ import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import api from 'src/config/api'
+import { authHeader } from 'src/config/auth'
 import DialogDonasi from 'src/components/DialogDonasi.vue'
 
 const $q = useQuasar()
@@ -251,7 +252,7 @@ const fetchGuru = async () => {
 
   try {
     const res = await axios.get(`${api.API_BASE_URL}/users`, {
-      headers: { Authorization: ` ${accessToken}` },
+      headers: authHeader(),
       params: {
         role: 'guru',
         $skip: skipGurus.value,
@@ -278,7 +279,7 @@ const fetchSantris = async () => {
 
   try {
     const res = await axios.get(`${api.API_BASE_URL}/users`, {
-      headers: { Authorization: *** ${accessToken}` },
+      headers: authHeader(),
       params: {
         role: 'santri',
         $skip: skipSantris.value,
@@ -317,7 +318,7 @@ const openDialog = (donation) => {
 const fetchDonations = async () => {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/donations?`, {
-      headers: { Authorization: ` ${accessToken}` },
+      headers: authHeader(),
       params: {
         $sort: {
           created_at: -1 // urutkan dari terbaru ke terlama
@@ -420,7 +421,7 @@ const deleteGuru = async (guru) => {
     try {
       // 1. Ambil profile guru berdasarkan user_id
       const profileRes = await axios.get(`${api.API_BASE_URL}/profiles`, {
-        headers: { Authorization: ` ${accessToken}` },
+        headers: authHeader(),
         params: { user_id: guru.id }
       })
 
@@ -428,13 +429,13 @@ const deleteGuru = async (guru) => {
       if (profileId) {
         // 2. Hapus profile berdasarkan ID
         await axios.delete(`${api.API_BASE_URL}/profiles/${profileId}`, {
-          headers: { Authorization: ` ${accessToken}` }
+          headers: authHeader(),
         })
       }
 
       // 3. Hapus akun user guru
       await axios.delete(`${api.API_BASE_URL}/users/${guru.id}`, {
-        headers: { Authorization: ` ${accessToken}` }
+        headers: authHeader(),
       })
 
       // 4. Update tampilan lokal

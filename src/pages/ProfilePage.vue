@@ -107,6 +107,7 @@ import { ref, onMounted } from 'vue'
 import axios from 'axios'
 import { useQuasar } from 'quasar'
 import api from 'src/config/api'
+import { authHeader } from 'src/config/auth'
 import { useRouter } from 'vue-router' 
 const router = useRouter()
 
@@ -142,7 +143,7 @@ const onAvatarChange = (files) => {
 const loadProfile = async () => {
   try {
     const res = await axios.get(`${API_BASE_URL}/profiles`, {
-      headers: { Authorization: `${accessToken}` },
+      headers: authHeader(),
       params: { user_id: userId }
     })
 
@@ -178,7 +179,7 @@ const submitProfile = async () => {
       const uploadRes = await axios.post(`${API_BASE_URL}/uploads`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `${accessToken}`
+          ...authHeader()
         }
       })
 
@@ -195,7 +196,7 @@ const submitProfile = async () => {
     }
 
     await axios.patch(`${API_BASE_URL}/profiles/${form.value.id}`, payload, {
-      headers: { Authorization: `${accessToken}` }
+      headers: authHeader()
     })
 
     // Update localStorage after successful PATCH
@@ -241,7 +242,7 @@ const loadVideoHistory = async () => {
   loadingHistory.value = true
   try {
     const res = await axios.get(`${API_BASE_URL}/videologs`, {
-      headers: { Authorization: `${accessToken}` },
+      headers: authHeader(),
       params: {
         user_id: userId,
         $skip: skipHistory.value,
@@ -269,9 +270,7 @@ const groupedQuizzes = ref([])
 const loadQuizHistory = async () => {
   try {
     const res = await axios.get(`${API_BASE_URL}/answers`, {
-      headers: {
-        Authorization: `${accessToken}`
-      },
+      headers: authHeader(),
       params: {
         $or: [
           { user_id: userId },

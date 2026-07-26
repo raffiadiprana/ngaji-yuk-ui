@@ -217,6 +217,7 @@
   import { useRouter } from "vue-router";
   import axios from "axios";
   import api from "src/config/api";
+  import { authHeader } from "src/config/auth";
   
   const router = useRouter();
   
@@ -271,7 +272,7 @@
   
     try {
       const res = await axios.get(`${api.API_BASE_URL}/modules`, {
-        headers: { Authorization: ` ${accessToken}` },
+        headers: authHeader(),
         params: { 
           instructor_id: instructorId,
           is_deleted: 0,
@@ -302,7 +303,7 @@
 
     try {
       const res = await axios.get(`${api.API_BASE_URL}/quiz`, {
-        headers: { Authorization: ` ${accessToken}` },
+        headers: authHeader(),
         params: { 
           created_by: instructorId,  // Filter berdasarkan instructor_id pada module
           is_deleted: 0,
@@ -333,7 +334,7 @@
 
     try {
       const res = await axios.get(`${api.API_BASE_URL}/lessons`, {
-        headers: { Authorization: ` ${accessToken}` },
+        headers: authHeader(),
         params: { 
           created_by: instructorId, // Filter berdasarkan instructor_id
           is_deleted: 0,
@@ -416,7 +417,7 @@
       }
       
       await axios.patch(`${api.API_BASE_URL}/modules/${module.id}`, payload, {
-        headers: { Authorization: ` ${localStorage.getItem('token')}` }
+        headers: authHeader()
       })
 
       $q.dialog({
@@ -458,7 +459,7 @@
       }
       
       await axios.patch(`${api.API_BASE_URL}/quiz/${quiz.id}`, payload, {
-        headers: { Authorization: ` ${localStorage.getItem('token')}` }
+        headers: authHeader()
       })
 
       $q.dialog({
@@ -499,7 +500,7 @@
       }
       
       await axios.patch(`${api.API_BASE_URL}/lessons/${lesson.id}`, payload, {
-        headers: { Authorization: ` ${localStorage.getItem('token')}` }
+        headers: authHeader()
       })
 
       $q.dialog({

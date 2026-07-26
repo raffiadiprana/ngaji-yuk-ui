@@ -43,7 +43,8 @@
 import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import axios from 'axios';
-import api from 'src/config/api';
+import api from 'src/config/api'
+import { authHeader } from 'src/config/auth';
 
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
@@ -83,7 +84,7 @@ onMounted(async () => {
 async function fetchPreviousLog() {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/videologs`, {
-      headers: { Authorization: `${accessToken}` },
+      headers: authHeader(),
       params: { user_id: userId, parent_id: lessonId }
     });
     const log = res.data?.data?.[0];
@@ -98,7 +99,7 @@ async function fetchPreviousLog() {
 async function fetchLessonAndInit() {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/lessons?id=${lessonId}`, {
-      headers: { Authorization: `${accessToken}` }
+      headers: authHeader(),
     });
     const { data: lessonsDataArray } = res.data;
     lessons.value = lessonsDataArray[0] || null;
@@ -193,7 +194,7 @@ async function sendVideoLog(is_ended = false) {
 
   try {
     const res = await axios.get(`${api.API_BASE_URL}/videologs`, {
-      headers: { Authorization: `${accessToken}` },
+      headers: authHeader(),
       params: { user_id, parent_id }
     });
     const existing = res.data?.data?.[0];
@@ -201,11 +202,11 @@ async function sendVideoLog(is_ended = false) {
 
     if (existing) {
       await axios.patch(`${api.API_BASE_URL}/videologs/${existing.id}`, payload, {
-        headers: { Authorization: `${accessToken}` }
+        headers: authHeader(),
       });
     } else {
       await axios.post(`${api.API_BASE_URL}/videologs`, payload, {
-        headers: { Authorization: `${accessToken}` }
+        headers: authHeader(),
       });
     }
   } catch (err) {

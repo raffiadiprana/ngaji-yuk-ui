@@ -119,6 +119,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useQuasar } from 'quasar'
 import axios from "axios";
 import api from 'src/config/api'
+import { authHeader } from 'src/config/auth'
 
 const $q = useQuasar()
 const router = useRouter()
@@ -173,7 +174,7 @@ const emailErrorMsg = ref('')
 const checkEmailExists = async (email) => {
   try {
     const res = await fetch(`${api.API_BASE_URL}/users?email=${encodeURIComponent(email)}`, {
-      headers: { Authorization: `${localStorage.getItem('token')}` }
+      headers: authHeader()
     })
     const data = await res.json()
     return Array.isArray(data.data) && data.data.length > 0
@@ -212,7 +213,7 @@ const submitForm = async () => {
         method: 'POST',
         headers: { 
           'Content-Type': 'application/json',
-          'Authorization': `${localStorage.getItem('token')}`
+          ...authHeader()
         },
         body: JSON.stringify({
           email: form.value.email,
@@ -229,7 +230,7 @@ const submitForm = async () => {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `${localStorage.getItem('token')}`
+          ...authHeader()
         },
         body: JSON.stringify({
           email: form.value.email,
@@ -245,9 +246,7 @@ const submitForm = async () => {
 
       const uploadRes = await fetch(`${api.API_BASE_URL}/uploads`, {
         method: 'POST',
-        headers: {
-          'Authorization': `${localStorage.getItem('token')}`
-        },
+        headers: authHeader(),
         body: formData
       })
       const upload = await uploadRes.json()
@@ -266,7 +265,7 @@ const submitForm = async () => {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `${localStorage.getItem('token')}`
+          ...authHeader()
         },
         body: JSON.stringify(profilePayload)
       })
@@ -275,7 +274,7 @@ const submitForm = async () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `${localStorage.getItem('token')}`
+          ...authHeader()
         },
         body: JSON.stringify(profilePayload)
       })
@@ -307,7 +306,7 @@ onMounted(async () => {
   if (id) {
     try {
       const res = await axios.get(`${api.API_BASE_URL}/profiles?user_id=${id}`, {
-        headers: { Authorization: `${localStorage.getItem("token")}` },
+        headers: authHeader()
       });
       const data = res.data.data[0]
       

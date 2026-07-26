@@ -91,7 +91,8 @@ const $q = useQuasar()
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
-import api from "src/config/api";
+import api from "src/config/api"
+import { authHeader } from "src/config/auth";
     
 const router = useRouter();
     
@@ -142,7 +143,7 @@ const fetchSection = async () => {
     
   try {
     const res = await axios.get(`${api.API_BASE_URL}/sections`, {
-      headers: { Authorization: ` ${accessToken}` },
+      headers: authHeader(),
     });
         
     const fetchedGuru = res.data.data || [];
@@ -167,7 +168,7 @@ const fetchQuizzes = async () => {
 
   try {
     const res = await axios.get(`${api.API_BASE_URL}/quiz`, {
-      headers: { Authorization: ` ${accessToken}` },
+      headers: authHeader(),
       params: { 
         created_by: instructorId,  // Filter berdasarkan instructor_id pada module
         is_deleted: 0,
@@ -198,7 +199,7 @@ const fetchLessons = async () => {
 
   try {
     const res = await axios.get(`${api.API_BASE_URL}/lessons`, {
-      headers: { Authorization: ` ${accessToken}` },
+      headers: authHeader(),
       params: { 
         created_by: instructorId, // Filter berdasarkan instructor_id
         is_deleted: 0,
@@ -295,7 +296,7 @@ const deleteTajwid = (section) => {
     }
     
     await axios.delete(`${api.API_BASE_URL}/sections/${section.id}`, {
-      headers: { Authorization: ` ${localStorage.getItem('token')}` }
+      headers: authHeader()
     })
 
     $q.notify({

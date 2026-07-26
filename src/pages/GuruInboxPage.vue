@@ -65,6 +65,7 @@
   import { ref, computed, onMounted } from 'vue'
   import axios from 'axios'
   import api from 'src/config/api'
+import { authHeader } from 'src/config/auth'
   import { useRouter } from 'vue-router'
   
   const router = useRouter()
@@ -78,7 +79,7 @@
     loading.value = true
     try {
       const res = await axios.get(`${api.API_BASE_URL}/answers`, {
-        headers: { Authorization: ` ${localStorage.getItem('token')}` },
+        headers: authHeader(),
         params: { 
             instructor_id: instructorId,
             'user_id[$ne]': instructorId

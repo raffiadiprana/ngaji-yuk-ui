@@ -25,9 +25,10 @@
                 type="email"
                 filled
                 dense
+                dark
                 color="white"
                 input-class="text-white"
-                class="q-mb-sm"
+                class="forgot-input q-mb-sm"
               />
               <q-btn
                 label="Cari Akun"
@@ -41,18 +42,16 @@
 
             <!-- STEP 2: input password baru -->
             <template v-else>
-              <q-banner dense class="bg-white-10 text-white q-mb-sm rounded-borders">
-                Email <b>{{ email }}</b> terdaftar. Silakan buat password baru.
-              </q-banner>
               <q-input
                 v-model="newPassword"
                 label="Password Baru"
                 :type="showPwd ? 'text' : 'password'"
                 filled
                 dense
+                dark
                 color="white"
                 input-class="text-white"
-                class="q-mb-sm"
+                class="forgot-input q-mb-sm"
               >
                 <template v-slot:append>
                   <q-icon
@@ -119,6 +118,11 @@ const handleCheck = async () => {
     });
     const data = await res.json();
     if (data.exists) {
+      $q.notify({
+        type: "positive",
+        message: "Email terdaftar. Silakan buat password baru.",
+        position: "top"
+      });
       step.value = 2;
     } else {
       $q.notify({
@@ -178,5 +182,13 @@ const handleReset = async () => {
   background-color: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 16px;
+}
+
+.forgot-input :deep(.q-field__control) {
+  background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+.forgot-input :deep(.q-field__label) {
+  color: rgba(255, 255, 255, 0.7) !important;
 }
 </style>

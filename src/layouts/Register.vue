@@ -28,13 +28,21 @@
             <q-input
               v-model="form.password"
               label="Password"
-              type="password"
+              :type="showPwd ? 'text' : 'password'"
               filled
               dense
               color="white"
               input-class="text-white"
               class="q-mb-sm"
-            />
+            >
+              <template v-slot:append>
+                <q-icon
+                  :name="showPwd ? 'visibility' : 'visibility_off'"
+                  class="cursor-pointer"
+                  @click="showPwd = !showPwd"
+                />
+              </template>
+            </q-input>
             <q-input
               v-model="form.display_name"
               label="Nama Tampilan"
@@ -91,6 +99,7 @@ import api from "src/config/api";
 const router = useRouter();
 const $q = useQuasar();
 const autoupload = false;
+const showPwd = ref(false);
 const form = ref({
   email: "",
   password: "",

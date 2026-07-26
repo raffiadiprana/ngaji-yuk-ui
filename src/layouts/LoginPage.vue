@@ -28,13 +28,21 @@
             <q-input
               v-model="password"
               label="Password"
-              type="password"
+              :type="showPwd ? 'text' : 'password'"
               filled
               class="q-mb-md"
               dense
               color="white"
               input-class="text-white"
-            />
+            >
+              <template v-slot:append>
+                <q-icon
+                  :name="showPwd ? 'visibility' : 'visibility_off'"
+                  class="cursor-pointer"
+                  @click="showPwd = !showPwd"
+                />
+              </template>
+            </q-input>
             <q-btn
               label="Login"
               color="green-10"
@@ -73,6 +81,7 @@ import api from "src/config/api";
 const $q = useQuasar();
 const username = ref("");
 const password = ref("");
+const showPwd = ref(false);
 const router = useRouter();
 
 const handleLogin = async () => {

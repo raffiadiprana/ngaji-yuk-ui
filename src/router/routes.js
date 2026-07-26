@@ -26,6 +26,9 @@ const routes = [
     } 
   },
   {
+    path: "/forgot", component: () => import('layouts/ForgotPassword.vue')
+  },
+  {
     path: "/register", component: RegisterPage
   },
   {

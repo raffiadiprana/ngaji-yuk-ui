@@ -48,6 +48,12 @@
               class="full-width text-white q-mt-sm"
               @click="router.push('/register')"
             />
+            <q-btn
+              flat
+              label="Lupa Password?"
+              class="full-width text-grey-4 q-mt-xs"
+              @click="router.push('/forgot')"
+            />
           </q-card-section>
 
         </q-card>

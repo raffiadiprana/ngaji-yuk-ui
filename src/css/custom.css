@@ -1,10 +1,96 @@
-.hp-profil-header{
-    margin-top: -10px;
-    height: 80px;
+/* ============================================================
+   Ngaji Yuk v2 — "Serene Path" Theme Tokens
+   Terjemahan DESIGN.md ke utility class Quasar/Vue.
+   ============================================================ */
+
+:root {
+  --serene-primary: #006948;
+  --serene-primary-container: #00855d;
+  --serene-primary-fixed: #68dba9;
+  --serene-secondary: #fe932c;
+  --serene-secondary-container: #ffdcc3;
+  --serene-tertiary: #006947;
+  --serene-bg: #f9f9ff;
+  --serene-surface: #e7eefe;
+  --serene-surface-low: #f0f3ff;
+  --serene-surface-highest: #dce2f3;
+  --serene-on-surface: #151c27;
+  --serene-on-surface-variant: #3d4a42;
+  --serene-outline: #6d7a72;
+  --serene-outline-variant: #bccac0;
+  --serene-mint: #f0fdf4;
+  --serene-shadow: 0 4px 20px rgba(5, 150, 105, 0.05);
+  --serene-radius: 16px;
+  --serene-radius-sm: 8px;
 }
+
+/* Font default */
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: var(--serene-bg);
+  color: var(--serene-on-surface);
+  -webkit-font-smoothing: antialiased;
+}
+.headline-font { font-family: 'Plus Jakarta Sans', sans-serif; }
+.arabic-font { font-family: 'Noto Serif', serif; line-height: 1.6; }
+
+/* Background helpers */
 .bg-green-gradient {
-  background: linear-gradient(to bottom right, #2e817c, #3f9e5f);
+  background: linear-gradient(120deg, #006948, #00855d, #68dba9);
 }
-.my-card {
-  box-shadow: none;
+.bg-serene { background-color: var(--serene-bg); }
+.bg-serene-surface { background-color: var(--serene-surface); }
+.bg-serene-mint { background-color: var(--serene-mint); }
+
+/* Card */
+.serene-card {
+  background: #ffffff;
+  border-radius: var(--serene-radius);
+  border: 1px solid var(--serene-outline-variant);
+  box-shadow: var(--serene-shadow);
+}
+.serene-card-soft {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  border-radius: var(--serene-radius);
+  border: 1px solid rgba(236, 253, 245, 0.5);
+  box-shadow: var(--serene-shadow);
+}
+
+/* Primary button */
+.serene-btn-primary {
+  background-color: var(--serene-primary);
+  color: #ffffff;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+.serene-btn-primary:hover { opacity: 0.9; }
+.serene-btn-primary:active { transform: scale(0.95); }
+
+/* Text colors */
+.text-serene-primary { color: var(--serene-primary); }
+.text-serene-secondary { color: var(--serene-secondary); }
+.text-serene-variant { color: var(--serene-on-surface-variant); }
+
+/* Pill (search / chip) */
+.serene-pill {
+  border-radius: 9999px;
+  background: var(--serene-surface-low);
+  border: 1px solid rgba(109, 122, 114, 0.2);
+}
+
+/* Material Symbols alignment */
+.material-symbols-outlined {
+  font-family: 'Material Symbols Outlined';
+  font-weight: normal;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal;
+  text-transform: none;
+  display: inline-block;
+  white-space: nowrap;
+  word-wrap: normal;
+  direction: ltr;
+  -webkit-font-feature-settings: 'liga';
 }

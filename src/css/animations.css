@@ -1,0 +1,92 @@
+/* ============================================================
+   Ngaji Yuk v2 — "Serene Path" Animations (CSS only)
+   Terjemahan dari rekomendasi Stitch: mikro-interaksi,
+   progresif (glow), dan latar aurora. Bukan WebGL (ringan).
+   ============================================================ */
+
+/* ---- Aurora background (mengalir lembut) ---- */
+.aurora-bg {
+  background: linear-gradient(120deg, #006948, #00855d, #68dba9, #fe932c, #006948);
+  background-size: 300% 300%;
+  animation: auroraShift 18s ease infinite;
+}
+@keyframes auroraShift {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Versi lembut (untuk login/register, tidak terlalu mencolok) */
+.aurora-bg-soft {
+  background: linear-gradient(120deg, #e7eefe, #dce2f3, #e2e8f8, #f0f3ff, #e7eefe);
+  background-size: 300% 300%;
+  animation: auroraShift 22s ease infinite;
+}
+
+/* ---- Mikro-interaksi: hover & active ---- */
+.hover-lift {
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 28px rgba(5, 150, 105, 0.12);
+}
+.hover-lift:active {
+  transform: scale(0.98);
+}
+
+.interactive {
+  transition: transform 0.15s ease, background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+.interactive:active {
+  transform: scale(0.95);
+}
+
+/* ---- Progress glow (saat selesai) ---- */
+.progress-glow {
+  box-shadow: 0 0 15px rgba(0, 105, 72, 0.25);
+  transition: width 1s ease-out;
+}
+
+/* ---- Badge glow (gamifikasi, siap dipakai nanti) ---- */
+@keyframes badgeGlow {
+  0%, 100% { box-shadow: 0 0 0 rgba(254, 147, 44, 0); }
+  50%      { box-shadow: 0 0 22px rgba(254, 147, 44, 0.55); }
+}
+.badge-glow {
+  animation: badgeGlow 2.4s ease-in-out infinite;
+}
+
+/* ---- Fade-in (entri konten) ---- */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.fade-in-up {
+  animation: fadeInUp 0.6s ease both;
+}
+
+/* ---- Ripple (fallback bila Quasar ripple tidak aktif) ---- */
+.ripple-host {
+  position: relative;
+  overflow: hidden;
+}
+.ripple {
+  position: absolute;
+  border-radius: 50%;
+  transform: scale(0);
+  background: rgba(255, 255, 255, 0.5);
+  animation: rippleAnim 0.6s ease-out;
+  pointer-events: none;
+}
+@keyframes rippleAnim {
+  to { transform: scale(4); opacity: 0; }
+}
+
+/* ---- Respect reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .aurora-bg, .aurora-bg-soft, .badge-glow, .fade-in-up, .ripple {
+    animation: none !important;
+  }
+  .hover-lift, .interactive { transition: none !important; }
+}

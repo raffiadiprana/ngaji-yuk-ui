@@ -1,40 +1,48 @@
 <template>
-  <q-page class="q-pa-md">
-    <q-header elevated class="bg-green-gradient text-white">
+  <q-page class="lesson-page">
+    <div class="aurora-bg" aria-hidden="true">
+      <span class="aurora a1" />
+      <span class="aurora a2" />
+      <span class="aurora a3" />
+    </div>
+
+    <q-header elevated class="bg-green-gradient text-white serene-header">
       <q-toolbar>
         <q-btn flat round dense icon="arrow_back" @click="goBack" />
         <q-toolbar-title>{{ lessons?.title || 'Lesson' }}</q-toolbar-title>
       </q-toolbar>
     </q-header>
 
-    <!-- Video Player -->
-    <div v-if="videoReady" class="video-container q-mt-md">
-      <video
-        ref="videoPlayer"
-        class="video-js vjs-default-skin vjs-big-play-centered"
-        playsinline
-        allowfullscreen
-      ></video>
-    </div>
+    <div class="content-wrapper">
+      <!-- Video Player -->
+      <div v-if="videoReady" class="video-container q-mt-md serene-card">
+        <video
+          ref="videoPlayer"
+          class="video-js vjs-default-skin vjs-big-play-centered"
+          playsinline
+          allowfullscreen
+        ></video>
+      </div>
 
-    <!-- Instructor Profile -->
-    <div class="instructor-section q-mt-xl">
-      <q-avatar size="56px">
-        <img :src="lessons?.module_detail?.instructor_profile?.avatar ? api.API_UPLOADS_URL + '/' +lessons?.module_detail?.instructor_profile?.avatar : 'https://placehold.co/100'" />
-      </q-avatar>
-      <div class="q-ml-md">
-        <div class="text-bold text-dark">
-          {{ lessons?.module_detail?.instructor_profile?.display_name || '' }}
-        </div>
-        <div class="text-caption text-grey-7">
-          {{ lessons?.module_detail?.instructor_profile?.jobtitle || '' }}
+      <!-- Instructor Profile -->
+      <div class="instructor-section q-mt-lg serene-card">
+        <q-avatar size="56px">
+          <img :src="lessons?.module_detail?.instructor_profile?.avatar ? api.API_UPLOADS_URL + '/' +lessons?.module_detail?.instructor_profile?.avatar : 'https://placehold.co/100'" />
+        </q-avatar>
+        <div class="q-ml-md">
+          <div class="text-bold text-serene-on-surface">
+            {{ lessons?.module_detail?.instructor_profile?.display_name || '' }}
+          </div>
+          <div class="text-caption text-serene-variant">
+            {{ lessons?.module_detail?.instructor_profile?.jobtitle || '' }}
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Description -->
-    <div class="description-section q-mt-xl">
-      {{ lessons?.description || '' }}
+      <!-- Description -->
+      <div class="description-section q-mt-lg serene-card">
+        {{ lessons?.description || '' }}
+      </div>
     </div>
   </q-page>
 </template>
@@ -226,13 +234,39 @@ onBeforeUnmount(() => {
 </script>
 
 <style scoped>
-/* Layout Utama */
+<style scoped>
+.lesson-page {
+  min-height: 100vh;
+  background: var(--serene-bg);
+  position: relative;
+}
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.aurora {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.25;
+}
+.aurora.a1 { width: 420px; height: 420px; background: var(--serene-primary); top: -120px; left: -100px; }
+.aurora.a2 { width: 360px; height: 360px; background: var(--serene-secondary); bottom: -120px; right: -80px; }
+.aurora.a3 { width: 300px; height: 300px; background: #a7f3d0; top: 40%; left: 60%; }
+
 .page-container {
+  position: relative;
+  z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
 }
 
 .content-wrapper {
+  position: relative;
+  z-index: 1;
   padding: 0 16px;
 }
 
@@ -241,6 +275,8 @@ onBeforeUnmount(() => {
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
+  border-radius: 16px;
+  overflow: hidden;
   margin-bottom: 24px;
 }
 
@@ -248,7 +284,7 @@ onBeforeUnmount(() => {
   width: 100%;
   height: 0;
   padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-  border-radius: 8px;
+  border-radius: 16px;
 }
 
 /* Instructor Section */
@@ -257,7 +293,9 @@ onBeforeUnmount(() => {
   align-items: center;
   max-width: 800px;
   margin: 0 auto;
-  padding: 0 8px;
+  padding: 24px;
+  border-radius: 16px;
+  background: white;
 }
 
 .instructor-info {
@@ -268,8 +306,11 @@ onBeforeUnmount(() => {
 .description-section {
   max-width: 800px;
   margin: 0 auto;
-  padding: 0 8px;
+  padding: 24px;
+  border-radius: 16px;
+  background: white;
   line-height: 1.6;
+  color: var(--serene-variant);
 }
 
 /* Responsive Breakpoints */
@@ -277,7 +318,7 @@ onBeforeUnmount(() => {
   .content-wrapper {
     padding: 0 24px;
   }
-  
+
   .video-js {
     height: 450px;
     padding-bottom: 0;
@@ -288,10 +329,10 @@ onBeforeUnmount(() => {
   .content-wrapper {
     padding: 0;
   }
-  
+
   .instructor-section,
   .description-section {
-    padding: 0;
+    padding: 24px;
   }
 }
 

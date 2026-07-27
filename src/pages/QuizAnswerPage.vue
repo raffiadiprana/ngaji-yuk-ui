@@ -1,101 +1,108 @@
 <template>
-  <q-page class="q-pa-md">
-    <!-- Header -->
-    <q-header elevated class="bg-green-gradient text-white">
+  <q-page class="quiz-answer-page">
+    <div class="aurora-bg" aria-hidden="true">
+      <span class="aurora a1" />
+      <span class="aurora a2" />
+      <span class="aurora a3" />
+    </div>
+
+    <q-header elevated class="bg-green-gradient text-white serene-header">
       <q-toolbar>
         <q-btn flat round dense icon="arrow_back" @click="goBack" />
         <q-toolbar-title>{{ quiz?.module_detail.title || 'Quiz Detail' }}</q-toolbar-title>
       </q-toolbar>
     </q-header>
 
-    <!-- Question -->
-    <div class="q-mt-md">
-      <div class="text-h6 q-mb-xs">Question:</div>
-      <q-card flat bordered class="q-pa-md">
-        <div>
-          {{ quiz?.question }}
-        </div>
-        <div v-if="quiz?.media_id != ''">
-          <audio class="full-width" :src="getAudioUrl(quiz?.media_id)" controls v-if="quiz?.media_id" />
-          <div v-else class="text-grey">No audio available.</div>
-        </div>
-      </q-card>
-    </div>
-
-    <!-- Answer List -->
-    <div class="q-mt-lg">
-      <div class="text-h6 q-mb-sm">Submitted Answers:</div>
-      <div v-for="answer in answers" :key="answer.id" class="q-mb-sm">
-        <q-chat-message
-          :sent="answer.user_id === userId"
-          :label="formatDate(answer.created_date)"
-          :name="capitalize(answer.user_detail?.user_role || 'Unknown') + ' ' + (answer.user_detail?.display_name || 'Unknown')"
-          :bg-color="answer.user_id === userId ? 'green-3' : 'grey-3'"
-          text-color="black"
-        >
-          <template v-slot:default>
-            <div v-if="answer.answer_type == 'text'">
-              {{ answer?.answer_value }}
-            </div>
-            <div v-if="answer.answer_type == 'file'">
-              <audio :src="getAudioUrl(answer?.answer_value)" controls class="col-2" />
-            </div>
-          </template>
-        </q-chat-message>
-      </div>
-    </div>
-
-    <!-- Input Answer -->
-    <div class="fixed-bottom q-pa-sm bg-white" style="z-index: 100;padding-bottom: 70px;">
-      <div class="row items-center no-wrap q-gutter-sm">
-        <q-input
-          filled
-          dense
-          v-model="answerInput"
-          placeholder="Type your answer..."
-          class="col"
-          @keyup.enter="submitTextAnswer"
-        />
-        <q-btn flat round icon="send" @click="submitTextAnswer" :disable="!answerInput" />
-        <q-btn flat round :icon="recording ? 'stop' : 'mic'" @click="toggleRecording" :loading="false" />
-      </div>
-      <q-banner v-if="recording" class="text-center text-grey q-mt-sm" dense>
-        Recording... {{ recordingDuration }}s
-      </q-banner>
-    </div>
-
-    <!-- Voice Guide Dialog -->
-    <q-dialog v-model="showVoiceDialog" persistent>
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Cara Menggunakan Voice Note</div>
-          <div class="text-subtitle2 q-mt-sm">
-            Tekan tombol <b>Stop</b> untuk menyelesaikan dan mengirim rekaman suara.
+    <div class="content-wrapper">
+      <!-- Question -->
+      <div class="q-mt-md">
+        <div class="text-h6 q-mb-xs text-serene-on-surface">Question:</div>
+        <q-card flat bordered class="q-pa-md serene-card">
+          <div>
+            {{ quiz?.question }}
           </div>
-        </q-card-section>
-        <q-card-section>
-          <q-checkbox v-model="dontShowAgain" label="Jangan tampilkan lagi" />
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="OK" color="primary" @click="closeVoiceDialog" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <!-- Unsupported Voice Recording Dialog -->
-    <q-dialog v-model="showUnsupportedDialog">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Browser Tidak Didukung</div>
-          <div class="text-subtitle2 q-mt-sm">
-            Voice recording is not supported on this browser. Please use Google Chrome or another supported browser.
+          <div v-if="quiz?.media_id != ''">
+            <audio class="full-width" :src="getAudioUrl(quiz?.media_id)" controls v-if="quiz?.media_id" />
+            <div v-else class="text-grey">No audio available.</div>
           </div>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="OK" color="primary" v-close-popup />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+        </q-card>
+      </div>
+
+      <!-- Answer List -->
+      <div class="q-mt-lg">
+        <div class="text-h6 q-mb-sm text-serene-on-surface">Submitted Answers:</div>
+        <div v-for="answer in answers" :key="answer.id" class="q-mb-sm">
+          <q-chat-message
+            :sent="answer.user_id === userId"
+            :label="formatDate(answer.created_date)"
+            :name="capitalize(answer.user_detail?.user_role || 'Unknown') + ' ' + (answer.user_detail?.display_name || 'Unknown')"
+            :bg-color="answer.user_id === userId ? 'green-3' : 'grey-3'"
+            text-color="black"
+          >
+            <template v-slot:default>
+              <div v-if="answer.answer_type == 'text'">
+                {{ answer?.answer_value }}
+              </div>
+              <div v-if="answer.answer_type == 'file'">
+                <audio :src="getAudioUrl(answer?.answer_value)" controls class="col-2" />
+              </div>
+            </template>
+          </q-chat-message>
+        </div>
+      </div>
+
+      <!-- Input Answer -->
+      <div class="fixed-bottom q-pa-sm serene-input-bar" style="z-index: 100;padding-bottom: 70px;">
+        <div class="row items-center no-wrap q-gutter-sm">
+          <q-input
+            filled
+            dense
+            v-model="answerInput"
+            placeholder="Type your answer..."
+            class="col"
+            @keyup.enter="submitTextAnswer"
+          />
+          <q-btn flat round icon="send" class="text-serene-primary" @click="submitTextAnswer" :disable="!answerInput" />
+          <q-btn flat round :icon="recording ? 'stop' : 'mic'" class="text-serene-primary" @click="toggleRecording" :loading="false" />
+        </div>
+        <q-banner v-if="recording" class="text-center text-serene-variant q-mt-sm" dense>
+          Recording... {{ recordingDuration }}s
+        </q-banner>
+      </div>
+
+      <!-- Voice Guide Dialog -->
+      <q-dialog v-model="showVoiceDialog" persistent>
+        <q-card class="serene-card">
+          <q-card-section>
+            <div class="text-h6">Cara Menggunakan Voice Note</div>
+            <div class="text-subtitle2 q-mt-sm text-serene-variant">
+              Tekan tombol <b>Stop</b> untuk menyelesaikan dan mengirim rekaman suara.
+            </div>
+          </q-card-section>
+          <q-card-section>
+            <q-checkbox v-model="dontShowAgain" label="Jangan tampilkan lagi" />
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="OK" class="serene-btn-primary" @click="closeVoiceDialog" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+
+      <!-- Unsupported Voice Recording Dialog -->
+      <q-dialog v-model="showUnsupportedDialog">
+        <q-card class="serene-card">
+          <q-card-section>
+            <div class="text-h6">Browser Tidak Didukung</div>
+            <div class="text-subtitle2 q-mt-sm text-serene-variant">
+              Voice recording is not supported on this browser. Please use Google Chrome or another supported browser.
+            </div>
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="OK" class="serene-btn-primary" v-close-popup />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+    </div>
   </q-page>
 </template>
 
@@ -324,6 +331,39 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+.quiz-answer-page {
+  min-height: 100vh;
+  background: var(--serene-bg);
+  position: relative;
+}
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.aurora {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.25;
+}
+.aurora.a1 { width: 420px; height: 420px; background: var(--serene-primary); top: -120px; left: -100px; }
+.aurora.a2 { width: 360px; height: 360px; background: var(--serene-secondary); bottom: -120px; right: -80px; }
+.aurora.a3 { width: 300px; height: 300px; background: #a7f3d0; top: 40%; left: 60%; }
+
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+  padding: 0 16px;
+}
+
+.serene-input-bar {
+  background: white;
+  border-top: 1px solid var(--serene-border);
+}
+
 .text-h6 {
   font-weight: bold;
 }

@@ -47,8 +47,9 @@
           </q-item>
 
           <q-item
-            clickable v-ripple @click="toggleRightDrawer"
-            :active="rightDrawerOpen"
+            v-if="isSantri || isGuru"
+            clickable v-ripple to="/settings"
+            :active="isActive('/settings')"
             active-class="serene-nav-active"
           >
             <q-item-section avatar><q-icon name="settings" /></q-item-section>
@@ -66,6 +67,12 @@
               <q-item-section>Hukum Tajwid</q-item-section>
             </q-item>
           </template>
+
+          <q-separator class="q-my-sm" />
+          <q-item clickable v-ripple @click="logout">
+            <q-item-section avatar><q-icon name="logout" /></q-item-section>
+            <q-item-section>Logout</q-item-section>
+          </q-item>
         </q-list>
 
         <!-- User chip bawah -->
@@ -79,17 +86,6 @@
           </div>
         </div>
       </div>
-    </q-drawer>
-
-    <!-- ============ RIGHT DRAWER (SETTINGS) ============ -->
-    <q-drawer v-model="rightDrawerOpen" side="right" bordered class="bg-serene">
-      <q-list padding>
-        <q-item-label header>Settings</q-item-label>
-        <q-item clickable v-ripple @click="logout">
-          <q-item-section avatar><q-icon name="logout" /></q-item-section>
-          <q-item-section>Logout</q-item-section>
-        </q-item>
-      </q-list>
     </q-drawer>
 
     <!-- ============ TOP BAR ============ -->
@@ -138,7 +134,7 @@
         <q-btn v-if="!isAdmin" flat round dense size="md" icon="email" :to="inboxUrl" />
         <q-btn v-if="!isAdmin" flat round dense size="md" icon="wallet" :to="'/donasi'" />
         <q-btn v-if="isSantri || isGuru" flat round dense size="md" icon="person" :to="'/profile'" />
-        <q-btn flat round dense size="md" icon="settings" @click="toggleRightDrawer" />
+        <q-btn flat round dense size="md" icon="settings" :to="'/settings'" />
       </div>
     </q-footer>
   </q-layout>
@@ -152,7 +148,6 @@ export default {
   name: 'MainLayout',
   setup () {
     const leftDrawerOpen = ref(false)
-    const rightDrawerOpen = ref(false)
     const router = useRouter()
 
     const role = localStorage.getItem('role')
@@ -188,7 +183,6 @@ export default {
     const isGuru = computed(() => role === 'guru')
     const isSantri = computed(() => role === 'santri')
 
-    const toggleRightDrawer = () => { rightDrawerOpen.value = !rightDrawerOpen.value }
     const isActive = (path) => router.currentRoute.value.path === path
 
     const logout = () => {
@@ -203,11 +197,11 @@ export default {
     }
 
     return {
-      leftDrawerOpen, rightDrawerOpen,
+      leftDrawerOpen,
       dashboardUrl, learnUrl, inboxUrl,
       isAdmin, isGuru, isSantri,
       displayName, avatarUrl, initial,
-      toggleRightDrawer, isActive, logout
+      isActive, logout
     }
   }
 }

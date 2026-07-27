@@ -1,19 +1,24 @@
 <template>
-  <q-page class="q-pa-lg">
+  <q-page class="module-page">
+    <div class="aurora-bg" aria-hidden="true">
+      <span class="aurora a1" />
+      <span class="aurora a2" />
+      <span class="aurora a3" />
+    </div>
+
     <div class="page-container">
       <!-- Header with Back Button -->
-      <q-header elevated class="bg-green-gradient text-white">
+      <q-header elevated class="bg-green-gradient text-white serene-header">
         <q-toolbar>
           <q-btn flat round dense icon="arrow_back" @click="goBack" />
-          <q-toolbar-title class="header-title">{{ moduleData?.title || 'Lesson' }}</q-toolbar-title>
-        <q-btn v-if="isGuru || isAdmin" flat round dense icon="edit" @click="editModule" class="q-ml-sm" />
+          <q-toolbar-title class="header-title">{{ moduleData?.title || 'Materi' }}</q-toolbar-title>
+          <q-btn v-if="isGuru || isAdmin" flat round dense icon="edit" @click="editModule" class="q-ml-sm" />
         </q-toolbar>
       </q-header>
 
-      <!-- Content Wrapper -->
       <div class="content-wrapper">
         <!-- Video Player Section -->
-        <div v-if="videoReady" class="video-container q-mt-md">
+        <div v-if="videoReady" class="video-container q-mt-md serene-card">
           <video
             ref="videoPlayer"
             class="video-js vjs-default-skin vjs-big-play-centered"
@@ -22,9 +27,9 @@
             allowfullscreen
           ></video>
         </div>
-        <div v-else class="video-container q-mt-md">
-          <q-img 
-            :src="moduleData?.thumbnail || 'https://placehold.co/600x300'" 
+        <div v-else class="video-container q-mt-md serene-card serene-card-soft">
+          <q-img
+            :src="moduleData?.thumbnail || 'https://placehold.co/600x300'"
             class="video-placeholder"
           >
             <q-icon name="play_circle" size="lg" class="play-icon" />
@@ -32,7 +37,7 @@
         </div>
 
         <!-- Instructor Profile Section -->
-        <q-card flat bordered class="instructor-section q-mt-xl">
+        <q-card flat bordered class="instructor-section q-mt-lg serene-card">
           <div class="row items-center">
             <q-avatar size="56px">
               <img :src="instructorAvatar" />
@@ -45,33 +50,33 @@
         </q-card>
 
         <!-- Module Info Section -->
-        <div class="module-info q-mt-xl">
+        <div class="module-info q-mt-lg serene-card">
           <div class="module-title">{{ moduleData?.title || '' }}</div>
           <div class="module-description">{{ moduleData?.description || '' }}</div>
         </div>
 
         <!-- Tabs Section -->
-        <div class="tabs-section q-mt-xl">
-          <q-tabs v-model="tab">
+        <div class="tabs-section q-mt-lg serene-card">
+          <q-tabs v-model="tab" class="serene-tabs">
             <q-tab name="lessons" label="Lessons" />
-            <q-tab name="quiz" label="Quiz" />
+            <q-tab name="quiz" label="Kuis" />
           </q-tabs>
 
           <q-tab-panels v-model="tab" animated>
             <!-- Lessons Tab -->
-            <q-tab-panel name="lessons">
-              <q-card 
-                v-for="lesson in lessons" 
-                :key="lesson.id" 
-                flat 
-                bordered 
-                class="lesson-card q-mt-md"
+            <q-tab-panel name="lessons" class="q-pa-none">
+              <q-card
+                v-for="lesson in lessons"
+                :key="lesson.id"
+                flat
+                bordered
+                class="lesson-card q-mt-md interactive hover-lift"
                 @click="$router.push(`/lesson/${lesson.id}`)"
               >
                 <q-item>
                   <q-item-section avatar>
-                    <q-img 
-                      :src="lessonThumbnail(lesson)" 
+                    <q-img
+                      :src="lessonThumbnail(lesson)"
                       class="lesson-thumbnail"
                     >
                       <q-icon name="play_circle" class="play-icon" />
@@ -82,39 +87,42 @@
                     <q-item-label class="lesson-description">{{ lesson.description }}</q-item-label>
                   </q-item-section>
                   <q-item-section side>
-                    <q-btn 
-                      v-if="isLessonPassed[lesson.id]" 
-                      flat dense round 
-                      icon="check_circle" 
-                      class="passed-icon" 
+                    <q-btn
+                      v-if="isLessonPassed[lesson.id]"
+                      flat dense round
+                      icon="check_circle"
+                      class="passed-icon"
                     />
                   </q-item-section>
                 </q-item>
               </q-card>
+              <div v-if="lessons.length === 0" class="empty-state text-serene-variant q-py-lg">
+                Belum ada sub-materi untuk modul ini.
+              </div>
             </q-tab-panel>
 
             <!-- Quiz Tab -->
-            <q-tab-panel name="quiz">
+            <q-tab-panel name="quiz" class="q-pa-none">
               <div class="quiz-section">
-                <div v-if="quizes.length === 0" class="no-quiz-message">
-                  No quiz questions available for this module.
+                <div v-if="quizes.length === 0" class="empty-state text-serene-variant q-py-lg">
+                  Belum ada kuis untuk modul ini.
                 </div>
                 <q-card
                   v-for="(q, index) in quizes"
                   :key="q.id"
-                  class="quiz-card q-mt-md"
+                  class="quiz-card q-mt-md serene-card-soft"
                 >
                   <q-card-section>
-                    <div class="quiz-question">Question {{ index + 1 }}</div>
+                    <div class="quiz-question">Pertanyaan {{ index + 1 }}</div>
                     <div class="quiz-text">{{ q.question }}</div>
                     <div class="quiz-actions row items-center justify-between">
                       <q-btn
-                        label="Answer"
-                        color="primary"
+                        label="Jawab"
+                        class="serene-btn-primary"
                         @click="goToAnswerPage(q)"
                       />
                       <div v-if="isPassed[q.id]" class="quiz-passed">
-                        Passed
+                        Lulus
                       </div>
                     </div>
                   </q-card-section>
@@ -285,7 +293,32 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* Layout */
+.module-page {
+  min-height: 100vh;
+  background: var(--serene-bg);
+  position: relative;
+}
+
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.aurora {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.25;
+}
+.aurora.a1 { width: 420px; height: 420px; background: var(--serene-primary); top: -120px; left: -100px; }
+.aurora.a2 { width: 360px; height: 360px; background: var(--serene-secondary); bottom: -120px; right: -80px; }
+.aurora.a3 { width: 300px; height: 300px; background: #a7f3d0; top: 40%; left: 60%; }
+
 .page-container {
+  position: relative;
+  z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -341,19 +374,19 @@ onBeforeUnmount(() => {
   padding: 24px;
   margin: 32px auto;
   max-width: 800px;
-  border-radius: 12px;
+  border-radius: 16px;
   background: white;
 }
 
 .instructor-name {
   font-size: 1.1rem;
-  font-weight: 500;
-  color: #333;
+  font-weight: 600;
+  color: var(--serene-on-surface);
 }
 
 .instructor-title {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--serene-variant);
   margin-top: 4px;
   margin-bottom: 4px;
 }
@@ -362,18 +395,19 @@ onBeforeUnmount(() => {
 .module-info {
   max-width: 800px;
   margin: 0 auto 32px;
+  padding: 24px;
 }
 
 .module-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--serene-on-surface);
   margin-bottom: 8px;
 }
 
 .module-description {
   font-size: 1rem;
-  color: #444;
+  color: var(--serene-variant);
   line-height: 1.6;
   margin-top: 5px;
 }
@@ -382,11 +416,16 @@ onBeforeUnmount(() => {
 .tabs-section {
   max-width: 800px;
   margin: 0 auto;
+  padding: 8px 24px 24px;
+}
+
+.serene-tabs {
+  border-bottom: 1px solid var(--serene-border);
 }
 
 /* Lessons Tab */
 .lesson-card {
-  border-radius: 12px;
+  border-radius: 16px;
   cursor: pointer;
   transition: transform 0.2s;
 }
@@ -400,7 +439,7 @@ onBeforeUnmount(() => {
   height: 70px;
   border-radius: 8px;
   position: relative;
-  background-color: #f5f5f5;
+  background-color: var(--serene-surface);
 }
 
 .lesson-thumbnail .play-icon {
@@ -409,18 +448,18 @@ onBeforeUnmount(() => {
 
 .lesson-title {
   font-size: 1rem;
-  font-weight: 500;
-  color: #333;
+  font-weight: 600;
+  color: var(--serene-on-surface);
 }
 
 .lesson-description {
   font-size: 0.875rem;
-  color: #666;
+  color: var(--serene-variant);
   margin-top: 4px;
 }
 
 .passed-icon {
-  color: #4CAF50;
+  color: var(--serene-secondary);
   font-size: 1.5rem;
 }
 
@@ -430,36 +469,34 @@ onBeforeUnmount(() => {
 }
 
 .quiz-card {
-  border-radius: 12px;
+  border-radius: 16px;
 }
 
 .quiz-question {
   font-size: 1rem;
-  font-weight: 500;
-  color: #333;
+  font-weight: 600;
+  color: var(--serene-on-surface);
 }
 
 .quiz-text {
   font-size: 0.9375rem;
-  color: #444;
+  color: var(--serene-variant);
   margin: 8px 0 16px;
   line-height: 1.5;
 }
 
 .quiz-passed {
   padding: 4px 12px;
-  background: #E8F5E9;
-  color: #2E7D32;
+  background: var(--serene-surface);
+  color: var(--serene-secondary);
   border-radius: 16px;
-  font-weight: 500;
+  font-weight: 600;
   font-size: 0.875rem;
 }
 
-.no-quiz-message {
-  color: #757575;
-  font-size: 0.9375rem;
+.empty-state {
   text-align: center;
-  padding: 24px 0;
+  font-size: 0.9375rem;
 }
 
 /* Responsive Breakpoints */

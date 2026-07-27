@@ -181,9 +181,11 @@ onMounted(async () => {
     const res = await axios.get(`${api.API_BASE_URL}/sections`, {
       headers: authHeader(),
     })
-    sectionsOptions.value = res.data.data
+    sectionsOptions.value = res.data?.data ?? []
+    console.log('[ModulesForm] sections loaded:', sectionsOptions.value.length)
   } catch (error) {
-    console.error('Gagal ambil sections:', error)
+    console.error('[ModulesForm] Gagal ambil sections:', error)
+    $q.notify({ type: 'negative', message: 'Gagal memuat daftar section' })
   }
 
   const id = route.params.id

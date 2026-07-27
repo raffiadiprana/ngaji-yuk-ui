@@ -230,13 +230,13 @@ function initVideoJs(videoId) {
 onMounted(async () => {
   try {
     const [moduleRes, lessonsRes, quizRes] = await Promise.all([
-      axios.get(`${api.API_BASE_URL}/modules?id=${moduleId}&is_deleted=0`, {
+      axios.get(`${api.API_BASE_URL}/modules?id=${moduleId}`, {
         headers: authHeader(),
       }),
-      axios.get(`${api.API_BASE_URL}/lessons?module_id=${moduleId}&is_deleted=0`, {
+      axios.get(`${api.API_BASE_URL}/lessons?module_id=${moduleId}`, {
         headers: authHeader(),
       }),
-      axios.get(`${api.API_BASE_URL}/quiz?modules_id=${moduleId}&is_deleted=0`, {
+      axios.get(`${api.API_BASE_URL}/quiz?modules_id=${moduleId}`, {
         headers: authHeader(),
       })
     ]);

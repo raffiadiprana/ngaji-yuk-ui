@@ -189,7 +189,7 @@ const onNodeClick = async (tajwid) => {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/modules`, {
       headers: authHeader(),
-      params: { section_id: tajwid.id, is_deleted: 0 }
+      params: { section_id: tajwid.id }
     })
     const mods = res.data?.data ?? []
     if (mods.length) {

@@ -275,7 +275,6 @@
         headers: authHeader(),
         params: { 
           instructor_id: instructorId,
-          is_deleted: 0,
           $skip: skipCourses.value, 
           $limit: limitCourses
         }
@@ -306,7 +305,6 @@
         headers: authHeader(),
         params: { 
           created_by: instructorId,  // Filter berdasarkan instructor_id pada module
-          is_deleted: 0,
           $skip: skipQuizzes.value, 
           $limit: limitQuizzes,
         }
@@ -337,7 +335,6 @@
         headers: authHeader(),
         params: { 
           created_by: instructorId, // Filter berdasarkan instructor_id
-          is_deleted: 0,
           $skip: skipLessons.value, 
           $limit: limitLessons
         }

@@ -268,7 +268,7 @@ const fetchModules = async (sectionId) => {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/modules`, {
       headers: authHeader(),
-      params: { section_id: sectionId, is_deleted: 0 }
+      params: { section_id: sectionId }
     });
     modulesMap.value[sectionId] = res.data.data || [];
   } catch (err) {

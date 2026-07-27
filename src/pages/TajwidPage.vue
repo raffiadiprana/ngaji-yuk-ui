@@ -69,10 +69,18 @@
               </div>
               <q-btn v-if="isGuru || isAdmin" flat round dense icon="more_vert" @click.stop class="q-ml-sm">
                 <q-menu auto-close>
-                  <q-list style="min-width: 140px;">
-                      <q-item v-if="isGuru || isAdmin" clickable @click="editTajwid(tajwid)" class="text-serene-primary">
+                  <q-list style="min-width: 170px;">
+                    <q-item clickable @click="openMaterial(tajwid)">
+                      <q-item-section avatar><q-icon name="visibility" /></q-item-section>
+                      <q-item-section>Lihat Materi</q-item-section>
+                    </q-item>
+                    <q-item v-if="isGuru || isAdmin" clickable @click="addMaterial(tajwid)" class="text-serene-primary">
+                      <q-item-section avatar><q-icon name="note_add" /></q-item-section>
+                      <q-item-section>Tambah Materi</q-item-section>
+                    </q-item>
+                    <q-item v-if="isGuru || isAdmin" clickable @click="editTajwid(tajwid)" class="text-serene-primary">
                       <q-item-section avatar><q-icon name="edit" /></q-item-section>
-                      <q-item-section>Edit</q-item-section>
+                      <q-item-section>Edit Nama Hukum</q-item-section>
                     </q-item>
                     <q-item v-if="isGuru || isAdmin" clickable @click="deleteTajwid(tajwid)" class="text-negative">
                       <q-item-section avatar><q-icon name="delete" /></q-item-section>
@@ -179,13 +187,14 @@ const loadMoreCourses = () => {
 const onAddTajwid = () => router.push('/tajwid-form')
 const editTajwid = (tajwid) => router.push(`/tajwid-form/${tajwid.id}`)
 
-// Klik node roadmap: santri diarahkan ke materi (module) pertama section itu.
-// Guru/Admin tetap ke form edit nama hukum tajwid.
+// Klik card roadmap (semua role): buka isi konten materi (module) pertama section itu.
 const onNodeClick = async (tajwid) => {
-  if (isGuru.value || isAdmin.value) {
-    editTajwid(tajwid)
-    return
-  }
+  await openMaterial(tajwid)
+}
+
+// Buka materi: cari module pertama di section, arahkan ke /module/:id.
+// Kalau belum ada materi: santri dapat info, guru/admin diarahkan ke form tambah materi.
+const openMaterial = async (tajwid) => {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/modules`, {
       headers: authHeader(),
@@ -194,6 +203,8 @@ const onNodeClick = async (tajwid) => {
     const mods = res.data?.data ?? []
     if (mods.length) {
       router.push(`/module/${mods[0].id}`)
+    } else if (isGuru.value || isAdmin.value) {
+      router.push(`/module-form?section_id=${tajwid.id}`)
     } else {
       $q.notify({ type: 'info', message: 'Belum ada materi untuk hukum tajwid ini.' })
     }
@@ -201,6 +212,11 @@ const onNodeClick = async (tajwid) => {
     console.error('[TajwidPage] gagal ambil modules section:', e)
     $q.notify({ type: 'negative', message: 'Gagal membuka materi.' })
   }
+}
+
+// Guru/Admin: tambah materi baru untuk section ini
+const addMaterial = (tajwid) => {
+  router.push(`/module-form?section_id=${tajwid.id}`)
 }
 
 const deleteTajwid = (section) => {

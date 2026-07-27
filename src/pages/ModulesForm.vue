@@ -205,6 +205,9 @@ onMounted(async () => {
     } catch (error) {
       console.error('Gagal ambil data materi:', error)
     }
+  } else if (route.query.section_id) {
+    // Dibuka dari roadmap "Tambah Materi" -> auto-pilih section
+    form.value.section_id = Number(route.query.section_id)
   }
 })
 </script>

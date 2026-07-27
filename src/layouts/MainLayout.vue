@@ -99,13 +99,19 @@
         <q-space />
 
         <!-- Search pill (desktop) -->
-        <div class="serene-pill row items-center q-px-md q-py-xs gt-sm" style="width:320px;">
-          <q-icon name="search" color="serene-variant" />
-          <input
-            class="bg-transparent border-none outline-none text-caption q-ml-sm col"
-            placeholder="Cari materi tajwid..."
-          />
-        </div>
+        <q-input
+          dense
+          outlined
+          rounded
+          placeholder="Cari materi tajwid..."
+          class="serene-topbar-search gt-sm"
+          style="width:320px;"
+          bg-color="white"
+        >
+          <template v-slot:prepend>
+            <q-icon name="search" color="serene-variant" />
+          </template>
+        </q-input>
 
         <q-space />
 

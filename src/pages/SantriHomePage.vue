@@ -344,6 +344,7 @@ onMounted(async () => {
   background: rgba(255,255,255,.12);
   width: 120px; height: 120px; border-bottom-left-radius: 100%;
 }
+.serene-card, .serene-card-soft { padding: 24px; }
 .quick-action { border-radius: 16px; padding: 22px; width: 100%; }
 .quick-icon {
   width: 44px; height: 44px; border-radius: 12px;
@@ -358,9 +359,9 @@ onMounted(async () => {
 .santri-grid-3 > .col-md-4 { grid-column: span 4; }
 .santri-grid-4 { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; margin-bottom: 20px; }
 .santri-grid-4 > .col-md-3 { grid-column: span 3; }
-.santri-grid-2 { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; margin-bottom: 20px; }
+.santri-grid-2 { display: grid; grid-template-columns: repeat(12, 1fr); gap: 20px; margin-bottom: 20px; align-items: stretch; }
 .santri-grid-2 > .col-md-7 { grid-column: span 7; }
-.santri-grid-2 > .col-md-5 { grid-column: span 5; }
+.santri-grid-2 > .col-md-5 { grid-column: span 5; display: flex; flex-direction: column; gap: 20px; }
 .search-bar { max-width: 480px; box-shadow: 0 2px 8px rgba(5,150,105,.08); }
 .section-title { font-weight: 600; }
 @media (max-width: 1023px) {

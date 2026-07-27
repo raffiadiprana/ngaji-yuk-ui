@@ -40,20 +40,20 @@
     <q-footer elevated class="bg-green-gradient text-white">
       <q-tabs :model-value="activeTab">
         <!-- Selalu tampil -->
-        <q-tab :name="dashboardUrl" icon="home" @click="$router.push(dashboardUrl)" />
+        <q-tab :name="dashboardUrl" icon="home" :to="dashboardUrl" />
 
         <!-- Tampil hanya untuk non-admin -->
         <q-tab
           v-if="!isAdmin"
           :name="inboxUrl"
           icon="email"
-          @click="$router.push(inboxUrl)"
+          :to="inboxUrl"
         />
         <q-tab
           v-if="!isAdmin"
           name="/donasi"
           icon="wallet"
-          @click="$router.push('/donasi')"
+          :to="'/donasi'"
         />
         <q-tab
           v-if="isSantri || isGuru"

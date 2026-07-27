@@ -1,82 +1,100 @@
 <template>
-  <div class="container q-pa-md">
-    <!-- Welcome Section -->
-    <div class="welcome-section">
-      <div class="row items-center justify-between q-mb-lg">
-        <div class="col">
-          <h4 class="text-bold welcome-title">
-            Welcome <span class="text-primary">{{ profile.display_name || 'Guest' }}</span>
-          </h4>
-          <p class="text-grey-7 welcome-subtitle">Manage your Tajwid learning materials</p>
+  <div class="kurikulum-page q-pa-md">
+    <div class="kurikulum-container">
+      <!-- Header -->
+      <header class="kurikulum-header q-mb-lg">
+        <div>
+          <h1 class="headline-font kurikulum-title">Kurikulum Tajwid</h1>
+          <p class="text-serene-variant">Ikuti perjalanan belajarmu melewati setiap checkpoint hukum tajwid.</p>
         </div>
-      </div>
-    </div>
-
-    <!-- Main Content -->
-    <div class="section-card">
-      <div class="section-header">
-        <h5 class="text-bold section-title">Daftar Hukum Tajwid</h5>
-        <q-btn 
-          label="Tambah Hukum Tajwid" 
-          color="primary" 
-          rounded 
-          dense
+        <q-btn
+          v-if="isGuru || isAdmin"
+          class="serene-btn-primary"
+          label="Tambah Hukum Tajwid"
           icon="add"
+          rounded
           @click="onAddTajwid"
         />
-      </div>
+      </header>
 
-      <!-- Tajwid List -->
-      <q-list bordered separator class="rounded-borders">
-        <q-item
-          v-for="tajwid in sections"
+      <!-- Progress Overview -->
+      <section class="serene-card-soft kurikulum-progress q-mb-lg">
+        <div class="row items-center justify-between q-mb-sm">
+          <span class="text-serene-variant text-caption">Progres Keseluruhan</span>
+          <span class="text-weight-bold text-serene-primary">{{ overallProgress }}%</span>
+        </div>
+        <q-linear-progress
+          :value="overallProgress / 100"
+          color="serene-primary"
+          class="progress-glow rounded-borders"
+          style="height:10px;"
+        />
+        <div class="row q-gutter-md q-pt-sm text-caption text-serene-variant">
+          <span>{{ completedCount }} Selesai</span>
+          <span>{{ sections.length - completedCount }} Tersisa</span>
+        </div>
+      </section>
+
+      <!-- Roadmap Checkpoints -->
+      <section class="roadmap">
+        <div
+          v-for="(tajwid, idx) in sections"
           :key="tajwid.id"
-          class="list-item"
-          clickable
-          v-ripple
-          @click="editTajwid(tajwid)"
+          class="roadmap-node"
+          :class="nodeStatus(tajwid).cls"
         >
-          <q-item-section avatar>
-            <q-avatar color="teal" text-color="white">
-              {{ tajwid.section_name.charAt(0).toUpperCase() }}
-            </q-avatar>
-          </q-item-section>
+          <div class="roadmap-marker">
+            <q-icon :name="nodeStatus(tajwid).icon" size="22px" />
+          </div>
+          <q-card
+            class="serene-card roadmap-card interactive hover-lift"
+            @click="editTajwid(tajwid)"
+          >
+            <div class="row items-center no-wrap">
+              <q-avatar size="48px" class="roadmap-avatar flex flex-center bg-serene-surface text-serene-primary">
+                {{ tajwid.section_name.charAt(0).toUpperCase() }}
+              </q-avatar>
+              <div class="col q-ml-md min-width-0">
+                <div class="row items-center justify-between">
+                  <div class="text-weight-bold text-serene-on-surface text-subtitle1 ellipsis">{{ tajwid.section_name }}</div>
+                  <q-chip
+                    v-if="nodeStatus(tajwid).label"
+                    :color="nodeStatus(tajwid).chipColor"
+                    text-color="white"
+                    size="sm"
+                    class="q-ml-sm"
+                  >{{ nodeStatus(tajwid).label }}</q-chip>
+                </div>
+                <div class="text-caption text-serene-variant q-mt-xs">Hukum Tajwid · Checkpoint {{ idx + 1 }}</div>
+              </div>
+              <q-btn flat round dense icon="more_vert" @click.stop class="q-ml-sm">
+                <q-menu auto-close>
+                  <q-list style="min-width: 140px;">
+                    <q-item clickable @click="editTajwid(tajwid)" class="text-serene-primary">
+                      <q-item-section avatar><q-icon name="edit" /></q-item-section>
+                      <q-item-section>Edit</q-item-section>
+                    </q-item>
+                    <q-item v-if="isGuru || isAdmin" clickable @click="deleteTajwid(tajwid)" class="text-negative">
+                      <q-item-section avatar><q-icon name="delete" /></q-item-section>
+                      <q-item-section>Delete</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </div>
+          </q-card>
+        </div>
+        <div v-if="!sections.length" class="text-center text-serene-variant q-py-lg">
+          Belum ada hukum tajwid.
+        </div>
+      </section>
 
-          <q-item-section>
-            <q-item-label class="text-weight-bold">{{ tajwid.section_name }}</q-item-label>
-            <q-item-label caption>Hukum Tajwid</q-item-label>
-          </q-item-section>
-
-          <q-item-section side>
-            <q-btn flat round dense icon="more_vert" @click.stop>
-              <q-menu auto-close>
-                <q-list style="min-width: 120px;">
-                  <q-item clickable @click="editTajwid(tajwid)" class="text-primary">
-                    <q-item-section avatar>
-                      <q-icon name="edit" />
-                    </q-item-section>
-                    <q-item-section>Edit</q-item-section>
-                  </q-item>
-                  <q-item clickable @click="deleteTajwid(tajwid)" class="text-negative">
-                    <q-item-section avatar>
-                      <q-icon name="delete" />
-                    </q-item-section>
-                    <q-item-section>Delete</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-btn>
-          </q-item-section>
-        </q-item>
-      </q-list>
-
-      <!-- Load More Button -->
+      <!-- Load More -->
       <q-btn
         v-if="hasMoreGuru"
         label="Tampilkan lebih banyak"
         outline
-        color="primary"
-        class="full-width q-mt-md"
+        class="serene-btn-ghost full-width q-mt-md"
         @click="loadMoreCourses"
         :loading="loadingGuru"
       />
@@ -88,303 +106,126 @@
 <script setup>
 import { useQuasar } from 'quasar'
 const $q = useQuasar()
-import { ref, onMounted } from "vue";
-import { useRouter } from "vue-router";
-import axios from "axios";
-import api from "src/config/api"
-import { authHeader } from "src/config/auth";
-    
-const router = useRouter();
-    
-const profile = ref({});
-const sections = ref([]);
-const quizzes = ref([]);
-const lessons = ref([]);
-const accessToken = localStorage.getItem('token');
-const instructorId = localStorage.getItem('id');
-    
-// Paging for Courses
-const skipGurus = ref(0);
-const limitGurus = 10;
-const loadingGuru = ref(false);
-const hasMoreGuru = ref(true);
+import { ref, onMounted, computed } from 'vue'
+import { useRouter } from 'vue-router'
+import axios from 'axios'
+import api from 'src/config/api'
+import { authHeader } from 'src/config/auth'
 
-// Paging for Quizzes
-const skipQuizzes = ref(0);
-const limitQuizzes = 10;
-const loadingQuizzes = ref(false);
-const hasMoreQuizzes = ref(true);
+const router = useRouter()
 
-// Paging for Lessons
-const skipLessons = ref(0);
-const limitLessons = 10;
-const loadingLessons = ref(false);
-const hasMoreLessons = ref(true);
-    
-// Ambil profile dari localStorage
+const profile = ref({})
+const sections = ref([])
+const quizzes = ref([])
+const lessons = ref([])
+const accessToken = localStorage.getItem('token')
+const instructorId = localStorage.getItem('id')
+
+const role = localStorage.getItem('role')
+const isGuru = computed(() => role === 'guru' || role === 'admin')
+const isAdmin = computed(() => role === 'admin')
+
+const completedCount = ref(0)
+const overallProgress = computed(() => {
+  if (!sections.value.length) return 0
+  return Math.round((completedCount.value / sections.value.length) * 100)
+})
+
+const nodeStatus = (tajwid) => {
+  // Placeholder status: sebagian besar "available", pertama "in-progress"
+  const idx = sections.value.indexOf(tajwid)
+  if (idx === 0) return { cls: 'is-active', icon: 'play_circle', label: 'Berlangsung', chipColor: 'serene-primary' }
+  if (idx < completedCount.value) return { cls: 'is-done', icon: 'check_circle', label: 'Selesai', chipColor: 'serene-secondary' }
+  return { cls: 'is-todo', icon: 'radio_button_unchecked', label: '', chipColor: 'grey' }
+}
+
+const skipGurus = ref(0)
+const limitGurus = 10
+const loadingGuru = ref(false)
+const hasMoreGuru = ref(true)
+
 onMounted(async () => {
-  const profileData = localStorage.getItem('profile');
+  const profileData = localStorage.getItem('profile')
   if (profileData) {
-    try {
-      profile.value = JSON.parse(profileData);
-    } catch (e) {
-      console.error('Error parsing profile from localStorage', e);
-    }
+    try { profile.value = JSON.parse(profileData) } catch (e) { console.error(e) }
   }
-    
-  // Load pertama kali untuk kursus, quiz, dan lessons
-  await fetchSection();
-});
-    
-// Fungsi untuk mengambil data kursus berdasarkan skip dan limit
+  await fetchSection()
+})
+
 const fetchSection = async () => {
-  if (loadingGuru.value) return;
-  loadingGuru.value = true;
-    
+  if (loadingGuru.value) return
+  loadingGuru.value = true
   try {
-    const res = await axios.get(`${api.API_BASE_URL}/sections`, {
-      headers: authHeader(),
-    });
-        
-    const fetchedGuru = res.data.data || [];
-        
-    if (fetchedGuru.length > 0) {
-      sections.value.push(...fetchedGuru);
-    }
-    
-    hasMoreGuru.value = fetchedGuru.length === limitGurus;
-    
+    const res = await axios.get(`${api.API_BASE_URL}/sections`, { headers: authHeader() })
+    const fetched = res.data.data || []
+    if (fetched.length) sections.value.push(...fetched)
+    hasMoreGuru.value = fetched.length === limitGurus
+    // Demo: anggap 1 selesai
+    completedCount.value = Math.min(1, sections.value.length)
   } catch (err) {
-    console.error('Failed to fetch sections:', err);
+    console.error('Failed to fetch sections:', err)
   } finally {
-    loadingGuru.value = false;
+    loadingGuru.value = false
   }
-};
+}
 
-// Fungsi untuk mengambil data quiz berdasarkan skip dan limit
-const fetchQuizzes = async () => {
-  if (loadingQuizzes.value) return;
-  loadingQuizzes.value = true;
-
-  try {
-    const res = await axios.get(`${api.API_BASE_URL}/quiz`, {
-      headers: authHeader(),
-      params: { 
-        created_by: instructorId,  // Filter berdasarkan instructor_id pada module
-        is_deleted: 0,
-        $skip: skipQuizzes.value, 
-        $limit: limitQuizzes,
-      }
-    });
-
-    const fetchedQuizzes = res.data.data || [];
-
-    if (fetchedQuizzes.length > 0) {
-      quizzes.value.push(...fetchedQuizzes);
-    }
-
-    hasMoreQuizzes.value = fetchedQuizzes.length === limitQuizzes;
-
-  } catch (err) {
-    console.error('Failed to fetch quizzes:', err);
-  } finally {
-    loadingQuizzes.value = false;
-  }
-};
-
-// Fungsi untuk mengambil data lessons berdasarkan skip dan limit
-const fetchLessons = async () => {
-  if (loadingLessons.value) return;
-  loadingLessons.value = true;
-
-  try {
-    const res = await axios.get(`${api.API_BASE_URL}/lessons`, {
-      headers: authHeader(),
-      params: { 
-        created_by: instructorId, // Filter berdasarkan instructor_id
-        is_deleted: 0,
-        $skip: skipLessons.value, 
-        $limit: limitLessons
-      }
-    });
-
-    const fetchedLessons = res.data.data || [];
-
-    if (fetchedLessons.length > 0) {
-      lessons.value.push(...fetchedLessons);
-    }
-
-    hasMoreLessons.value = fetchedLessons.length === limitLessons;
-
-  } catch (err) {
-    console.error('Failed to fetch lessons:', err);
-  } finally {
-    loadingLessons.value = false;
-  }
-};
-
-// Fungsi untuk menangani tombol "Load More" untuk kursus
 const loadMoreCourses = () => {
   if (!loadingGuru.value && hasMoreGuru.value) {
-    skipGurus.value += limitGurus;
-    fetchSection();
+    skipGurus.value += limitGurus
+    fetchSection()
   }
-};
+}
 
-// Fungsi untuk menangani tombol "Load More" untuk quiz
-const loadMoreQuizzes = () => {
-  if (!loadingQuizzes.value && hasMoreQuizzes.value) {
-    skipQuizzes.value += limitQuizzes;
-    fetchQuizzes();
-  }
-};
-
-// Fungsi untuk menangani tombol "Load More" untuk lessons
-const loadMoreLessons = () => {
-  if (!loadingLessons.value && hasMoreLessons.value) {
-    skipLessons.value += limitLessons;
-    fetchLessons();
-  }
-};
-    
-const onAddTajwid = () => {
-  router.push('/tajwid-form');
-};
-
-const onAddQuiz = () => {
-  router.push('/quiz-form');
-};
-
-const onAddLesson = () => {
-  router.push('/lesson-form');
-};
-    
-const editTajwid = (tajwid) => {
-  router.push(`/tajwid-form/${tajwid.id}`);
-};
-
-const editQuiz = (quiz) => {
-  router.push(`/quiz-form/${quiz.id}`);
-};
-    
-const deleteQuiz = (quiz) => {
-  console.log('Delete quiz:', quiz);
-};
-
-const editLesson = (lesson) => {
-  router.push(`/lesson-form/${lesson.id}`);
-};
+const onAddTajwid = () => router.push('/tajwid-form')
+const editTajwid = (tajwid) => router.push(`/tajwid-form/${tajwid.id}`)
 
 const deleteTajwid = (section) => {
   $q.dialog({
     title: 'Konfirmasi',
     message: 'Apakah anda yakin akan menghapus Hukum Tajwid ini?',
-    ok: {
-      label: 'Ya',
-      color: 'primary',
-      flat: true
-    },
-    cancel: {
-      label: 'Batal',
-      color: 'negative',
-      flat: true
-    },
+    ok: { label: 'Ya', color: 'primary', flat: true },
+    cancel: { label: 'Batal', color: 'negative', flat: true },
     persistent: true
   }).onOk(async () => {
-    const payload = {
-      is_deleted: 1
-    }
-    
-    await axios.delete(`${api.API_BASE_URL}/sections/${section.id}`, {
-      headers: authHeader()
-    })
-
-    $q.notify({
-      type: 'positive',
-      message: 'Hukum Tajwid berhasil dihapus',
-      position: 'top',
-      timeout: 2000
-    })
-    
-    // Refresh data after deletion
+    await axios.delete(`${api.API_BASE_URL}/sections/${section.id}`, { headers: authHeader() })
+    $q.notify({ type: 'positive', message: 'Hukum Tajwid berhasil dihapus', position: 'top', timeout: 2000 })
     sections.value = []
     skipGurus.value = 0
+    completedCount.value = 0
     await fetchSection()
-  }).onCancel(() => {
-    console.log('Cancel Delete Tajwid:')
   })
 }
 </script>
 
 <style scoped>
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
+.kurikulum-page { background: var(--serene-bg); min-height: 100vh; }
+.kurikulum-container { max-width: 1280px; margin: 0 auto; padding: 24px 20px; }
+.kurikulum-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.kurikulum-title { font-size: 1.8rem; color: var(--serene-on-surface); }
+.kurikulum-progress { border-radius: 16px; padding: 24px; }
+.roadmap { position: relative; padding-left: 8px; }
+.roadmap-node { position: relative; display: flex; align-items: flex-start; gap: 16px; padding-bottom: 20px; }
+.roadmap-node::before {
+  content: ''; position: absolute; left: 21px; top: 44px; bottom: -4px;
+  width: 2px; background: var(--serene-surface); z-index: 0;
 }
-
-.welcome-section {
-  margin-bottom: 32px;
+.roadmap-node:last-child::before { display: none; }
+.roadmap-marker {
+  position: relative; z-index: 1; flex: 0 0 auto;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--serene-surface); color: var(--serene-outline-variant);
 }
-
-.welcome-title {
-  font-size: 1.75rem;
-  margin-bottom: 4px;
-}
-
-.welcome-subtitle {
-  font-size: 1rem;
-}
-
-.notification-btn {
-  font-size: 1.25rem;
-}
-
-.section-card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.section-title {
-  font-size: 1.25rem;
-  margin: 0;
-}
-
-.list-item {
-  border-radius: 8px;
-  margin-bottom: 8px;
-  transition: all 0.3s ease;
-}
-
-.list-item:hover {
-  background-color: #f5f5f5;
-  transform: translateY(-2px);
-}
-
-.q-badge {
-  font-size: 0.65rem;
-  padding: 2px 4px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 600px) {
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 10px;
-  }
-  
-  .welcome-title {
-    font-size: 1.5rem;
-  }
+.roadmap-node.is-done .roadmap-marker { background: var(--serene-secondary-container); color: var(--serene-secondary); }
+.roadmap-node.is-active .roadmap-marker { background: var(--serene-primary-container); color: var(--serene-primary); box-shadow: 0 0 0 4px rgba(0,105,72,.15); }
+.roadmap-card { flex: 1; border-radius: 16px; padding: 18px; }
+.roadmap-avatar { font-weight: 700; }
+.ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.min-width-0 { min-width: 0; }
+.serene-btn-ghost { color: var(--serene-primary); }
+@media (max-width: 1023px) {
+  .kurikulum-container { padding: 16px 14px; }
+  .kurikulum-title { font-size: 1.4rem; }
+  .roadmap-card { padding: 14px; }
 }
 </style>

@@ -6,6 +6,7 @@
         <q-toolbar>
           <q-btn flat round dense icon="arrow_back" @click="goBack" />
           <q-toolbar-title class="header-title">{{ moduleData?.title || 'Lesson' }}</q-toolbar-title>
+        <q-btn v-if="isGuru || isAdmin" flat round dense icon="edit" @click="editModule" class="q-ml-sm" />
         </q-toolbar>
       </q-header>
 
@@ -150,6 +151,14 @@ const isLessonPassed = ref({});
 const accessToken = localStorage.getItem('token');
 const userId = Number(localStorage.getItem('id'));
 const moduleId = route.params.id;
+
+const role = localStorage.getItem('role')
+const isGuru = computed(() => role === 'guru' || role === 'admin')
+const isAdmin = computed(() => role === 'admin')
+
+const editModule = () => {
+  router.push(`/module-form/${moduleId}`)
+};
 
 const videoPlayer = ref(null);
 let player = null;

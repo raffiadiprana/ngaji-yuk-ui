@@ -15,67 +15,69 @@
           </q-card-section>
 
           <q-card-section>
-            <q-input
-              v-model="form.email"
-              label="Email"
-              type="email"
-              filled
-              dense
-              color="white"
-              input-class="text-white"
-              class="q-mb-sm"
-            />
-            <q-input
-              v-model="form.password"
-              label="Password"
-              :type="showPwd ? 'text' : 'password'"
-              filled
-              dense
-              color="white"
-              input-class="text-white"
-              class="q-mb-sm"
-            >
-              <template v-slot:append>
-                <q-icon
-                  :name="showPwd ? 'visibility' : 'visibility_off'"
-                  class="cursor-pointer"
-                  @click="showPwd = !showPwd"
-                />
-              </template>
-            </q-input>
-            <q-input
-              v-model="form.display_name"
-              label="Nama Tampilan"
-              filled
-              dense
-              color="white"
-              input-class="text-white"
-              class="q-mb-sm"
-            />
-            <q-input
-              v-model="form.jobtitle"
-              label="Pekerjaan / Kegiatan Saat Ini"
-              filled
-              dense
-              color="white"
-              input-class="text-white"
-              class="q-mb-sm"
-            />
-            <q-uploader
-              ref="uploaderRef"
-              label="Upload Avatar"
-              accept=".jpg, .png, .jpeg"
-              :auto-upload="false"
-              @added="onFileAdded"
-              class="q-mb-sm"
-            />
-            <q-btn
-              label="Daftar"
-              color="white"
-              text-color="green-10"
-              class="full-width q-mt-md"
-              @click="handleRegister"
-            />
+            <q-form @submit.prevent="handleRegister">
+              <q-input
+                v-model="form.email"
+                label="Email"
+                type="email"
+                filled
+                dense
+                color="white"
+                input-class="text-white"
+                class="q-mb-sm"
+              />
+              <q-input
+                v-model="form.password"
+                label="Password"
+                :type="showPwd ? 'text' : 'password'"
+                filled
+                dense
+                color="white"
+                input-class="text-white"
+                class="q-mb-sm"
+              >
+                <template v-slot:append>
+                  <q-icon
+                    :name="showPwd ? 'visibility' : 'visibility_off'"
+                    class="cursor-pointer"
+                    @click="showPwd = !showPwd"
+                  />
+                </template>
+              </q-input>
+              <q-input
+                v-model="form.display_name"
+                label="Nama Tampilan"
+                filled
+                dense
+                color="white"
+                input-class="text-white"
+                class="q-mb-sm"
+              />
+              <q-input
+                v-model="form.jobtitle"
+                label="Pekerjaan / Kegiatan Saat Ini"
+                filled
+                dense
+                color="white"
+                input-class="text-white"
+                class="q-mb-sm"
+              />
+              <q-uploader
+                ref="uploaderRef"
+                label="Upload Avatar"
+                accept=".jpg, .png, .jpeg"
+                :auto-upload="false"
+                @added="onFileAdded"
+                class="q-mb-sm"
+              />
+              <q-btn
+                label="Daftar"
+                color="white"
+                text-color="green-10"
+                class="full-width q-mt-md"
+                type="submit"
+              />
+            </q-form>
             <q-btn
               flat
               label="Sudah punya akun? Login"

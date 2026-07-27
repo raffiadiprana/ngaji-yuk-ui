@@ -15,41 +15,43 @@
           </q-card-section>
 
           <q-card-section>
-            <q-input
-              v-model="username"
-              label="Email"
-              type="email"
-              filled
-              class="q-mb-md"
-              dense
-              color="white"
-              input-class="text-white"
-            />
-            <q-input
-              v-model="password"
-              label="Password"
-              :type="showPwd ? 'text' : 'password'"
-              filled
-              class="q-mb-md"
-              dense
-              color="white"
-              input-class="text-white"
-            >
-              <template v-slot:append>
-                <q-icon
-                  :name="showPwd ? 'visibility' : 'visibility_off'"
-                  class="cursor-pointer"
-                  @click="showPwd = !showPwd"
-                />
-              </template>
-            </q-input>
-            <q-btn
-              label="Login"
-              color="green-10"
-              class="full-width"
-              unelevated
-              @click="handleLogin"
-            />
+            <q-form @submit.prevent="handleLogin">
+              <q-input
+                v-model="username"
+                label="Email"
+                type="email"
+                filled
+                class="q-mb-md"
+                dense
+                color="white"
+                input-class="text-white"
+              />
+              <q-input
+                v-model="password"
+                label="Password"
+                :type="showPwd ? 'text' : 'password'"
+                filled
+                class="q-mb-md"
+                dense
+                color="white"
+                input-class="text-white"
+              >
+                <template v-slot:append>
+                  <q-icon
+                    :name="showPwd ? 'visibility' : 'visibility_off'"
+                    class="cursor-pointer"
+                    @click="showPwd = !showPwd"
+                  />
+                </template>
+              </q-input>
+              <q-btn
+                label="Login"
+                color="green-10"
+                class="full-width"
+                unelevated
+                type="submit"
+              />
+            </q-form>
             <q-btn
               label="Daftar"
               flat

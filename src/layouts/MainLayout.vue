@@ -56,10 +56,10 @@
           @click="$router.push('/donasi')"
         />
         <q-tab
-          v-if="isSantri"
+          v-if="isSantri || isGuru"
           name="/profile"
           icon="person"
-          @click="$router.push('/profile')"
+          :to="'/profile'"
         />
 
         <!-- Selalu tampil -->

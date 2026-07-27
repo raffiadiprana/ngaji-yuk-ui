@@ -1,58 +1,144 @@
 <template>
-  <q-layout view="hHh lpR fFf">
-    <!-- Side Menu -->
-    <q-drawer v-model="rightDrawerOpen" side="right" show-if-above>
-      <q-list>
-        <q-item clickable v-ripple :to="dashboardUrl">
-          <q-item-section>Home</q-item-section>
-        </q-item>
+  <q-layout view="hHh LpR lFf">
+    <!-- ============ SIDEBAR KIRI (DESKTOP ≥ lg) ============ -->
+    <q-drawer
+      v-model="leftDrawerOpen"
+      side="left"
+      show-if-above
+      :breakpoint="1024"
+      bordered
+      class="bg-serene-surface serene-sidebar"
+    >
+      <div class="column full-height q-pa-md">
+        <!-- Brand -->
+        <div class="q-px-md q-mb-lg q-mt-sm">
+          <div class="headline-font text-h6 text-serene-primary text-weight-bold">Serene Path</div>
+          <div class="text-caption text-serene-variant">Student Portal</div>
+        </div>
 
-        <!-- Menu ini hanya muncul kalau user admin -->
-        <q-item v-if="isAdmin" clickable v-ripple to="/user-form">
-          <q-item-section>Pendaftaran Guru</q-item-section>
-        </q-item>
+        <!-- Nav -->
+        <q-list class="rounded-borders">
+          <q-item
+            clickable v-ripple :to="dashboardUrl"
+            :active="isActive(dashboardUrl)"
+            active-class="serene-nav-active"
+          >
+            <q-item-section avatar><q-icon name="dashboard" /></q-item-section>
+            <q-item-section>Beranda</q-item-section>
+          </q-item>
 
-        <q-separator />
+          <q-item
+            clickable v-ripple :to="learnUrl"
+            :active="isActive(learnUrl)"
+            active-class="serene-nav-active"
+          >
+            <q-item-section avatar><q-icon name="auto_stories" /></q-item-section>
+            <q-item-section>Belajar</q-item-section>
+          </q-item>
 
-        <!-- Menu ini hanya muncul kalau user guru -->
-        <q-item v-if="isAdmin" clickable v-ripple to="/tajwid">
-          <q-item-section>Hukum Tajwid</q-item-section>
-        </q-item>
+          <q-item
+            v-if="isSantri || isGuru"
+            clickable v-ripple to="/profile"
+            :active="isActive('/profile')"
+            active-class="serene-nav-active"
+          >
+            <q-item-section avatar><q-icon name="person" /></q-item-section>
+            <q-item-section>Profil</q-item-section>
+          </q-item>
 
-        <q-separator />
-        
+          <q-item
+            clickable v-ripple @click="toggleRightDrawer"
+            :active="rightDrawerOpen"
+            active-class="serene-nav-active"
+          >
+            <q-item-section avatar><q-icon name="settings" /></q-item-section>
+            <q-item-section>Settings</q-item-section>
+          </q-item>
 
+          <template v-if="isAdmin">
+            <q-separator class="q-my-sm" />
+            <q-item clickable v-ripple to="/user-form">
+              <q-item-section avatar><q-icon name="person_add" /></q-item-section>
+              <q-item-section>Pendaftaran Guru</q-item-section>
+            </q-item>
+            <q-item clickable v-ripple to="/tajwid">
+              <q-item-section avatar><q-icon name="menu_book" /></q-item-section>
+              <q-item-section>Hukum Tajwid</q-item-section>
+            </q-item>
+          </template>
+        </q-list>
+
+        <!-- User chip bawah -->
+        <div class="q-mt-auto serene-card q-pa-sm row items-center q-gutter-sm">
+          <q-avatar size="36px" class="bg-serene-primary text-white text-weight-bold">
+            {{ initial }}
+          </q-avatar>
+          <div class="col">
+            <div class="text-caption text-weight-bold ellipsis">{{ displayName }}</div>
+            <div class="text-caption text-serene-variant" style="font-size:10px;">Level Scholar</div>
+          </div>
+        </div>
+      </div>
+    </q-drawer>
+
+    <!-- ============ RIGHT DRAWER (SETTINGS) ============ -->
+    <q-drawer v-model="rightDrawerOpen" side="right" bordered class="bg-serene">
+      <q-list padding>
+        <q-item-label header>Settings</q-item-label>
         <q-item clickable v-ripple @click="logout">
-          <q-item-section avatar>
-            <q-icon name="logout" />
-          </q-item-section>
+          <q-item-section avatar><q-icon name="logout" /></q-item-section>
           <q-item-section>Logout</q-item-section>
         </q-item>
       </q-list>
     </q-drawer>
 
-    <!-- Page Content -->
+    <!-- ============ TOP BAR ============ -->
+    <q-header class="bg-serene text-serene-on-surface" elevated>
+      <q-toolbar>
+        <!-- Hamburger (mobile) -->
+        <q-btn
+          flat round dense icon="menu" class="lt-lg"
+          @click="leftDrawerOpen = !leftDrawerOpen"
+        />
+        <q-space />
+
+        <!-- Search pill (desktop) -->
+        <div class="serene-pill row items-center q-px-md q-py-xs gt-sm" style="width:320px;">
+          <q-icon name="search" color="serene-variant" />
+          <input
+            class="bg-transparent border-none outline-none text-caption q-ml-sm col"
+            placeholder="Cari materi tajwid..."
+          />
+        </div>
+
+        <q-space />
+
+        <q-btn flat round dense icon="notifications" class="text-serene-variant" />
+        <q-btn flat round dense icon="help" class="text-serene-variant" />
+        <q-avatar size="32px" class="q-ml-sm">
+          <img v-if="avatarUrl" :src="avatarUrl" />
+          <div v-else class="bg-serene-primary text-white text-weight-bold full-height flex flex-center">
+            {{ initial }}
+          </div>
+        </q-avatar>
+      </q-toolbar>
+    </q-header>
+
+    <!-- ============ MAIN CONTENT ============ -->
     <q-page-container>
-      <router-view />
+      <div class="main-container q-mx-auto">
+        <router-view />
+      </div>
     </q-page-container>
 
-    <!-- Fixed Footer with Menu -->
-    <q-footer elevated class="bg-green-gradient text-white">
+    <!-- ============ BOTTOM NAV (MOBILE < lg) ============ -->
+    <q-footer elevated class="bg-serene text-serene-primary lt-lg">
       <div class="row no-wrap items-center justify-around q-py-xs">
-        <q-btn flat round dense size="md" color="white" icon="home" :to="dashboardUrl" />
-        <q-btn
-          v-if="!isAdmin"
-          flat round dense size="md" color="white" icon="email" :to="inboxUrl"
-        />
-        <q-btn
-          v-if="!isAdmin"
-          flat round dense size="md" color="white" icon="wallet" :to="'/donasi'"
-        />
-        <q-btn
-          v-if="isSantri || isGuru"
-          flat round dense size="md" color="white" icon="person" :to="'/profile'"
-        />
-        <q-btn flat round dense size="md" color="white" icon="settings" @click="toggleRightDrawer" />
+        <q-btn flat round dense size="md" icon="home" :to="dashboardUrl" />
+        <q-btn v-if="!isAdmin" flat round dense size="md" icon="email" :to="inboxUrl" />
+        <q-btn v-if="!isAdmin" flat round dense size="md" icon="wallet" :to="'/donasi'" />
+        <q-btn v-if="isSantri || isGuru" flat round dense size="md" icon="person" :to="'/profile'" />
+        <q-btn flat round dense size="md" icon="settings" @click="toggleRightDrawer" />
       </div>
     </q-footer>
   </q-layout>
@@ -64,48 +150,46 @@ import { useRouter } from 'vue-router'
 
 export default {
   name: 'MainLayout',
-  setup() {
+  setup () {
+    const leftDrawerOpen = ref(false)
     const rightDrawerOpen = ref(false)
     const router = useRouter()
 
-    // Ambil role user dari localStorage
     const role = localStorage.getItem('role')
+    const displayName = localStorage.getItem('displayName') || localStorage.getItem('email') || 'User'
+    const avatarUrl = localStorage.getItem('avatar') || ''
+    const initial = (displayName || 'U').charAt(0).toUpperCase()
 
-    // Hitung dashboard URL sesuai role
     const dashboardUrl = computed(() => {
       switch (role) {
-        case 'santri':
-          return '/dashboardsantri'
-        case 'guru':
-          return '/dashboardguru'
-        case 'admin':
-          return '/dashboardadmin'
-        default:
-          return '/dashboard'
+        case 'santri': return '/dashboardsantri'
+        case 'guru': return '/dashboardguru'
+        case 'admin': return '/dashboardadmin'
+        default: return '/dashboard'
       }
     })
-
+    const learnUrl = computed(() => {
+      switch (role) {
+        case 'santri': return '/tajwid'
+        case 'guru': return '/tajwid'
+        case 'admin': return '/tajwid'
+        default: return '/tajwid'
+      }
+    })
     const inboxUrl = computed(() => {
       switch (role) {
-        case 'santri':
-          return '/santri-inbox'
-        case 'guru':
-          return '/guru-inbox'
-        case 'admin':
-          return '/dashboardadmin' // fallback, tab ini disembunyikan untuk admin
-        default:
-          return '/santri-inbox'
+        case 'santri': return '/santri-inbox'
+        case 'guru': return '/guru-inbox'
+        default: return '/santri-inbox'
       }
     })
 
-    const activeTab = computed(() => router.currentRoute.value.path)
     const isAdmin = computed(() => role === 'admin')
     const isGuru = computed(() => role === 'guru')
     const isSantri = computed(() => role === 'santri')
 
-    const toggleRightDrawer = () => {
-      rightDrawerOpen.value = !rightDrawerOpen.value
-    }
+    const toggleRightDrawer = () => { rightDrawerOpen.value = !rightDrawerOpen.value }
+    const isActive = (path) => router.currentRoute.value.path === path
 
     const logout = () => {
       localStorage.removeItem('token')
@@ -113,20 +197,36 @@ export default {
       localStorage.removeItem('email')
       localStorage.removeItem('role')
       localStorage.removeItem('profile')
+      localStorage.removeItem('displayName')
+      localStorage.removeItem('avatar')
       router.push('/')
     }
 
     return {
-      rightDrawerOpen,
-      toggleRightDrawer,
-      logout,
-      isAdmin,
-      isGuru,
-      isSantri,
-      dashboardUrl,
-      inboxUrl,
-      activeTab
+      leftDrawerOpen, rightDrawerOpen,
+      dashboardUrl, learnUrl, inboxUrl,
+      isAdmin, isGuru, isSantri,
+      displayName, avatarUrl, initial,
+      toggleRightDrawer, isActive, logout
     }
   }
 }
 </script>
+
+<style scoped>
+.main-container {
+  max-width: 1280px;
+  padding: 24px;
+}
+.serene-sidebar {
+  width: 256px;
+}
+.serene-nav-active {
+  background: var(--serene-primary-container);
+  color: var(--serene-on-primary-container);
+  border-radius: 12px;
+}
+@media (max-width: 1023px) {
+  .main-container { padding: 16px; }
+}
+</style>

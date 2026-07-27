@@ -1,98 +1,165 @@
 <template>
-  <div class="page-container">
-    <!-- Welcome Section -->
-    <div class="welcome-section">
-      <div class="welcome-content">
-        <h4 class="welcome-title">
-          Welcome <span class="text-primary">{{ profile.display_name || 'Guest' }}</span>
-        </h4>
-        <p class="welcome-subtitle">Ngaji Bareng di Aplikasi ini Yuk!</p>
+  <div class="santri-home">
+    <!-- Welcome + Streak -->
+    <section class="home-header row items-end justify-between q-mb-lg wrap">
+      <div class="fade-in-up">
+        <h2 class="headline-font home-greeting">Assalamu'alaikum, {{ displayName }}</h2>
+        <p class="home-sub">Semoga harimu penuh berkah dalam mempelajari Al-Qur'an.</p>
       </div>
-      <q-avatar size="48px" class="profile-avatar" @click="$router.push('/profile')">
-        <img :src="profile.avatar ? api.API_UPLOADS_URL + '/' + profile.avatar : 'https://placehold.co/100?text=👤'" alt="Avatar" />
-      </q-avatar>
-    </div>
-    
-    <!-- Search Bar -->
-    <q-input
-      v-model="searchText"
-      rounded
-      outlined
-      dense
-      placeholder="Cari Tajwid..."
-      debounce="300"
-      @keyup.enter="fetchSections"
-      class="search-bar"
-      bg-color="white"
-    >
-      <template v-slot:prepend>
-        <q-icon name="search" color="primary" />
-      </template>
-      <template v-slot:append>
-        <q-btn
-          v-if="searchText"
-          flat
-          dense
-          round
-          icon="clear"
-          color="grey"
-          @click="() => { searchText = ''; fetchSections(); }"
-        />
-      </template>
-    </q-input>
-
-    <!-- Continue Watching -->
-    <div v-if="continueWatching.length > 0" class="continue-section">
-      <div class="section-header">
-        <h5 class="section-title">Lanjutkan Pembelajaran</h5>
-      </div>
-      <q-scroll-area class="scroll-area">
-        <div class="card-row">
-          <q-card
-            v-for="log in continueWatching.slice(0, 6)" 
-            :key="log.id"
-            class="lesson-card"
-            :class="{ 'disabled-card': log.module_detail.is_deleted === 1 }"
-            @click="log.module_detail.is_deleted !== 1 && $router.push(`/lesson/${log.parent_id}`)"
-          >
-            <q-img 
-              :src="log.module_detail.thumbnail ? api.API_UPLOADS_URL + '/' + log.module_detail.thumbnail : 'https://placehold.co/300x150?text=Tajwid'"
-              class="card-thumbnail"
-              basic
-            >
-              <div class="progress-overlay">
-                <q-linear-progress 
-                  :value="log.last_position / log.duration" 
-                  color="primary" 
-                  class="progress-bar"
-                />
-              </div>
-            </q-img>
-            <q-card-section class="card-content">
-              <div class="text-bold card-title">{{ log.module_detail.title || 'Untitled Module' }}</div>
-              <div class="text-caption text-grey instructor">
-                By {{ log.module_detail.module_detail.instructor_profile?.display_name || 'Unknown' }}
-              </div>
-              <div class="progress-text">
-                {{ Math.floor((log.last_position / log.duration) * 100) || 0 }}% Completed
-              </div>
-              <div
-                v-if="log.module_detail.is_deleted === 1"
-                class="unavailable-badge"
-              >
-                Materi tidak tersedia
-              </div>
-            </q-card-section>
-          </q-card>
+      <div class="serene-card-soft streak-chip row items-center q-px-md q-py-sm">
+        <q-icon name="local_fire_department" color="serene-secondary" size="28px" />
+        <div class="q-ml-sm">
+          <div class="text-caption text-serene-variant text-uppercase" style="font-size:10px;letter-spacing:1px;">Daily Streak</div>
+          <div class="headline-font text-h6 text-serene-secondary leading-none">{{ streak }} Hari</div>
         </div>
-      </q-scroll-area>
-    </div>
-
-    <!-- Section List -->
-    <div class="tajwid-section">
-      <div class="section-header">
-        <h5 class="section-title">List Hukum Tajwid</h5>
       </div>
+    </section>
+
+    <!-- Top Grid: Progress + Lanjutkan Belajar -->
+    <section class="grid q-col-gutter-md q-mb-md santri-grid-3">
+      <!-- Progress Card -->
+      <div class="col-12 col-md-8">
+        <div class="serene-card-soft p-lg relative-position overflow-hidden flex column justify-between home-progress">
+          <div class="relative-position" style="z-index:1">
+            <q-chip class="serene-chip" color="serene-primary-container" text-color="serene-on-primary-container" size="sm">
+              Sedang Dipelajari
+            </q-chip>
+            <h3 class="headline-font text-h6 text-serene-on-surface q-mt-sm q-mb-md">{{ activeLesson }}</h3>
+            <div class="row items-center justify-between q-mb-xs">
+              <span class="text-body2 text-serene-variant">Total Progress</span>
+              <span class="text-weight-bold text-serene-primary">{{ progress }}%</span>
+            </div>
+            <q-linear-progress
+              :value="progress / 100"
+              color="serene-primary"
+              class="progress-glow rounded-borders"
+              style="height:10px;"
+            />
+            <div class="row q-gutter-md q-pt-md">
+              <div class="row items-center text-serene-variant text-caption">
+                <q-icon name="check_circle" color="serene-primary" size="sm" class="q-mr-xs" />
+                <span>{{ doneCount }} Materi Selesai</span>
+              </div>
+              <div class="row items-center text-serene-variant text-caption">
+                <q-icon name="schedule" color="serene-outline" size="sm" class="q-mr-xs" />
+                <span>{{ remainCount }} Materi Tersisa</span>
+              </div>
+            </div>
+          </div>
+          <div class="home-progress-deco" />
+        </div>
+      </div>
+
+      <!-- Lanjutkan Belajar -->
+      <div class="col-12 col-md-4">
+        <div class="serene-card p-lg relative-position overflow-hidden flex column justify-between text-white home-continue">
+          <div class="relative-position" style="z-index:1">
+            <p class="text-white text-caption text-uppercase" style="opacity:.8;letter-spacing:1px;">Lanjutkan Belajar</p>
+            <h3 class="headline-font text-h6 q-mb-xs">{{ continueLesson }}</h3>
+            <p class="text-body2" style="opacity:.85;">{{ continueDesc }}</p>
+            <div class="serene-card-soft q-pa-sm q-mt-md rounded-borders">
+              <p class="arabic-font text-center text-h6 q-my-none">{{ continueArabic }}</p>
+            </div>
+          </div>
+          <q-btn
+            unelevated
+            class="serene-btn-light q-mt-md full-width"
+            label="Lanjut Sekarang"
+            icon-right="arrow_forward"
+            @click="goContinue"
+          />
+          <div class="home-continue-deco" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Actions -->
+    <section class="grid q-col-gutter-md q-mb-md santri-grid-4">
+      <div v-for="qa in quickActions" :key="qa.label" class="col-6 col-md-3">
+        <button class="serene-card quick-action text-left interactive" @click="qa.action ? qa.action() : null">
+          <div class="quick-icon" :class="qa.colorClass">
+            <q-icon :name="qa.icon" size="24px" />
+          </div>
+          <div class="text-weight-bold text-serene-on-surface q-mt-sm">{{ qa.label }}</div>
+          <div class="text-caption text-serene-variant">{{ qa.desc }}</div>
+        </button>
+      </div>
+    </section>
+
+    <!-- Bottom: Saran Pelajaran + Achievement + Ayat Harian -->
+    <section class="grid q-col-gutter-md santri-grid-2">
+      <!-- Saran Pelajaran -->
+      <div class="col-12 col-md-7">
+        <div class="serene-card-soft p-md">
+          <div class="row items-center justify-between q-mb-md">
+            <h4 class="headline-font text-h6 q-my-none">Saran Pelajaran</h4>
+            <q-btn flat dense color="serene-primary" label="Lihat Semua" />
+          </div>
+          <div v-if="courses.length" class="column q-gutter-sm">
+            <div
+              v-for="c in courses.slice(0, 4)"
+              :key="c.id"
+              class="row items-center q-pa-sm hover-lift rounded-borders cursor-pointer"
+              @click="$router.push(`/module/${c.id}`)"
+            >
+              <q-avatar size="44px" class="bg-serene-surface text-serene-primary flex flex-center">
+                <q-icon name="music_note" />
+              </q-avatar>
+              <div class="col q-ml-md">
+                <div class="text-weight-bold text-serene-on-surface">{{ c.title }}</div>
+                <div class="text-caption text-serene-variant">Pelajari hukum tajwid ini</div>
+              </div>
+              <q-icon name="chevron_right" color="serene-outline-variant" />
+            </div>
+          </div>
+          <div v-else class="text-caption text-serene-variant">Belum ada saran pelajaran.</div>
+        </div>
+      </div>
+
+      <!-- Ayat Harian + Achievement -->
+      <div class="col-12 col-md-5 column q-gutter-md">
+        <!-- Ayat Harian -->
+        <div class="serene-card p-md relative-position overflow-hidden">
+          <div class="text-caption text-serene-variant q-mb-xs">Ayat Harian</div>
+          <p class="arabic-font text-h5 text-center text-serene-primary q-my-md" dir="rtl">{{ dailyVerse.arabic }}</p>
+          <div class="text-center">
+            <p class="text-body2 text-serene-variant italic">"{{ dailyVerse.translation }}"</p>
+            <p class="text-caption text-serene-outline q-mt-xs">— {{ dailyVerse.source }}</p>
+          </div>
+        </div>
+        <!-- Achievement -->
+        <div class="serene-card p-md text-center">
+          <q-icon name="workspace_premium" color="serene-secondary" size="40px" class="badge-glow rounded-borders" />
+          <div class="headline-font text-h6 text-serene-on-surface q-mt-xs">Scholar of the Month</div>
+          <p class="text-body2 text-serene-variant">Kamu masuk dalam 5% teratas bulan ini!</p>
+          <q-btn unelevated class="serene-btn-primary q-mt-sm" label="Klaim Reward" />
+        </div>
+      </div>
+    </section>
+
+    <!-- List Hukum Tajwid (tetap ada, di bawah) -->
+    <section class="tajwid-section q-mt-lg">
+      <div class="section-header q-mb-md">
+        <h5 class="headline-font section-title text-serene-on-surface">List Hukum Tajwid</h5>
+      </div>
+      <q-input
+        v-model="searchText"
+        rounded
+        outlined
+        dense
+        placeholder="Cari Tajwid..."
+        debounce="300"
+        @keyup.enter="fetchSections"
+        class="search-bar serene-pill-input"
+        bg-color="white"
+      >
+        <template v-slot:prepend>
+          <q-icon name="search" color="serene-primary" />
+        </template>
+        <template v-slot:append>
+          <q-btn v-if="searchText" flat dense round icon="clear" color="grey" @click="() => { searchText=''; fetchSections(); }" />
+        </template>
+      </q-input>
 
       <q-list class="section-list">
         <q-expansion-item
@@ -100,27 +167,22 @@
           :key="section.id"
           expand-separator
           dense
-          class="section-item"
+          class="section-item serene-card q-mb-sm"
           header-class="section-header-item"
           @show="fetchModules(section.id)"
         >
           <template v-slot:header>
             <div class="section-header-content">
-              <q-icon name="menu_book" color="primary" size="sm" class="q-mr-sm" />
-              <div class="text-subtitle1 section-name">{{ section.section_name }}</div>
+              <q-icon name="menu_book" color="serene-primary" size="sm" class="q-mr-sm" />
+              <div class="text-subtitle1 section-name text-serene-on-surface">{{ section.section_name }}</div>
               <q-space />
               <q-icon name="expand_more" />
             </div>
           </template>
-
           <q-list class="module-list">
             <q-item v-if="!modulesMap[section.id]" class="loading-item">
-              <q-item-section>
-                <q-skeleton type="text" width="80%" />
-                <q-skeleton type="text" width="60%" />
-              </q-item-section>
+              <q-item-section><q-skeleton type="text" width="80%" /></q-item-section>
             </q-item>
-
             <q-item
               v-for="module in modulesMap[section.id]"
               :key="module.id"
@@ -128,20 +190,14 @@
               @click="$router.push(`/module/${module.id}`)"
               class="module-item"
             >
-              <q-item-section avatar>
-                <q-icon name="play_circle" color="primary" />
-              </q-item-section>
-              <q-item-section>
-                <q-item-label class="module-title">{{ module.title }}</q-item-label>
-              </q-item-section>
-              <q-item-section side>
-                <q-icon name="chevron_right" color="grey-6" />
-              </q-item-section>
+              <q-item-section avatar><q-icon name="play_circle" color="serene-primary" /></q-item-section>
+              <q-item-section><q-item-label class="module-title text-serene-on-surface">{{ module.title }}</q-item-label></q-item-section>
+              <q-item-section side><q-icon name="chevron_right" color="serene-outline-variant" /></q-item-section>
             </q-item>
           </q-list>
         </q-expansion-item>
       </q-list>
-    </div>
+    </section>
   </div>
 </template>
 
@@ -159,20 +215,41 @@ const modulesMap = ref({});
 const searchText = ref('');
 const accessToken = localStorage.getItem('token');
 const userId = Number(localStorage.getItem('id'));
+const displayName = ref(localStorage.getItem('displayName') || localStorage.getItem('email') || 'Santri');
 
-// Fetch filtered or all sections
+// Statis sementara (backend streak menyusul)
+const streak = ref(5);
+const activeLesson = ref('Hukum Nun Sukun & Tanwin');
+const progress = ref(70);
+const doneCount = ref(3);
+const remainCount = ref(2);
+const continueLesson = ref('Idgham Bighunnah');
+const continueDesc = ref('Pelajari cara meleburkan suara nun mati ke dalam huruf Ya, Nun, Mim, atau Wau.');
+const continueArabic = ref('مَن يَقُولُ');
+const continueModuleId = ref(null);
+
+// Ayat Harian (statis, bisa diacak per hari)
+const dailyVerses = [
+  { arabic: 'فَإِنَّ مَعَ الْعُسْرِ يُسْرًا', translation: 'For indeed, with hardship [will be] ease.', source: 'Surah Ash-Sharh [94:5]' },
+  { arabic: 'وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا', translation: 'And recite the Quran with measured recitation.', source: 'Surah Al-Muzzammil [73:4]' },
+  { arabic: 'إِنَّ اللَّهَ مَعَ الصَّابِرِينَ', translation: 'Indeed, Allah is with the patient.', source: 'Surah Al-Baqarah [2:153]' }
+];
+const dailyVerse = ref(dailyVerses[new Date().getDate() % dailyVerses.length]);
+
+const quickActions = [
+  { label: 'Uji Pendengaran', desc: 'Latih telinga mengenali tajwid.', icon: 'hearing', colorClass: 'qa-primary', action: () => $router.push('/quiz') }
+];
+
+const goContinue = () => {
+  if (continueModuleId.value) $router.push(`/lesson/${continueModuleId.value}`);
+  else $router.push('/tajwid');
+};
+
 const fetchSections = async () => {
   try {
     const params = {};
-    if (searchText.value.trim()) {
-      params['section_name[$like]'] = `%${String(searchText.value.trim())}%`;
-    }
-
-    const sectionsRes = await axios.get(`${api.API_BASE_URL}/sections`, {
-      headers: authHeader(),
-      params
-    });
-
+    if (searchText.value.trim()) params['section_name[$like]'] = `%${String(searchText.value.trim())}%`;
+    const sectionsRes = await axios.get(`${api.API_BASE_URL}/sections`, { headers: authHeader(), params });
     sections.value = sectionsRes.data.data || [];
   } catch (e) {
     console.error('Failed to fetch sections:', e);
@@ -180,10 +257,8 @@ const fetchSections = async () => {
   }
 };
 
-// Fetch modules for specific section
 const fetchModules = async (sectionId) => {
   if (modulesMap.value[sectionId]) return;
-
   try {
     const res = await axios.get(`${api.API_BASE_URL}/modules`, {
       headers: authHeader(),
@@ -199,246 +274,82 @@ const fetchModules = async (sectionId) => {
 onMounted(async () => {
   const profileData = localStorage.getItem('profile');
   if (profileData) {
-    try {
-      profile.value = JSON.parse(profileData);
-    } catch (e) {
-      console.error('Error parsing profile from localStorage', e);
-    }
+    try { profile.value = JSON.parse(profileData); } catch (e) { console.error(e); }
   }
 
   await fetchSections();
 
   const [modulesResult, logsResult] = await Promise.allSettled([
-    axios.get(`${api.API_BASE_URL}/modules`, {
-      headers: authHeader(),
-    }),
-    axios.get(`${api.API_BASE_URL}/videologs`, {
-      headers: authHeader(),
-      params: { user_id: userId }
-    })
+    axios.get(`${api.API_BASE_URL}/modules`, { headers: authHeader() }),
+    axios.get(`${api.API_BASE_URL}/videologs`, { headers: authHeader(), params: { user_id: userId } })
   ]);
 
   if (modulesResult.status === 'fulfilled') {
-    const { data: modulesData } = modulesResult.value.data;
-    courses.value = modulesData;
+    courses.value = modulesResult.value.data.data || [];
   }
 
   if (logsResult.status === 'fulfilled') {
     const videoLogs = logsResult.value.data.data || [];
-    continueWatching.value = videoLogs
+    const cw = videoLogs
       .filter(v => v.is_complete === 0)
       .sort((a, b) => new Date(b.updated_date) - new Date(a.updated_date));
+    continueWatching.value = cw;
+    if (cw.length && cw[0].module_detail) {
+      continueLesson.value = cw[0].module_detail.title || continueLesson.value;
+      continueModuleId.value = cw[0].parent_id;
+      doneCount.value = videoLogs.filter(v => v.is_complete === 1).length;
+      remainCount.value = cw.length;
+    }
   }
 });
 </script>
 
 <style scoped>
-.page-container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
+.santri-home { max-width: 1280px; margin: 0 auto; }
+.home-greeting { font-size: 2rem; color: var(--serene-on-surface); }
+.home-sub { color: var(--serene-on-surface-variant); font-size: 1rem; }
+.streak-chip { border-radius: 16px; }
+.home-progress { border-radius: 16px; min-height: 200px; }
+.home-progress-deco {
+  position: absolute; right: -40px; bottom: -40px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: var(--serene-primary-container); opacity: .07;
 }
-
-.welcome-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+.home-continue { border-radius: 16px; min-height: 200px; background: var(--serene-primary); }
+.serene-btn-light {
+  background: #fff; color: var(--serene-primary);
+  border-radius: 12px; font-weight: 600;
+  transition: transform .15s ease;
 }
-
-.welcome-content {
-  flex: 1;
+.serene-btn-light:active { transform: scale(.97); }
+.home-continue-deco {
+  position: absolute; top: 0; right: 0;
+  background: rgba(255,255,255,.12);
+  width: 120px; height: 120px; border-bottom-left-radius: 100%;
 }
-
-.welcome-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 4px;
+.quick-action { border-radius: 16px; padding: 20px; width: 100%; }
+.quick-icon {
+  width: 44px; height: 44px; border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
 }
-
-.welcome-subtitle {
-  font-size: 1rem;
-  color: #666;
-}
-
-.profile-avatar {
-  cursor: pointer;
-  border: 2px solid #eee;
-  transition: transform 0.2s;
-}
-
-.profile-avatar:hover {
-  transform: scale(1.05);
-}
-
-.search-bar {
-  margin: 16px 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.continue-section {
- margin: 16px 0 8px 0;
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-}
-
-.section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #333;
-}
-
-.scroll-area {
-  height: 280px;
-}
-
-.card-row {
-  display: flex;
-  gap: 16px;
-  padding: 8px 4px;
-}
-
-.lesson-card {
-  width: 220px;
-  border-radius: 12px;
-  overflow: hidden;
-  transition: transform 0.2s, box-shadow 0.2s;
-  cursor: pointer;
-}
-
-.lesson-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 6px 16px rgba(0,0,0,0.1);
-}
-
-.disabled-card {
-  opacity: 0.7;
-  filter: grayscale(70%);
-  cursor: not-allowed;
-}
-
-.card-thumbnail {
-  height: 140px;
-}
-
-.progress-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 0 8px;
-}
-
-.progress-bar {
-  height: 4px;
-  border-radius: 2px;
-}
-
-.card-content {
-  padding: 12px;
-}
-
-.card-title {
-  font-size: 0.9rem;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.instructor {
-  margin: 4px 0;
-}
-
-.progress-text {
-  font-size: 0.75rem;
-  color: #666;
-  margin-top: 4px;
-}
-
-.unavailable-badge {
-  background-color: #ff4444;
-  color: white;
-  font-size: 0.7rem;
-  padding: 4px;
-  border-radius: 4px;
-  text-align: center;
-  margin-top: 8px;
-}
-
-.tajwid-section {
-  margin: 8px 0 24px 0; /* Reduced from original 40px 0 */
-  padding-top: 0; /* Added to remove any additional padding */
-}
-
-.section-list {
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.section-item {
-  margin-bottom: 8px;
-}
-
-.section-header-item {
-  background-color: #f8f9fa;
-  border-radius: 8px;
-  padding: 12px 16px;
-  transition: background-color 0.2s;
-}
-
-.section-header-item:hover {
-  background-color: #f1f3f5;
-}
-
-.section-header-content {
-  display: flex;
-  align-items: center;
-  width: 100%;
-}
-
-.section-name {
-  font-weight: 500;
-}
-
-.module-list {
-  padding: 8px;
-}
-
-.module-item {
-  border-radius: 8px;
-  margin-bottom: 4px;
-  transition: background-color 0.2s;
-}
-
-.module-item:hover {
-  background-color: #f8f9fa;
-}
-
-.module-title {
-  font-weight: 500;
-  font-size: 0.9rem;
-}
-
-.loading-item {
-  padding: 16px;
-}
-
-@media (max-width: 768px) {
-  .card-row {
-    padding: 8px 0;
-  }
-  
-  .lesson-card {
-    width: 180px;
-  }
-  
-  .card-thumbnail {
-    height: 120px;
-  }
+.qa-primary { background: var(--serene-primary-container); color: var(--serene-primary); }
+.qa-gold { background: var(--serene-secondary-container); color: var(--serene-secondary); }
+.qa-tertiary { background: var(--serene-tertiary); color: #fff; }
+.serene-chip { border-radius: 9999px; }
+.santri-grid-3 { display: grid; grid-template-columns: repeat(12, 1fr); }
+.santri-grid-3 > .col-md-8 { grid-column: span 8; }
+.santri-grid-3 > .col-md-4 { grid-column: span 4; }
+.santri-grid-4 { display: grid; grid-template-columns: repeat(12, 1fr); }
+.santri-grid-4 > .col-md-3 { grid-column: span 3; }
+.santri-grid-2 { display: grid; grid-template-columns: repeat(12, 1fr); }
+.santri-grid-2 > .col-md-7 { grid-column: span 7; }
+.santri-grid-2 > .col-md-5 { grid-column: span 5; }
+.search-bar { max-width: 480px; box-shadow: 0 2px 8px rgba(5,150,105,.08); }
+.section-title { font-weight: 600; }
+@media (max-width: 1023px) {
+  .santri-grid-3 > .col-md-8, .santri-grid-3 > .col-md-4 { grid-column: span 12; }
+  .santri-grid-4 > .col-md-3 { grid-column: span 6; }
+  .santri-grid-2 > .col-md-7, .santri-grid-2 > .col-md-5 { grid-column: span 12; }
+  .home-greeting { font-size: 1.5rem; }
 }
 </style>

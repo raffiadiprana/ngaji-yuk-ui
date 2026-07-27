@@ -1,6 +1,7 @@
-// Boot file: mendaftarkan axios interceptor global agar request ke API
-// tidak pernah di-cache oleh Cloudflare/CDN (mencegah cached 404 stale).
-// Berlaku ke semua `import axios from 'axios'` karena axios default adalah singleton.
+// Boot file: mencegah Cloudflare/CDN menyajikan cached 404 stale untuk request API.
+// CATATAN: jangan tambahkan query param (?_t=) ke URL karena Feathers menolak
+// query tak dikenal dengan 422 (additionalProperties:false di query schema).
+// Cukup gunakan header Cache-Control / Pragma no-cache.
 import axios from 'axios'
 
 export default ({}) => {
@@ -8,14 +9,6 @@ export default ({}) => {
     config.headers = config.headers || {}
     config.headers['Cache-Control'] = 'no-cache'
     config.headers['Pragma'] = 'no-cache'
-
-    // Cache-buster: tambah ?_t=timestamp agar CDN tidak sajikan response lama
-    if (config.url) {
-      const sep = config.url.includes('?') ? '&' : '?'
-      if (!/[?&]_t=/.test(config.url)) {
-        config.url = `${config.url}${sep}_t=${Date.now()}`
-      }
-    }
     return config
   })
 }

@@ -1,211 +1,216 @@
 <template>
-  <div class="page-container q-pa-md">
-    <!-- Welcome Section -->
-    <div class="welcome-section">
-      <div class="welcome-content">
-        <h4 class="welcome-title">
-          Welcome <span class="text-primary">{{ profile.display_name || 'Guest' }}</span>
-        </h4>
-        <p class="welcome-subtitle">Kelola modul, materi, dan quiz pembelajaran tajwid</p>
-      </div>
-      <q-avatar size="48px" class="profile-avatar" @click="$router.push('/profile')">
-        <img :src="profile.avatar ? api.API_UPLOADS_URL + '/' + profile.avatar : 'https://placehold.co/100?text=👤'" alt="Avatar" />
-      </q-avatar>
+  <div class="guru-page">
+    <div class="aurora-bg" aria-hidden="true">
+      <span class="aurora a1" />
+      <span class="aurora a2" />
+      <span class="aurora a3" />
     </div>
 
-    <!-- Module Section -->
-    <div class="section-card">
-      <div class="section-header">
-        <h5 class="section-title">
-          <q-icon name="collections_bookmark" color="primary" class="q-mr-sm" />
-          Daftar Modul Tajwid
-        </h5>
-        <q-btn 
-          label="Tambah Modul" 
-          color="primary" 
-          icon="add" 
-          rounded 
-          dense 
-          @click="onAddModule"
+    <div class="page-container q-pa-md">
+      <!-- Welcome Section -->
+      <div class="welcome-section serene-card">
+        <div class="welcome-content">
+          <h4 class="welcome-title">
+            Welcome <span class="text-serene-primary">{{ profile.display_name || 'Guest' }}</span>
+          </h4>
+          <p class="welcome-subtitle">Kelola modul, materi, dan quiz pembelajaran tajwid</p>
+        </div>
+        <q-avatar size="48px" class="profile-avatar" @click="$router.push('/profile')">
+          <img :src="profile.avatar ? api.API_UPLOADS_URL + '/' + profile.avatar : 'https://placehold.co/100?text=👤'" alt="Avatar" />
+        </q-avatar>
+      </div>
+
+      <!-- Module Section -->
+      <div class="section-card serene-card q-mt-lg">
+        <div class="section-header">
+          <h5 class="section-title">
+            <q-icon name="collections_bookmark" color="serene-primary" class="q-mr-sm" />
+            Daftar Modul Tajwid
+          </h5>
+          <q-btn
+            label="Tambah Modul"
+            icon="add"
+            rounded
+            dense
+            class="serene-btn-primary"
+            @click="onAddModule"
+          />
+        </div>
+
+        <div class="card-grid">
+          <q-card
+            v-for="course in courses"
+            :key="course.id"
+            class="content-card interactive hover-lift"
+            @click="editCourse(course)"
+          >
+            <q-card-section class="card-header">
+              <q-icon name="collections_bookmark" color="serene-primary" size="sm" />
+              <div class="text-subtitle1 text-weight-bold q-ml-sm">{{ course.title }}</div>
+            </q-card-section>
+
+            <q-separator />
+
+            <q-card-actions align="right" class="card-actions">
+              <q-btn flat round dense icon="more_vert" @click.stop>
+                <q-menu auto-close>
+                  <q-list>
+                    <q-item clickable @click="editCourse(course)">
+                      <q-item-section avatar>
+                        <q-icon name="edit" color="serene-primary" />
+                      </q-item-section>
+                      <q-item-section>Edit</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="deleteModul(course)">
+                      <q-item-section avatar>
+                        <q-icon name="delete" color="negative" />
+                      </q-item-section>
+                      <q-item-section>Hapus</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </q-card-actions>
+          </q-card>
+        </div>
+
+        <q-btn
+          v-if="hasMoreCourses"
+          label="Tampilkan lebih banyak"
+          outline
+          class="serene-btn-outline full-width q-mt-md"
+          @click="loadMoreCourses"
+          :loading="loadingCourses"
         />
       </div>
 
-      <div class="card-grid">
-        <q-card
-          v-for="course in courses"
-          :key="course.id"
-          class="content-card"
-          @click="editCourse(course)"
-        >
-          <q-card-section class="card-header">
-            <q-icon name="collections_bookmark" color="primary" size="sm" />
-            <div class="text-subtitle1 text-weight-bold q-ml-sm">{{ course.title }}</div>
-          </q-card-section>
+      <!-- Lessons Section -->
+      <div class="section-card serene-card q-mt-lg">
+        <div class="section-header">
+          <h5 class="section-title">
+            <q-icon name="ondemand_video" color="serene-primary" class="q-mr-sm" />
+            Daftar Materi Tajwid
+          </h5>
+          <q-btn
+            label="Tambah Materi"
+            icon="add"
+            rounded
+            dense
+            class="serene-btn-primary"
+            @click="onAddLesson"
+          />
+        </div>
 
-          <q-separator />
+        <div class="card-grid">
+          <q-card
+            v-for="lesson in lessons"
+            :key="lesson.id"
+            class="content-card interactive hover-lift"
+            @click="editLesson(lesson)"
+          >
+            <q-card-section class="card-header">
+              <q-icon name="ondemand_video" color="serene-primary" size="sm" />
+              <div class="text-subtitle1 text-weight-bold q-ml-sm">{{ lesson.title }}</div>
+            </q-card-section>
 
-          <q-card-actions align="right" class="card-actions">
-            <q-btn flat round dense icon="more_vert" @click.stop>
-              <q-menu auto-close>
-                <q-list>
-                  <q-item clickable @click="editCourse(course)">
-                    <q-item-section avatar>
-                      <q-icon name="edit" color="primary" />
-                    </q-item-section>
-                    <q-item-section>Edit</q-item-section>
-                  </q-item>
-                  <q-item clickable @click="deleteModul(course)">
-                    <q-item-section avatar>
-                      <q-icon name="delete" color="negative" />
-                    </q-item-section>
-                    <q-item-section>Hapus</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-btn>
-          </q-card-actions>
-        </q-card>
-      </div>
+            <q-separator />
 
-      <q-btn
-        v-if="hasMoreCourses"
-        label="Tampilkan lebih banyak"
-        outline
-        color="primary"
-        class="full-width q-mt-md"
-        @click="loadMoreCourses"
-        :loading="loadingCourses"
-      />
-    </div>
+            <q-card-actions align="right" class="card-actions">
+              <q-btn flat round dense icon="more_vert" @click.stop>
+                <q-menu auto-close>
+                  <q-list>
+                    <q-item clickable @click="editLesson(lesson)">
+                      <q-item-section avatar>
+                        <q-icon name="edit" color="serene-primary" />
+                      </q-item-section>
+                      <q-item-section>Edit</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="deleteLesson(lesson)">
+                      <q-item-section avatar>
+                        <q-icon name="delete" color="negative" />
+                      </q-item-section>
+                      <q-item-section>Hapus</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </q-card-actions>
+          </q-card>
+        </div>
 
-    <!-- Lessons Section -->
-    <div class="section-card q-mt-lg">
-      <div class="section-header">
-        <h5 class="section-title">
-          <q-icon name="ondemand_video" color="primary" class="q-mr-sm" />
-          Daftar Materi Tajwid
-        </h5>
-        <q-btn 
-          label="Tambah Materi" 
-          color="primary" 
-          icon="add" 
-          rounded 
-          dense 
-          @click="onAddLesson"
+        <q-btn
+          v-if="hasMoreLessons"
+          label="Tampilkan lebih banyak"
+          outline
+          class="serene-btn-outline full-width q-mt-md"
+          @click="loadMoreLessons"
+          :loading="loadingLessons"
         />
       </div>
 
-      <div class="card-grid">
-        <q-card
-          v-for="lesson in lessons"
-          :key="lesson.id"
-          class="content-card"
-          @click="editLesson(lesson)"
-        >
-          <q-card-section class="card-header">
-            <q-icon name="ondemand_video" color="primary" size="sm" />
-            <div class="text-subtitle1 text-weight-bold q-ml-sm">{{ lesson.title }}</div>
-          </q-card-section>
+      <!-- Quiz Section -->
+      <div class="section-card serene-card q-mt-lg">
+        <div class="section-header">
+          <h5 class="section-title">
+            <q-icon name="quiz" color="serene-primary" class="q-mr-sm" />
+            Daftar Quiz
+          </h5>
+          <q-btn
+            label="Tambah Quiz"
+            icon="add"
+            rounded
+            dense
+            class="serene-btn-primary"
+            @click="onAddQuiz"
+          />
+        </div>
 
-          <q-separator />
+        <div class="card-grid">
+          <q-card
+            v-for="quiz in quizzes"
+            :key="quiz.id"
+            class="content-card interactive hover-lift"
+            @click="editQuiz(quiz)"
+          >
+            <q-card-section class="card-header">
+              <q-icon name="quiz" color="serene-primary" size="sm" />
+              <div class="text-subtitle1 text-weight-bold q-ml-sm ellipsis-text">{{ quiz.question }}</div>
+            </q-card-section>
 
-          <q-card-actions align="right" class="card-actions">
-            <q-btn flat round dense icon="more_vert" @click.stop>
-              <q-menu auto-close>
-                <q-list>
-                  <q-item clickable @click="editLesson(lesson)">
-                    <q-item-section avatar>
-                      <q-icon name="edit" color="primary" />
-                    </q-item-section>
-                    <q-item-section>Edit</q-item-section>
-                  </q-item>
-                  <q-item clickable @click="deleteLesson(lesson)">
-                    <q-item-section avatar>
-                      <q-icon name="delete" color="negative" />
-                    </q-item-section>
-                    <q-item-section>Hapus</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-btn>
-          </q-card-actions>
-        </q-card>
-      </div>
+            <q-separator />
 
-      <q-btn
-        v-if="hasMoreLessons"
-        label="Tampilkan lebih banyak"
-        outline
-        color="primary"
-        class="full-width q-mt-md"
-        @click="loadMoreLessons"
-        :loading="loadingLessons"
-      />
-    </div>
+            <q-card-actions align="right" class="card-actions">
+              <q-btn flat round dense icon="more_vert" @click.stop>
+                <q-menu auto-close>
+                  <q-list>
+                    <q-item clickable @click="editQuiz(quiz)">
+                      <q-item-section avatar>
+                        <q-icon name="edit" color="serene-primary" />
+                      </q-item-section>
+                      <q-item-section>Edit</q-item-section>
+                    </q-item>
+                    <q-item clickable @click="deleteQuiz(quiz)">
+                      <q-item-section avatar>
+                        <q-icon name="delete" color="negative" />
+                      </q-item-section>
+                      <q-item-section>Hapus</q-item-section>
+                    </q-item>
+                  </q-list>
+                </q-menu>
+              </q-btn>
+            </q-card-actions>
+          </q-card>
+        </div>
 
-    <!-- Quiz Section -->
-    <div class="section-card q-mt-lg">
-      <div class="section-header">
-        <h5 class="section-title">
-          <q-icon name="quiz" color="primary" class="q-mr-sm" />
-          Daftar Quiz
-        </h5>
-        <q-btn 
-          label="Tambah Quiz" 
-          color="primary" 
-          icon="add" 
-          rounded 
-          dense 
-          @click="onAddQuiz"
+        <q-btn
+          v-if="hasMoreQuizzes"
+          label="Tampilkan lebih banyak"
+          outline
+          class="serene-btn-outline full-width q-mt-md"
+          @click="loadMoreQuizzes"
+          :loading="loadingQuizzes"
         />
       </div>
-
-      <div class="card-grid">
-        <q-card
-          v-for="quiz in quizzes"
-          :key="quiz.id"
-          class="content-card"
-          @click="editQuiz(quiz)"
-        >
-          <q-card-section class="card-header">
-            <q-icon name="quiz" color="primary" size="sm" />
-            <div class="text-subtitle1 text-weight-bold q-ml-sm ellipsis-text">{{ quiz.question }}</div>
-          </q-card-section>
-
-          <q-separator />
-
-          <q-card-actions align="right" class="card-actions">
-            <q-btn flat round dense icon="more_vert" @click.stop>
-              <q-menu auto-close>
-                <q-list>
-                  <q-item clickable @click="editQuiz(quiz)">
-                    <q-item-section avatar>
-                      <q-icon name="edit" color="primary" />
-                    </q-item-section>
-                    <q-item-section>Edit</q-item-section>
-                  </q-item>
-                  <q-item clickable @click="deleteQuiz(quiz)">
-                    <q-item-section avatar>
-                      <q-icon name="delete" color="negative" />
-                    </q-item-section>
-                    <q-item-section>Hapus</q-item-section>
-                  </q-item>
-                </q-list>
-              </q-menu>
-            </q-btn>
-          </q-card-actions>
-        </q-card>
-      </div>
-
-      <q-btn
-        v-if="hasMoreQuizzes"
-        label="Tampilkan lebih banyak"
-        outline
-        color="primary"
-        class="full-width q-mt-md"
-        @click="loadMoreQuizzes"
-        :loading="loadingQuizzes"
-      />
     </div>
   </div>
 </template>
@@ -519,113 +524,141 @@
 </script>
 
 <style scoped>
+  .guru-page {
+    min-height: 100vh;
+    background: var(--serene-bg);
+    position: relative;
+  }
+  .aurora-bg {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    z-index: 0;
+    pointer-events: none;
+  }
+  .aurora {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(70px);
+    opacity: 0.25;
+  }
+  .aurora.a1 { width: 420px; height: 420px; background: var(--serene-primary); top: -120px; left: -100px; }
+  .aurora.a2 { width: 360px; height: 360px; background: var(--serene-secondary); bottom: -120px; right: -80px; }
+  .aurora.a3 { width: 300px; height: 300px; background: #a7f3d0; top: 40%; left: 60%; }
+
   .page-container {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.welcome-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
-}
-
-.welcome-content {
-  flex: 1;
-}
-
-.welcome-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 4px;
-}
-
-.welcome-subtitle {
-  font-size: 1rem;
-  color: #666;
-}
-
-.profile-avatar {
-  cursor: pointer;
-  border: 2px solid #eee;
-  transition: transform 0.2s;
-}
-
-.profile-avatar:hover {
-  transform: scale(1.05);
-}
-
-.section-card {
-  background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
-}
-
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-}
-
-.card-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 16px;
-}
-
-.content-card {
-  border-radius: 10px;
-  transition: all 0.3s ease;
-  cursor: pointer;
-}
-
-.content-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
-}
-
-.card-header {
-  display: flex;
-  align-items: center;
-  padding: 16px;
-}
-
-.card-actions {
-  padding: 8px;
-}
-
-.ellipsis-text {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  max-width: 200px;
-}
-
-@media (max-width: 768px) {
-  .card-grid {
-    grid-template-columns: 1fr;
+    position: relative;
+    z-index: 1;
+    max-width: 1200px;
+    margin: 0 auto;
   }
-  
-  .section-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  
+
   .welcome-section {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 24px;
+    margin-bottom: 24px;
   }
-}
+
+  .welcome-content {
+    flex: 1;
+  }
+
+  .welcome-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--serene-on-surface);
+    margin-bottom: 4px;
+  }
+
+  .welcome-subtitle {
+    font-size: 1rem;
+    color: var(--serene-variant);
+  }
+
+  .profile-avatar {
+    cursor: pointer;
+    border: 2px solid var(--serene-border);
+    transition: transform 0.2s;
+  }
+
+  .profile-avatar:hover {
+    transform: scale(1.05);
+  }
+
+  .section-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+  }
+
+  .section-title {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--serene-on-surface);
+    display: flex;
+    align-items: center;
+  }
+
+  .card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+  }
+
+  .content-card {
+    border-radius: 16px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
+  }
+
+  .content-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    padding: 16px;
+  }
+
+  .card-actions {
+    padding: 8px;
+  }
+
+  .ellipsis-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 200px;
+  }
+
+  @media (max-width: 768px) {
+    .card-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .section-header {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .welcome-section {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  }
 </style>

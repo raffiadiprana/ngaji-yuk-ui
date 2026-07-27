@@ -151,7 +151,7 @@ const submitForm = async () => {
         headers: authHeader(),
       })
     } else {
-      await axios.post(`${api.API_BASE_URL}/modules`, payload, {
+      await axios.post(`${api.API_BASE_URL}/modules/`, payload, {
         headers: authHeader(),
       })
     }

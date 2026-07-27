@@ -3,7 +3,7 @@
     <!-- Welcome + Streak -->
     <section class="home-header row items-end justify-between q-mb-lg wrap">
       <div class="fade-in-up">
-        <h2 class="headline-font home-greeting">Assalamu'alaikum, {{ displayName }}</h2>
+        <h2 class="headline-font home-greeting">Assalamu'alaikum, {{ shortName() }}</h2>
         <p class="home-sub">Semoga harimu penuh berkah dalam mempelajari Al-Qur'an.</p>
       </div>
       <div class="serene-card-soft streak-chip row items-center q-px-md q-py-sm">
@@ -216,6 +216,12 @@ const searchText = ref('');
 const accessToken = localStorage.getItem('token');
 const userId = Number(localStorage.getItem('id'));
 const displayName = ref(localStorage.getItem('displayName') || localStorage.getItem('email') || 'Santri');
+// Untuk mobile: jika displayName berupa email, ambil bagian sebelum '@'
+const shortName = () => {
+  const raw = displayName.value || '';
+  if (raw.includes('@')) return raw.split('@')[0];
+  return raw;
+};
 
 // Statis sementara (backend streak menyusul)
 const streak = ref(5);
@@ -305,8 +311,19 @@ onMounted(async () => {
 </script>
 
 <style scoped>
-.santri-home { max-width: 1280px; margin: 0 auto; }
-.home-greeting { font-size: 2rem; color: var(--serene-on-surface); }
+.santri-home {
+  max-width: 1280px;
+  margin: 0 auto;
+  overflow-x: hidden;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+.home-greeting {
+  font-size: 2rem;
+  color: var(--serene-on-surface);
+  word-break: break-word;
+  max-width: 100%;
+}
 .home-sub { color: var(--serene-on-surface-variant); font-size: 1rem; }
 .streak-chip { border-radius: 16px; }
 .home-progress { border-radius: 16px; min-height: 200px; }
@@ -350,6 +367,20 @@ onMounted(async () => {
   .santri-grid-3 > .col-md-8, .santri-grid-3 > .col-md-4 { grid-column: span 12; }
   .santri-grid-4 > .col-md-3 { grid-column: span 6; }
   .santri-grid-2 > .col-md-7, .santri-grid-2 > .col-md-5 { grid-column: span 12; }
-  .home-greeting { font-size: 1.5rem; }
+  .home-greeting { font-size: 1.4rem; line-height: 1.3; }
+  .home-header { margin-bottom: 20px !important; }
+  .home-progress, .home-continue { min-height: auto; }
+  /* Spacing lebih lega di mobile */
+  .santri-home { padding-left: 14px; padding-right: 14px; }
+  .santri-grid-3, .santri-grid-4, .santri-grid-2 { row-gap: 14px; }
+  .serene-card, .serene-card-soft { padding: 16px; }
+  .quick-action { padding: 16px; }
+  .tajwid-section { margin-top: 20px; }
+}
+/* Cegah scroll horizontal di seluruh layout mobile */
+@media (max-width: 1023px) {
+  body, #q-app, .q-layout, .q-page-container { overflow-x: hidden; max-width: 100vw; }
+  .q-footer { position: fixed; bottom: 0; left: 0; right: 0; }
+  .q-page-container { padding-bottom: 64px; }
 }
 </style>

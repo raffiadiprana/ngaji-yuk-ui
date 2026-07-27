@@ -377,8 +377,7 @@ onMounted(async () => {
   .quick-action { padding: 16px; }
   .tajwid-section { margin-top: 32px; }
   .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-/* Cegah scroll horizontal di seluruh layout mobile */
-@media (max-width: 1023px) {
+  /* Cegah scroll horizontal di seluruh layout mobile */
   body, #q-app, .q-layout, .q-page-container { overflow-x: hidden; max-width: 100vw; }
   .q-footer { position: fixed; bottom: 0; left: 0; right: 0; }
   .q-page-container { padding-bottom: 64px; }

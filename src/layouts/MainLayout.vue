@@ -38,21 +38,21 @@
 
     <!-- Fixed Footer with Menu -->
     <q-footer elevated class="bg-green-gradient text-white">
-      <div class="row no-wrap items-center justify-around q-py-sm">
-        <q-btn flat round color="white" icon="home" :to="dashboardUrl" />
+      <div class="row no-wrap items-center justify-around q-py-xs">
+        <q-btn flat round dense size="md" color="white" icon="home" :to="dashboardUrl" />
         <q-btn
           v-if="!isAdmin"
-          flat round color="white" icon="email" :to="inboxUrl"
+          flat round dense size="md" color="white" icon="email" :to="inboxUrl"
         />
         <q-btn
           v-if="!isAdmin"
-          flat round color="white" icon="wallet" :to="'/donasi'"
+          flat round dense size="md" color="white" icon="wallet" :to="'/donasi'"
         />
         <q-btn
           v-if="isSantri || isGuru"
-          flat round color="white" icon="person" :to="'/profile'"
+          flat round dense size="md" color="white" icon="person" :to="'/profile'"
         />
-        <q-btn flat round color="white" icon="settings" @click="toggleRightDrawer" />
+        <q-btn flat round dense size="md" color="white" icon="settings" @click="toggleRightDrawer" />
       </div>
     </q-footer>
   </q-layout>

@@ -48,7 +48,7 @@
           </div>
           <q-card
             class="serene-card roadmap-card interactive hover-lift"
-            @click="editTajwid(tajwid)"
+            @click="onNodeClick(tajwid)"
           >
             <div class="row items-center no-wrap">
               <q-avatar size="48px" class="roadmap-avatar flex flex-center bg-serene-surface text-serene-primary">
@@ -67,10 +67,10 @@
                 </div>
                 <div class="text-caption text-serene-variant q-mt-xs">Hukum Tajwid · Checkpoint {{ idx + 1 }}</div>
               </div>
-              <q-btn flat round dense icon="more_vert" @click.stop class="q-ml-sm">
+              <q-btn v-if="isGuru || isAdmin" flat round dense icon="more_vert" @click.stop class="q-ml-sm">
                 <q-menu auto-close>
                   <q-list style="min-width: 140px;">
-                    <q-item clickable @click="editTajwid(tajwid)" class="text-serene-primary">
+                      <q-item v-if="isGuru || isAdmin" clickable @click="editTajwid(tajwid)" class="text-serene-primary">
                       <q-item-section avatar><q-icon name="edit" /></q-item-section>
                       <q-item-section>Edit</q-item-section>
                     </q-item>
@@ -178,6 +178,30 @@ const loadMoreCourses = () => {
 
 const onAddTajwid = () => router.push('/tajwid-form')
 const editTajwid = (tajwid) => router.push(`/tajwid-form/${tajwid.id}`)
+
+// Klik node roadmap: santri diarahkan ke materi (module) pertama section itu.
+// Guru/Admin tetap ke form edit nama hukum tajwid.
+const onNodeClick = async (tajwid) => {
+  if (isGuru.value || isAdmin.value) {
+    editTajwid(tajwid)
+    return
+  }
+  try {
+    const res = await axios.get(`${api.API_BASE_URL}/modules`, {
+      headers: authHeader(),
+      params: { section_id: tajwid.id, is_deleted: 0 }
+    })
+    const mods = res.data?.data ?? []
+    if (mods.length) {
+      router.push(`/module/${mods[0].id}`)
+    } else {
+      $q.notify({ type: 'info', message: 'Belum ada materi untuk hukum tajwid ini.' })
+    }
+  } catch (e) {
+    console.error('[TajwidPage] gagal ambil modules section:', e)
+    $q.notify({ type: 'negative', message: 'Gagal membuka materi.' })
+  }
+}
 
 const deleteTajwid = (section) => {
   $q.dialog({

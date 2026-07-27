@@ -38,33 +38,22 @@
 
     <!-- Fixed Footer with Menu -->
     <q-footer elevated class="bg-green-gradient text-white">
-      <q-tabs :model-value="activeTab">
-        <!-- Selalu tampil -->
-        <q-tab :name="dashboardUrl" icon="home" :to="dashboardUrl" />
-
-        <!-- Tampil hanya untuk non-admin -->
-        <q-tab
+      <div class="row no-wrap items-center justify-around q-py-sm">
+        <q-btn flat round color="white" icon="home" :to="dashboardUrl" />
+        <q-btn
           v-if="!isAdmin"
-          :name="inboxUrl"
-          icon="email"
-          :to="inboxUrl"
+          flat round color="white" icon="email" :to="inboxUrl"
         />
-        <q-tab
+        <q-btn
           v-if="!isAdmin"
-          name="/donasi"
-          icon="wallet"
-          :to="'/donasi'"
+          flat round color="white" icon="wallet" :to="'/donasi'"
         />
-        <q-tab
+        <q-btn
           v-if="isSantri || isGuru"
-          name="/profile"
-          icon="person"
-          :to="'/profile'"
+          flat round color="white" icon="person" :to="'/profile'"
         />
-
-        <!-- Selalu tampil -->
-        <q-tab name="/settings" icon="settings" @click="toggleRightDrawer" />
-      </q-tabs>
+        <q-btn flat round color="white" icon="settings" @click="toggleRightDrawer" />
+      </div>
     </q-footer>
   </q-layout>
 </template>

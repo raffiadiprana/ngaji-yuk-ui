@@ -1,186 +1,193 @@
 <template>
-  <div class="container q-pa-md">
-    <!-- Welcome Section -->
-    <div class="welcome-section">
-      <div class="row items-center justify-between q-mb-lg">
-        <div class="col">
-          <h4 class="text-bold welcome-title">
-            Welcome <span class="text-primary">{{ profile.display_name || 'Guest' }}</span>
-          </h4>
-          <p class="text-grey-7 welcome-subtitle">Manage your students and teachers</p>
-        </div>
-      </div>
+  <div class="admin-page">
+    <div class="aurora-bg" aria-hidden="true">
+      <span class="aurora a1" />
+      <span class="aurora a2" />
+      <span class="aurora a3" />
     </div>
 
-    <!-- Main Content Grid -->
-    <div class="main-grid">
-      <!-- Students Section -->
-      <div class="section-card">
-        <div class="section-header">
-          <h5 class="text-bold section-title">Daftar Santri</h5>
-          
+    <div class="container q-pa-md">
+      <!-- Welcome Section -->
+      <div class="welcome-section serene-card">
+        <div class="row items-center justify-between q-mb-lg">
+          <div class="col">
+            <h4 class="text-bold welcome-title">
+              Welcome <span class="text-serene-primary">{{ profile.display_name || 'Guest' }}</span>
+            </h4>
+            <p class="welcome-subtitle">Manage your students and teachers</p>
+          </div>
         </div>
-
-        <q-list bordered separator class="rounded-borders">
-          <q-item
-            v-for="santri in santris"
-            :key="santri.id"
-            class="list-item"
-            clickable
-            v-ripple
-          >
-            <q-item-section avatar>
-              <q-avatar color="teal" text-color="white">
-                {{ santri.email.charAt(0).toUpperCase() }}
-              </q-avatar>
-            </q-item-section>
-
-            <q-item-section>
-              <q-item-label class="text-weight-bold">{{ santri.email }}</q-item-label>
-              <q-item-label caption>Santri</q-item-label>
-            </q-item-section>
-
-            <q-item-section side>
-              <q-btn flat round dense icon="more_vert" @click.stop>
-                <q-menu auto-close>
-                  <q-list style="min-width: 120px;">
-                    <q-item clickable @click="editGuru(santri)" class="text-primary">
-                      <q-item-section avatar>
-                        <q-icon name="edit" />
-                      </q-item-section>
-                      <q-item-section>Edit</q-item-section>
-                    </q-item>
-                    <q-item clickable @click="deleteGuru(santri)" class="text-negative">
-                      <q-item-section avatar>
-                        <q-icon name="delete" />
-                      </q-item-section>
-                      <q-item-section>Delete</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </q-item-section>
-          </q-item>
-        </q-list>
       </div>
 
-      <!-- Teachers Section -->
-      <div class="section-card">
-        <div class="section-header">
-          <h5 class="text-bold section-title">Daftar Guru</h5>
-          <q-btn 
-            label="Tambah Guru" 
-            color="primary" 
-            rounded 
-            dense
-            icon="add"
-            @click="onAddGuru"
+      <!-- Main Content Grid -->
+      <div class="main-grid">
+        <!-- Students Section -->
+        <div class="section-card serene-card">
+          <div class="section-header">
+            <h5 class="text-bold section-title">Daftar Santri</h5>
+
+          </div>
+
+          <q-list bordered separator class="rounded-borders">
+            <q-item
+              v-for="santri in santris"
+              :key="santri.id"
+              class="list-item interactive"
+              clickable
+              v-ripple
+            >
+              <q-item-section avatar>
+                <q-avatar color="serene-primary" text-color="white">
+                  {{ santri.email.charAt(0).toUpperCase() }}
+                </q-avatar>
+              </q-item-section>
+
+              <q-item-section>
+                <q-item-label class="text-weight-bold">{{ santri.email }}</q-item-label>
+                <q-item-label caption>Santri</q-item-label>
+              </q-item-section>
+
+              <q-item-section side>
+                <q-btn flat round dense icon="more_vert" @click.stop>
+                  <q-menu auto-close>
+                    <q-list style="min-width: 120px;">
+                      <q-item clickable @click="editGuru(santri)" class="text-serene-primary">
+                        <q-item-section avatar>
+                          <q-icon name="edit" />
+                        </q-item-section>
+                        <q-item-section>Edit</q-item-section>
+                      </q-item>
+                      <q-item clickable @click="deleteGuru(santri)" class="text-negative">
+                        <q-item-section avatar>
+                          <q-icon name="delete" />
+                        </q-item-section>
+                        <q-item-section>Delete</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-btn>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
+
+        <!-- Teachers Section -->
+        <div class="section-card serene-card">
+          <div class="section-header">
+            <h5 class="text-bold section-title">Daftar Guru</h5>
+            <q-btn
+              label="Tambah Guru"
+              rounded
+              dense
+              icon="add"
+              class="serene-btn-primary"
+              @click="onAddGuru"
+            />
+          </div>
+
+          <q-list bordered separator class="rounded-borders">
+            <q-item
+              v-for="guru in gurus"
+              :key="guru.id"
+              class="list-item interactive"
+              clickable
+              v-ripple
+              @click="editGuru(guru)"
+            >
+              <q-item-section avatar>
+                <q-avatar color="serene-secondary" text-color="white">
+                  {{ guru.email.charAt(0).toUpperCase() }}
+                </q-avatar>
+              </q-item-section>
+
+              <q-item-section>
+                <q-item-label class="text-weight-bold">{{ guru.email }}</q-item-label>
+                <q-item-label caption>Guru</q-item-label>
+              </q-item-section>
+
+              <q-item-section side>
+                <q-btn flat round dense icon="more_vert" @click.stop>
+                  <q-menu auto-close>
+                    <q-list style="min-width: 120px;">
+                      <q-item clickable @click="editGuru(guru)" class="text-serene-primary">
+                        <q-item-section avatar>
+                          <q-icon name="edit" />
+                        </q-item-section>
+                        <q-item-section>Edit</q-item-section>
+                      </q-item>
+                      <q-item clickable @click="deleteGuru(guru)" class="text-negative">
+                        <q-item-section avatar>
+                          <q-icon name="delete" />
+                        </q-item-section>
+                        <q-item-section>Delete</q-item-section>
+                      </q-item>
+                    </q-list>
+                  </q-menu>
+                </q-btn>
+              </q-item-section>
+            </q-item>
+          </q-list>
+
+          <q-btn
+            v-if="hasMoreSantri"
+            label="Tampilkan lebih banyak"
+            outline
+            class="serene-btn-outline full-width q-mt-md"
+            @click="loadMoreSantris"
+            :loading="loadingSantri"
           />
         </div>
 
-        <q-list bordered separator class="rounded-borders">
-          <q-item
-            v-for="guru in gurus"
-            :key="guru.id"
-            class="list-item"
-            clickable
-            v-ripple
-            @click="editGuru(guru)"
-          >
-            <q-item-section avatar>
-              <q-avatar color="indigo" text-color="white">
-                {{ guru.email.charAt(0).toUpperCase() }}
-              </q-avatar>
-            </q-item-section>
+        <!-- Donations Section -->
+        <div class="section-card serene-card">
+          <div class="section-header">
+            <h5 class="text-bold section-title">Riwayat Donasi</h5>
+          </div>
 
-            <q-item-section>
-              <q-item-label class="text-weight-bold">{{ guru.email }}</q-item-label>
-              <q-item-label caption>Guru</q-item-label>
-            </q-item-section>
+          <q-list bordered separator class="rounded-borders">
+            <q-item
+              v-for="donation in donations"
+              :key="donation.id"
+              class="donation-item"
+            >
+              <q-item-section avatar>
+                <q-avatar rounded size="56px" class="donation-avatar">
+                  <q-img :src="`${API_UPLOADS_URL}/${donation.proof_image}`" />
+                  <q-badge
+                    :color="donation.is_verified == 1 ? 'positive' :
+                             donation.is_verified == 2 ? 'negative' : 'warning'"
+                    floating
+                    :label="donation.is_verified == 1 ? 'Verified' :
+                             donation.is_verified == 2 ? 'Rejected' : 'Pending'"
+                  />
+                </q-avatar>
+              </q-item-section>
 
-            <q-item-section side>
-              <q-btn flat round dense icon="more_vert" @click.stop>
-                <q-menu auto-close>
-                  <q-list style="min-width: 120px;">
-                    <q-item clickable @click="editGuru(guru)" class="text-primary">
-                      <q-item-section avatar>
-                        <q-icon name="edit" />
-                      </q-item-section>
-                      <q-item-section>Edit</q-item-section>
-                    </q-item>
-                    <q-item clickable @click="deleteGuru(guru)" class="text-negative">
-                      <q-item-section avatar>
-                        <q-icon name="delete" />
-                      </q-item-section>
-                      <q-item-section>Delete</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </q-item-section>
-          </q-item>
-        </q-list>
+              <q-item-section>
+                <q-item-label class="text-weight-bold">{{ donation.account_name }}</q-item-label>
+                <q-item-label caption class="text-serene-variant">
+                  {{ donation.bank_name }} • {{ donation.source_bank }}
+                </q-item-label>
+                <q-item-label class="text-serene-primary text-weight-bold">
+                  Rp {{ Number(donation.amount).toLocaleString('id-ID') }}
+                </q-item-label>
+                <q-item-label caption>
+                  {{ formatDate(donation.created_at) }}
+                </q-item-label>
+              </q-item-section>
 
-        <q-btn
-          v-if="hasMoreSantri"
-          label="Tampilkan lebih banyak"
-          outline
-          color="primary"
-          class="full-width q-mt-md"
-          @click="loadMoreSantris"
-          :loading="loadingSantri"
-        />
-      </div>
-
-      <!-- Donations Section -->
-      <div class="section-card">
-        <div class="section-header">
-          <h5 class="text-bold section-title">Riwayat Donasi</h5>
-        </div>
-
-        <q-list bordered separator class="rounded-borders">
-          <q-item 
-            v-for="donation in donations" 
-            :key="donation.id" 
-            class="donation-item"
-          >
-            <q-item-section avatar>
-              <q-avatar rounded size="56px" class="donation-avatar">
-                <q-img :src="`${API_UPLOADS_URL}/${donation.proof_image}`" />
-                <q-badge 
-                  :color="donation.is_verified == 1 ? 'positive' : 
-                           donation.is_verified == 2 ? 'negative' : 'warning'" 
-                  floating
-                  :label="donation.is_verified == 1 ? 'Verified' : 
-                           donation.is_verified == 2 ? 'Rejected' : 'Pending'"
+              <q-item-section side>
+                <q-btn
+                  flat
+                  round
+                  icon="visibility"
+                  class="text-serene-variant"
+                  @click="openDialog(donation)"
                 />
-              </q-avatar>
-            </q-item-section>
-
-            <q-item-section>
-              <q-item-label class="text-weight-bold">{{ donation.account_name }}</q-item-label>
-              <q-item-label caption class="text-grey">
-                {{ donation.bank_name }} • {{ donation.source_bank }}
-              </q-item-label>
-              <q-item-label class="text-primary text-weight-bold">
-                Rp {{ Number(donation.amount).toLocaleString('id-ID') }}
-              </q-item-label>
-              <q-item-label caption>
-                {{ formatDate(donation.created_at) }}
-              </q-item-label>
-            </q-item-section>
-
-            <q-item-section side>
-              <q-btn 
-                flat 
-                round 
-                icon="visibility" 
-                color="grey-7"
-                @click="openDialog(donation)" 
-              />
-            </q-item-section>
-          </q-item>
-        </q-list>
+              </q-item-section>
+            </q-item>
+          </q-list>
+        </div>
       </div>
     </div>
   </div>
@@ -463,23 +470,51 @@ const deleteGuru = async (guru) => {
 </script>
 
 <style scoped>
+.admin-page {
+  min-height: 100vh;
+  background: var(--serene-bg);
+  position: relative;
+}
+.aurora-bg {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+.aurora {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.25;
+}
+.aurora.a1 { width: 420px; height: 420px; background: var(--serene-primary); top: -120px; left: -100px; }
+.aurora.a2 { width: 360px; height: 360px; background: var(--serene-secondary); bottom: -120px; right: -80px; }
+.aurora.a3 { width: 300px; height: 300px; background: #a7f3d0; top: 40%; left: 60%; }
+
 .container {
+  position: relative;
+  z-index: 1;
   max-width: 1200px;
   margin: 0 auto;
   padding: 24px;
 }
 
 .welcome-section {
-  margin-bottom: 32px;
+  margin-bottom: 24px;
+  padding: 24px;
 }
 
 .welcome-title {
   font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--serene-on-surface);
   margin-bottom: 4px;
 }
 
 .welcome-subtitle {
   font-size: 1rem;
+  color: var(--serene-variant);
 }
 
 .notification-btn {
@@ -496,7 +531,7 @@ const deleteGuru = async (guru) => {
   .main-grid {
     grid-template-columns: 1fr 1fr;
   }
-  
+
   .section-card:last-child {
     grid-column: span 2;
   }
@@ -504,8 +539,8 @@ const deleteGuru = async (guru) => {
 
 .section-card {
   background: white;
-  border-radius: 12px;
-  padding: 20px;
+  border-radius: 16px;
+  padding: 24px;
   box-shadow: 0 2px 15px rgba(0, 0, 0, 0.05);
 }
 
@@ -518,6 +553,8 @@ const deleteGuru = async (guru) => {
 
 .section-title {
   font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--serene-on-surface);
   margin: 0;
 }
 
@@ -528,7 +565,7 @@ const deleteGuru = async (guru) => {
 }
 
 .list-item:hover {
-  background-color: #f5f5f5;
+  background-color: var(--serene-surface);
   transform: translateY(-2px);
 }
 
@@ -539,11 +576,11 @@ const deleteGuru = async (guru) => {
 }
 
 .donation-item:hover {
-  background-color: #f5f5f5;
+  background-color: var(--serene-surface);
 }
 
 .donation-avatar {
-  border: 1px solid #eee;
+  border: 1px solid var(--serene-border);
 }
 
 .q-badge {

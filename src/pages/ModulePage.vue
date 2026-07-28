@@ -258,15 +258,6 @@ onMounted(async () => {
   }
 });
 
-watch(contentTab, async (val) => {
-  if (val === 'video' && videoReady.value && !player) {
-    await nextTick();
-    const raw = moduleData.value?.video_header_id || '';
-    const match = raw.match(/(?:youtu\.be\/|v=)([^&]+)/);
-    const videoId = match?.[1];
-    if (videoId && videoPlayer.value) initVideoJs(videoId);
-  }
-});
 onBeforeUnmount(() => { if (player) { player.dispose(); player = null; } });
 </script>
 

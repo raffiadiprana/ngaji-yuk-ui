@@ -53,7 +53,7 @@
         <!-- Tabs Section -->
         <div class="tabs-section q-mt-lg serene-card">
           <q-tabs v-model="tab" class="serene-tabs">
-            <q-tab name="quiz" label="Chat" icon="chat" />
+            <q-tab name="quiz" label="Chat" />
           </q-tabs>
 
           <q-tab-panels v-model="tab" animated>
@@ -162,6 +162,9 @@ const startChat = async () => {
         question: `Pertanyaan dari santri mengenai modul ${moduleData.value?.title || moduleId}`,
         modules_id: Number(moduleId),
         media_id: '',
+        type: 'chat',
+        answer_type: 'text',
+        is_completed: 0,
         created_by: Number(userId),
       },
       { headers: authHeader() }
@@ -376,39 +379,15 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid var(--serene-border);
 }
 
-/* Lessons Tab */
-.lesson-card {
-  border-radius: 16px;
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.lesson-card:hover {
-  transform: translateY(-2px);
-}
-
-.lesson-thumbnail {
-  width: 100px;
-  height: 70px;
-  border-radius: 8px;
-  position: relative;
-  background-color: var(--serene-surface);
-}
-
-.lesson-thumbnail .play-icon {
-  font-size: 32px;
-}
-
-.lesson-title {
-  font-size: 1rem;
+.serene-tabs .q-tab {
+  color: var(--serene-on-surface-variant);
   font-weight: 600;
-  color: var(--serene-on-surface);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
 }
 
-.lesson-description {
-  font-size: 0.875rem;
-  color: var(--serene-variant);
-  margin-top: 4px;
+.serene-tabs .q-tab--active {
+  color: var(--serene-primary);
 }
 
 .passed-icon {
@@ -483,11 +462,6 @@ onBeforeUnmount(() => {
 @media (min-width: 1024px) {
   .content-wrapper {
     padding: 0;
-  }
-  
-  .lesson-thumbnail {
-    width: 120px;
-    height: 80px;
   }
   
   .quiz-question {

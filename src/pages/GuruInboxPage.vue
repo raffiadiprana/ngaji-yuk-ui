@@ -27,35 +27,38 @@
 
           <q-item
             v-else
-            v-for="item in filteredItems"
-            :key="item.id"
+            v-for="thread in filteredThreads"
+            :key="thread.quiz_id"
             clickable
-            @click="openAnswer(item)"
+            @click="openAnswer(thread.lastAnswer)"
             class="interactive hover-lift"
           >
             <q-item-section avatar>
               <q-avatar size="36px" class="q-mr-sm">
-                <img :src="item.user_detail?.avatar ? api.API_UPLOADS_URL + '/' + item.user_detail?.avatar : 'https://placehold.co/100?text=👤'" alt="Avatar" />
+                <img :src="thread.lastAnswer.user_detail?.avatar ? api.API_UPLOADS_URL + '/' + thread.lastAnswer.user_detail?.avatar : 'https://placehold.co/100?text=👤'" alt="Avatar" />
               </q-avatar>
             </q-item-section>
 
             <q-item-section>
               <q-item-label lines="1" class="text-weight-bold text-serene-on-surface" style="font-size: 16px;">
-                {{ item.user_detail?.display_name || ('User ' + item.user_id) }} - {{ item.quiz_detail?.module_detail?.title }}
+                {{ thread.lastAnswer.user_detail?.display_name || ('User ' + thread.lastAnswer.user_id) }} - {{ thread.lastAnswer.quiz_detail?.module_detail?.title }}
               </q-item-label>
               <q-item-label caption lines="1" class="text-serene-variant" style="font-size: 13px;">
-                {{ item.answer_type === 'file' ? 'Voice Note' : item.answer_value }}
+                {{ thread.lastAnswer.answer_type === 'file' ? 'Voice Note' : thread.lastAnswer.answer_value }}
               </q-item-label>
             </q-item-section>
 
             <q-item-section side class="text-right" style="min-width: 70px;">
               <div style="font-size: 12px; color: var(--serene-variant);">
-                {{ formatTime(item.created_date) }}
+                {{ formatTime(thread.lastAnswer.created_date) }}
               </div>
+              <q-badge v-if="thread.count > 1" color="serene-primary" class="q-mt-xs" style="border-radius: 9999px;">
+                +{{ thread.count - 1 }}
+              </q-badge>
             </q-item-section>
           </q-item>
 
-          <q-item v-if="!loading && filteredItems.length === 0" bordered>
+          <q-item v-if="!loading && filteredThreads.length === 0" bordered>
             <q-item-section class="text-center text-serene-variant q-py-md">
               <q-icon name="chat" size="40px" color="serene-variant" class="q-mb-sm" />
               <div class="text-weight-medium text-serene-on-surface">Belum ada percakapan masuk</div>
@@ -90,30 +93,47 @@ import { authHeader } from 'src/config/auth'
             'user_id[$ne]': instructorId
         }
       })
-      items.value = res.data.data.filter(answer => 
+      const all = res.data.data.filter(answer => 
         (!answer.checked_by || answer.checked_by === null)
       ) || [];
+      // Group by quiz_id (1 thread = 1 item), ambil pesan terakhir + hitung tumpukan
+      const map = {}
+      for (const a of all) {
+        if (!map[a.quiz_id]) {
+          map[a.quiz_id] = { quiz_id: a.quiz_id, count: 0, lastAnswer: a }
+        }
+        map[a.quiz_id].count++
+        // pakai pesan dgn created_date terbaru sebagai preview
+        if (new Date(a.created_date) > new Date(map[a.quiz_id].lastAnswer.created_date)) {
+          map[a.quiz_id].lastAnswer = a
+        }
+      }
+      threads.value = Object.values(map).sort((x, y) => 
+        new Date(y.lastAnswer.created_date) - new Date(x.lastAnswer.created_date)
+      )
     } catch (error) {
       console.error('Failed to fetch answers:', error)
-      items.value = []
+      threads.value = []
     } finally {
       loading.value = false
     }
   }
   
+  const threads = ref([])
+  
   onMounted(() => {
     fetchAnswers()
   })
   
-  const filteredItems = computed(() => {
-    if (!search.value) return items.value
+  const filteredThreads = computed(() => {
+    if (!search.value) return threads.value
     const lower = search.value.toLowerCase()
-    return items.value.filter(item =>
-      (item.user_detail?.display_name || ('User ' + item.user_id)).toLowerCase().includes(lower) ||
-      (item.answer_value || '').toLowerCase().includes(lower)
+    return threads.value.filter(t =>
+      (t.lastAnswer.user_detail?.display_name || ('User ' + t.lastAnswer.user_id)).toLowerCase().includes(lower) ||
+      (t.lastAnswer.answer_value || '').toLowerCase().includes(lower)
     )
   })
-  
+
   const getInitials = (name) => {
     if (!name) return ''
     const parts = name.split(' ')
@@ -127,9 +147,8 @@ import { authHeader } from 'src/config/auth'
     return d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
   }
   
-  const openAnswer = (item) => {
-    // Contoh: navigasi ke halaman detail jawaban atau pemutar voice note
-    router.push(`/guru-quiz-answer/${item.quiz_id}/${item.user_id}`) // atau sesuai route yang kamu punya
+  const openAnswer = (answer) => {
+    router.push(`/guru-quiz-answer/${answer.quiz_id}/${answer.user_id}`)
   }
   </script>
   

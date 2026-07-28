@@ -21,6 +21,13 @@
             <div v-else class="text-grey">No audio available.</div>
           </div>
         </q-card>
+
+        <q-banner v-if="quiz?.instructor_detail?.display_name" class="serene-assign-banner q-mt-sm" dense>
+          <template v-slot:avatar>
+            <q-icon name="supervisor_account" color="serene-primary" />
+          </template>
+          Menunggu balasan dari <b>{{ quiz.instructor_detail.display_name }}</b>
+        </q-banner>
       </div>
 
       <!-- Answer List -->
@@ -351,9 +358,10 @@ onMounted(async () => {
   border-radius: 9999px;
 }
 
-.serene-send-btn {
-  color: var(--serene-primary);
-  background: var(--serene-surface-variant);
+.serene-assign-banner {
+  background: var(--serene-primary-container);
+  color: var(--serene-on-primary-container);
+  border-radius: var(--serene-radius);
 }
 
 .text-h6 {

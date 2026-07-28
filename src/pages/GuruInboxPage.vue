@@ -87,7 +87,6 @@ import { authHeader } from 'src/config/auth'
       const res = await axios.get(`${api.API_BASE_URL}/answers`, {
         headers: authHeader(),
         params: { 
-            instructor_id: instructorId,
             'user_id[$ne]': instructorId
         }
       })

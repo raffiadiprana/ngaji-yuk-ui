@@ -24,6 +24,11 @@
                 <q-select filled v-model="form.category" :options="categoryOptions" label="Kategori" option-label="label" option-value="value" emit-value map-options class="serene-input" />
               </div>
             </div>
+            <div class="row q-col-gutter-md q-mt-sm">
+              <div class="col-6">
+                <q-input filled type="number" v-model.number="form.order_index" label="Nomor Urut" class="serene-input" hint="Untuk urutan materi dalam kategori" />
+              </div>
+            </div>
           </q-card>
 
           <!-- Visual Content -->

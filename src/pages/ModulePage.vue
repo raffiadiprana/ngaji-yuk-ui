@@ -77,22 +77,27 @@
 
             <q-card class="attr-card serene-card q-mt-md">
               <div class="card-title"><q-icon name="tune" color="serene-primary" size="sm" class="q-mr-sm" />Attributes</div>
-              <div class="attr-row">
-                <div>
-                  <div class="attr-name">Nasal Sound (Ghunnah)</div>
-                  <div class="attr-desc">{{ ghunnahLabel }}</div>
+              <div class="info-cards row q-col-gutter-sm">
+                <div class="col-12">
+                  <div class="info-card ghunnah-card">
+                    <div class="info-icon"><q-icon name="volume_up" /></div>
+                    <div class="info-body">
+                      <div class="info-name">Nasal Sound (Ghunnah)</div>
+                      <div class="info-desc">{{ ghunnahFull }}</div>
+                    </div>
+                  </div>
                 </div>
-                <q-toggle :model-value="!!moduleData?.ghunnah" color="serene-primary" class="q-ml-auto" disable />
-              </div>
-              <div class="attr-row q-mt-sm">
-                <div>
-                  <div class="attr-name">Duration / Beats</div>
-                  <div class="attr-desc">{{ moduleData?.duration || 2 }} Beats</div>
+                <div class="col-12">
+                  <div class="info-card duration-card">
+                    <div class="info-icon"><q-icon name="timer" /></div>
+                    <div class="info-body">
+                      <div class="info-name">Duration</div>
+                      <div class="info-desc">{{ moduleData?.duration || 2 }} Beats — Hold the nasalization for approximately {{ moduleData?.duration || 2 }} beats.</div>
+                    </div>
+                  </div>
                 </div>
-                <q-slider :model-value="moduleData?.duration || 2" :min="1" :max="6" color="serene-primary" class="q-ml-md" disable style="width:140px" />
               </div>
-              <q-separator class="q-my-md" />
-              <div class="pro-tip text-caption text-serene-variant"><b>Pro tip:</b> Coba tahan napas sedikit saat menghafal aturan ini; konsistensi lebih penting dari kecepatan.</div>
+              <div class="pro-tip q-mt-md"><b>Pro tip:</b> {{ proTipText }}</div>
             </q-card>
           </div>
         </div>
@@ -139,11 +144,14 @@ const progressPercent = computed(() => moduleData.value?.progress_percent || 0);
 const displayArabic = computed(() => moduleData.value?.arabic_text || '');
 const displayTransliteration = computed(() => moduleData.value?.transliteration || '');
 const ruleLetters = computed(() => {
-  // stub: extract example letters if needed from description/arabic
-  return [];
+  const desc = moduleData.value?.description || '';
+  const names = desc.match(/[A-Z][a-z]+/g) || [];
+  return names.filter(n => !['Nun','Mim','Ham','Wau','Ya','Ra','Lam'].includes(n)).slice(0,4);
 });
 const ruleLettersLabel = computed(() => ruleLetters.value.join(' ') || '—');
-const ghunnahLabel = computed(() => (moduleData.value?.ghunnah ? 'Aktif (dengung hidung)' : 'Tidak aktif'));
+const ghunnahLabel = computed(() => (moduleData.value?.ghunnah ? 'Aktif (dengung hidung)' : 'Tidak aktif (baca jelas)'));
+const ghunnahFull = computed(() => moduleData.value?.ghunnah ? 'The sound is merged into the nose for a soft hum.' : 'Read clearly without nasalization.');
+const proTipText = computed(() => 'Try holding your nose while saying it; the sound should stop if you are doing it correctly!');
 
 const goBack = () => router.go(-1);
 const goToAnswerPage = (question) => router.push({ path: `/quiz-answer/${question.id}` });
@@ -247,10 +255,14 @@ onMounted(async () => {
 .letter-chip { min-width: 40px; justify-content: center; font-weight: 700; border-radius: 10px; }
 
 .attr-card { padding: 20px 22px; border-radius: 16px; }
-.attr-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
-.attr-name { font-weight: 600; color: var(--serene-on-surface); }
-.attr-desc { font-size: 0.85rem; color: var(--serene-variant); margin-top: 2px; }
-.pro-tip { background: #fff8e1; color: #6e5a00; padding: 12px 14px; border-radius: 12px; border: 1px solid #ffe082; }
+.info-cards { }
+.info-card { border-radius: 16px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
+.ghunnah-card { background: #e6f4ea; }
+.duration-card { background: #fff3e0; }
+.info-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; color: #006948; background: rgba(255,255,255,0.7); }
+.info-name { font-weight: 700; color: var(--serene-on-surface); font-size: 0.9rem; }
+.info-desc { font-size: 0.82rem; color: var(--serene-on-surface-variant); margin-top: 2px; line-height: 1.45; }
+.pro-tip { background: #fff8e1; color: #6e5a00; padding: 12px 14px; border-radius: 12px; border-left: 4px solid #ffe082; font-size: 0.88rem; line-height: 1.5; }
 
 .chat-cta { padding: 16px 20px; border-radius: 16px; }
 .quiz-passed { display: inline-flex; align-items: center; color: var(--serene-secondary); font-weight: 600; font-size: 0.85rem; margin-top: 8px; }

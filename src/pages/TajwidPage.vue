@@ -159,10 +159,11 @@ const enrichSections = () => {
 const sectionStatus = (sec) => {
   const mods = sec._modules || []
   if (!mods.length) return { cls: 'is-todo', icon: 'radio_button_unchecked', label: 'Segera', chipColor: 'grey' }
-  const anyLocked = mods.some(m => m.is_locked)
   const allDone = mods.every(m => m.is_completed)
   if (allDone) return { cls: 'is-done', icon: 'check_circle', label: 'Selesai', chipColor: 'serene-secondary' }
-  if (!anyLocked) return { cls: 'is-active', icon: 'play_circle', label: 'Berlangsung', chipColor: 'serene-primary' }
+  // aktif kalau ada minimal 1 modul yang tidak terkunci (boleh dipelajari)
+  const hasUnlocked = mods.some(m => !m.is_locked)
+  if (hasUnlocked) return { cls: 'is-active', icon: 'play_circle', label: 'Berlangsung', chipColor: 'serene-primary' }
   return { cls: 'is-locked', icon: 'lock', label: 'Terkunci', chipColor: 'grey' }
 }
 

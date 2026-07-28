@@ -96,12 +96,9 @@
               </div>
             </q-tab-panel>
 
-            <!-- Quiz Tab -->
+            <!-- Chat Tab -->
             <q-tab-panel name="quiz" class="q-pa-none">
               <div class="quiz-section">
-                <div v-if="quizes.length === 0" class="empty-state text-serene-variant q-py-lg">
-                  Belum ada chat untuk modul ini.
-                </div>
                 <q-card
                   v-for="(q, index) in quizes"
                   :key="q.id"
@@ -122,6 +119,18 @@
                     </div>
                   </q-card-section>
                 </q-card>
+
+                <div v-if="quizes.length === 0" class="empty-state text-serene-variant q-py-lg column items-center">
+                  <q-icon name="chat" size="40px" color="serene-primary" class="q-mb-sm" />
+                  <div class="q-mb-md text-center">Belum ada percakapan. Mulai chat dengan guru untuk bertanya seputar modul ini.</div>
+                  <q-btn
+                    label="Mulai Chat"
+                    icon="chat"
+                    class="serene-btn-primary"
+                    :loading="startingChat"
+                    @click="startChat"
+                  />
+                </div>
               </div>
             </q-tab-panel>
           </q-tab-panels>
@@ -134,6 +143,7 @@
 <script setup>
 import { ref, onMounted, onBeforeUnmount, nextTick, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { useQuasar } from 'quasar';
 import axios from 'axios';
 import api from 'src/config/api'
 import { authHeader } from 'src/config/auth';
@@ -143,6 +153,7 @@ import 'videojs-youtube';
 
 const router = useRouter();
 const route = useRoute();
+const $q = useQuasar();
 
 const tab = ref('lessons');
 const moduleData = ref(null);
@@ -185,6 +196,34 @@ const goBack = () => router.go(-1);
 
 const goToAnswerPage = (question) => {
   router.push({ path: `/quiz-answer/${question.id}` });
+};
+
+// Santri memulai chat baru dengan guru tanpa perlu guru membuat pertanyaan dulu
+const startingChat = ref(false);
+const startChat = async () => {
+  startingChat.value = true;
+  try {
+    const res = await axios.post(
+      `${api.API_BASE_URL}/quiz`,
+      {
+        question: `Pertanyaan dari santri mengenai modul ${moduleData.value?.title || moduleId}`,
+        modules_id: Number(moduleId),
+        created_by: userId,
+      },
+      { headers: authHeader() }
+    );
+    const newQuizId = res.data?.id || res.data?.data?.id;
+    if (newQuizId) {
+      router.push({ path: `/quiz-answer/${newQuizId}` });
+    } else {
+      $q.notify({ type: 'negative', message: 'Gagal memulai chat.' });
+    }
+  } catch (err) {
+    console.error('Failed to start chat:', err);
+    $q.notify({ type: 'negative', message: 'Gagal memulai chat. Coba lagi.' });
+  } finally {
+    startingChat.value = false;
+  }
 };
 
 const checkIfQuizPassed = async (quizId) => {

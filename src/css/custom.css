@@ -36,7 +36,7 @@ body {
 
 /* Background helpers */
 .bg-green-gradient {
-  background: linear-gradient(120deg, #006948, #00855d, #68dba9);
+  background: var(--serene-primary);
 }
 .bg-serene { background-color: var(--serene-bg); }
 .bg-serene-surface { background-color: var(--serene-surface); }

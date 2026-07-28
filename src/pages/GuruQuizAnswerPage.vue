@@ -76,8 +76,8 @@
         </div>
       </div>
     </div>
-  </q-page>
-</template>
+
+    <!-- Input Answer -->
     <div class="fixed-bottom q-pa-sm bg-white" style="z-index: 100;padding-bottom: 70px;">
       <div class="row items-center no-wrap q-gutter-sm">
         <q-input

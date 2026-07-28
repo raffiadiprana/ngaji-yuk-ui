@@ -204,8 +204,6 @@ const submitTextAnswer = async () => {
     await axios.post(`${api.API_BASE_URL}/answers`, {
       quiz_id: quizId,
       user_id: userId,
-      instructor_id: instructorId,
-      reply_to: instructorId,
       answer_type: 'text',
       answer_value: answerInput.value.trim(),
       is_passed: 0,

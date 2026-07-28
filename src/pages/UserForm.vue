@@ -1,6 +1,6 @@
 <template>
   <q-page class="user-form-page">
-    <q-header elevated class="bg-green-gradient text-white serene-header">
+    <q-header elevated class="serene-header">
       <q-toolbar>
         <q-btn flat round dense icon="arrow_back" @click="cancel" />
         <q-toolbar-title class="text-h6">

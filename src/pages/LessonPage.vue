@@ -1,7 +1,7 @@
 <template>
   <q-page class="lesson-page">
 
-    <q-header elevated class="bg-green-gradient text-white serene-header">
+    <q-header elevated class="serene-header">
       <q-toolbar>
         <q-btn flat round dense icon="arrow_back" @click="goBack" />
         <q-toolbar-title>{{ lessons?.title || 'Lesson' }}</q-toolbar-title>

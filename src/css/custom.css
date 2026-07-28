@@ -34,6 +34,12 @@ body {
 .headline-font { font-family: 'Plus Jakarta Sans', sans-serif; }
 .arabic-font { font-family: 'Noto Serif', serif; line-height: 1.6; }
 
+/* Header Serene (solid, bukan gradient) */
+.serene-header {
+  background: var(--serene-primary);
+  color: #ffffff;
+}
+
 /* Background helpers */
 .bg-green-gradient {
   background: var(--serene-primary);

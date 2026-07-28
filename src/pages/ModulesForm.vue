@@ -1,7 +1,7 @@
 <template>
   <q-page class="module-form-page">
 
-    <q-header elevated class="bg-green-gradient text-white serene-header">
+    <q-header elevated class="serene-header">
       <q-toolbar>
         <q-btn flat round dense icon="arrow_back" @click="goBack" />
         <q-toolbar-title>{{ form.title || 'Tambah Modul' }}</q-toolbar-title>

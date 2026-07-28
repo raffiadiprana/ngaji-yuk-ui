@@ -3,7 +3,7 @@
 
     <div class="page-container">
       <!-- Header with Back Button -->
-      <q-header elevated class="bg-green-gradient text-white serene-header">
+      <q-header elevated class="serene-header">
         <q-toolbar>
           <q-btn flat round dense icon="arrow_back" @click="goBack" />
           <q-toolbar-title class="header-title">{{ moduleData?.title || 'Materi' }}</q-toolbar-title>

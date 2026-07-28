@@ -164,6 +164,7 @@ const startChat = async () => {
         media_id: 0,
         type: 'chat',
         answer_type: 'text',
+        is_completed: 0,
         created_by: Number(userId),
       },
       { headers: authHeader() }

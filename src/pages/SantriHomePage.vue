@@ -22,9 +22,9 @@
         <div class="serene-card-soft p-lg relative-position overflow-hidden flex column justify-between home-progress">
           <div class="relative-position" style="z-index:1">
             <q-chip class="serene-chip" color="serene-primary-container" text-color="serene-on-primary-container" size="sm">
-              Sedang Dipelajari
+              Progres Belajar
             </q-chip>
-            <h3 class="headline-font text-h6 text-serene-on-surface q-mt-sm q-mb-md">{{ activeLesson }}</h3>
+            <h3 class="headline-font text-h6 text-serene-on-surface q-mt-sm q-mb-xs">{{ doneCount }} dari {{ totalCount }} Modul Selesai</h3>
             <div class="row items-center justify-between q-mb-xs">
               <span class="text-body2 text-serene-variant">Total Progress</span>
               <span class="text-weight-bold text-serene-primary">{{ progress }}%</span>
@@ -35,14 +35,29 @@
               class="progress-glow rounded-borders"
               style="height:10px;"
             />
-            <div class="row q-gutter-md q-pt-md">
+            <div class="row q-gutter-md q-pt-md q-pb-sm">
               <div class="row items-center text-serene-variant text-caption">
                 <q-icon name="check_circle" color="serene-primary" size="sm" class="q-mr-xs" />
-                <span>{{ doneCount }} Materi Selesai</span>
+                <span>{{ doneCount }} Selesai</span>
               </div>
               <div class="row items-center text-serene-variant text-caption">
                 <q-icon name="schedule" color="serene-outline" size="sm" class="q-mr-xs" />
-                <span>{{ remainCount }} Materi Tersisa</span>
+                <span>{{ remainCount }} Tersisa</span>
+              </div>
+            </div>
+            <!-- Mini progress per section -->
+            <div class="section-mini q-mt-xs">
+              <div v-for="s in sectionStats" :key="s.id" class="section-mini-row" @click="$router.push('/tajwid')">
+                <div class="row items-center no-wrap">
+                  <q-icon :name="s.status === 'done' ? 'check_circle' : (s.status === 'active' ? 'play_circle' : 'lock')"
+                    :color="s.status === 'done' ? 'serene-secondary' : (s.status === 'active' ? 'serene-primary' : 'grey')"
+                    size="16px" class="q-mr-xs" />
+                  <span class="section-mini-name ellipsis">{{ s.name }}</span>
+                  <q-space />
+                  <span class="text-caption text-serene-variant">{{ s.done }}/{{ s.total }}</span>
+                </div>
+                <q-linear-progress :value="s.percent / 100" :color="s.status === 'done' ? 'serene-secondary' : 'serene-primary'"
+                  class="rounded-borders q-mt-xs" style="height:4px;" />
               </div>
             </div>
           </div>
@@ -190,8 +205,18 @@
               @click="$router.push(`/module/${module.id}`)"
               class="module-item"
             >
-              <q-item-section avatar><q-icon name="play_circle" color="serene-primary" /></q-item-section>
-              <q-item-section><q-item-label class="module-title text-serene-on-surface">{{ module.title }}</q-item-label></q-item-section>
+              <q-item-section avatar>
+                <q-icon :name="module.is_completed ? 'check_circle' : (module.is_locked ? 'lock' : 'play_circle')"
+                  :color="module.is_completed ? 'serene-secondary' : (module.is_locked ? 'grey' : 'serene-primary')" />
+              </q-item-section>
+              <q-item-section>
+                <q-item-label class="module-title text-serene-on-surface">{{ module.title }}</q-item-label>
+                <q-item-label caption>
+                  <q-chip v-if="module.is_completed" color="serene-secondary-container" text-color="serene-on-secondary-container" size="xs" dense>Lulus</q-chip>
+                  <q-chip v-else-if="module.is_locked" color="grey-3" text-color="grey-8" size="xs" dense>Terkunci</q-chip>
+                  <q-chip v-else color="serene-primary-container" text-color="serene-on-primary-container" size="xs" dense>Siap</q-chip>
+                </q-item-label>
+              </q-item-section>
               <q-item-section side><q-icon name="chevron_right" color="serene-outline-variant" /></q-item-section>
             </q-item>
           </q-list>
@@ -226,6 +251,7 @@ const shortName = () => {
 const streak = ref(5);
 const activeLesson = ref('—');
 const progress = ref(0);
+const totalCount = ref(0);
 const doneCount = ref(0);
 const remainCount = ref(0);
 const continueLesson = ref('—');
@@ -233,6 +259,7 @@ const continueDesc = ref('');
 const continueArabic = ref('');
 const continueModuleId = ref(null);
 const allModules = ref([]);
+const sectionStats = ref([]);
 
 // Ayat Harian (statis, bisa diacak per hari)
 const dailyVerses = [
@@ -252,22 +279,24 @@ const goContinue = () => {
 };
 
 const computeHomeCards = () => {
-  const mods = allModules.value
-  const unlocked = mods.filter(m => !m.is_locked)
+  const mods = allModules.value.filter(m => m.category !== 'reference')
   const completed = mods.filter(m => m.is_completed)
+  const unlocked = mods.filter(m => !m.is_locked)
   const inProgress = unlocked.filter(m => !m.is_completed)
+
+  // Overall progress = selesai / total (non-reference)
+  totalCount.value = mods.length
+  doneCount.value = completed.length
+  remainCount.value = mods.length - completed.length
+  progress.value = mods.length ? Math.round((completed.length / mods.length) * 100) : 0
 
   // Sedang Dipelajari = modul pertama yang belum selesai & unlocked
   if (inProgress.length) {
-    const m = inProgress[0]
-    activeLesson.value = m.title
-    progress.value = m.progress_percent || 0
+    activeLesson.value = inProgress[0].title
   } else if (completed.length) {
     activeLesson.value = completed[completed.length - 1].title
-    progress.value = 100
   } else if (unlocked.length) {
     activeLesson.value = unlocked[0].title
-    progress.value = 0
   }
 
   // Lanjutkan Belajar = modul berikutnya yang unlocked & belum completed
@@ -281,9 +310,17 @@ const computeHomeCards = () => {
     continueModuleId.value = null
   }
 
-  // Count
-  doneCount.value = completed.length
-  remainCount.value = mods.length - completed.length
+  // Section stats (mini progress per section)
+  const stats = sections.value.map(sec => {
+    const sm = mods.filter(m => m.section_id === sec.id)
+    const sd = sm.filter(m => m.is_completed).length
+    const sp = sm.length ? Math.round((sd / sm.length) * 100) : 0
+    const hasUnlocked = sm.some(m => !m.is_locked)
+    const allDone = sm.length > 0 && sd === sm.length
+    const status = allDone ? 'done' : (hasUnlocked ? 'active' : 'locked')
+    return { id: sec.id, name: sec.section_name, total: sm.length, done: sd, percent: sp, status }
+  }).filter(s => s.total > 0)
+  sectionStats.value = stats
 };
 
 const fetchSections = async () => {
@@ -372,6 +409,10 @@ onMounted(async () => {
   width: 200px; height: 200px; border-radius: 50%;
   background: var(--serene-primary-container); opacity: .07;
 }
+.section-mini { margin-top: 6px; }
+.section-mini-row { padding: 5px 0; cursor: pointer; }
+.section-mini-name { font-size: 13px; color: var(--serene-on-surface); }
+.ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .home-continue { border-radius: 16px; min-height: 200px; background: var(--serene-primary); padding: 24px; }
 .serene-btn-light {
   background: #fff; color: var(--serene-primary);

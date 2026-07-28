@@ -48,6 +48,16 @@
 
           <q-item
             v-if="isSantri || isGuru"
+            clickable v-ripple :to="inboxUrl"
+            :active="isActive(inboxUrl)"
+            active-class="serene-nav-active"
+          >
+            <q-item-section avatar><q-icon name="chat" /></q-item-section>
+            <q-item-section>Chat</q-item-section>
+          </q-item>
+
+          <q-item
+            v-if="isSantri || isGuru"
             clickable v-ripple to="/settings"
             :active="isActive('/settings')"
             active-class="serene-nav-active"

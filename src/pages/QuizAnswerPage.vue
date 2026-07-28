@@ -48,7 +48,7 @@
 
       <!-- Input Answer -->
       <div class="fixed-bottom q-pa-sm serene-input-bar" style="z-index: 100;padding-bottom: 70px;">
-        <div class="row items-center no-wrap q-gutter-sm">
+        <div class="chat-input-container row items-center no-wrap q-gutter-sm">
           <q-input
             filled
             dense
@@ -341,9 +341,14 @@ onMounted(async () => {
   border-top: 1px solid var(--serene-border);
 }
 
+.chat-input-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
 .serene-input .q-field__control {
   background: var(--serene-bg);
-  border-radius: var(--serene-radius);
+  border-radius: 9999px;
 }
 
 .serene-send-btn {

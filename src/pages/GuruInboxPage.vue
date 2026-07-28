@@ -56,8 +56,10 @@
           </q-item>
 
           <q-item v-if="!loading && filteredItems.length === 0" bordered>
-            <q-item-section class="text-center text-serene-variant">
-              Tidak ada jawaban ditemukan.
+            <q-item-section class="text-center text-serene-variant q-py-md">
+              <q-icon name="chat" size="40px" color="serene-variant" class="q-mb-sm" />
+              <div class="text-weight-medium text-serene-on-surface">Belum ada percakapan masuk</div>
+              <div class="q-mt-xs">Santri akan memulai chat dari modul tajwid untuk bertanya. Pantau halaman ini untuk menjawabnya.</div>
             </q-item-section>
           </q-item>
         </q-list>

@@ -109,7 +109,7 @@
                     <div class="quiz-text">{{ q.question }}</div>
                     <div class="quiz-actions row items-center justify-between">
                       <q-btn
-                        label="Jawab"
+                        label="Lanjutkan Chat"
                         class="serene-btn-primary"
                         @click="goToAnswerPage(q)"
                       />

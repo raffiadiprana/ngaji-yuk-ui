@@ -158,7 +158,7 @@ const fetchNextModule = async () => {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/modules`, {
       headers: authHeader(),
-      params: { is_deleted: 0, category: cur.category }
+      params: { is_deleted: 0, category: cur.category, '$limit': 100 }
     });
     const mods = (res.data?.data || []).sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
     const idx = mods.findIndex(m => m.id === cur.id);

@@ -174,7 +174,7 @@ onMounted(async () => {
 
 const fetchAllModules = async () => {
   try {
-    const res = await axios.get(`${api.API_BASE_URL}/modules`, { headers: authHeader(), params: { is_deleted: 0 } })
+    const res = await axios.get(`${api.API_BASE_URL}/modules`, { headers: authHeader(), params: { is_deleted: 0, '$limit': 100 } })
     allModules.value = res.data?.data ?? []
     referenceModules.value = allModules.value.filter(m => m.category === 'reference')
   } catch (e) { console.error('[TajwidPage] gagal ambil modules:', e) }

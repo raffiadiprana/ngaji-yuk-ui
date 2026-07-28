@@ -20,22 +20,48 @@
       </div>
 
       <div class="lesson-layout row q-col-gutter-md">
-        <!-- Center: lesson card -->
+        <!-- Left -->
         <div class="col-12 col-md-7">
-          <div class="lesson-card">
+          <div class="page-tabs row q-mb-md">
+            <q-btn label="Video" :color="contentTab==='video' ? 'serene-primary' : 'grey-3'" :text-color="contentTab==='video' ? 'white' : 'black'" dense class="col-6 q-py-sm q-mx-xs q-px-xs" @click="contentTab='video'" />
+            <q-btn label="Konten Materi" :color="contentTab==='content' ? 'serene-primary' : 'grey-3'" :text-color="contentTab==='content' ? 'white' : 'black'" dense class="col-6 q-py-sm q-mx-xs q-px-xs" @click="contentTab='content'" />
+          </div>
+
+          <!-- Page 1: Video -->
+          <div v-if="contentTab==='video'" class="lesson-card video-page">
+            <div class="video-wrap">
+              <div v-if="videoReady" class="video-player">
+                <video ref="videoPlayer" class="vjs-default-skin vjs-big-play-centered" controls playsinline allowfullscreen></video>
+              </div>
+              <div v-else class="video-placeholder">
+                <q-img :src="moduleData?.thumbnail ? `${api.API_UPLOADS_URL}/${moduleData.thumbnail}` : 'https://placehold.co/600x300'" class="video-thumb">
+                  <q-icon name="play_circle" size="lg" class="play-icon" />
+                </q-img>
+              </div>
+            </div>
+            <div class="example-chip q-mt-md">Video Pembelajaran</div>
+            <div class="ayah-row q-mt-lg row items-center justify-between">
+              <q-btn flat round dense icon="chevron_left" :disable="!hasPrevContent" @click="goPrevContent" />
+              <div class="text-caption text-serene-variant">Halaman {{ currentPage }} dari {{ totalPages }}</div>
+              <q-btn flat round dense icon="chevron_right" :disable="!hasNextContent" @click="goNextContent" />
+            </div>
+          </div>
+
+          <!-- Page 2: Content -->
+          <div v-else class="lesson-card content-page">
             <div class="example-chip">Contoh 01</div>
             <div class="arabic-display arabic-font" dir="rtl">{{ displayArabic || 'مِنْ بَعْدِ' }}</div>
             <div class="transliteration">{{ displayTransliteration || 'Min Ba’di' }}</div>
-            <q-btn outline color="serene-primary" icon="volume_up" label="Dengarkan Aturan" class="listen-btn q-mt-md" @click="playAudio" />
-            <div class="diagram q-mt-lg">
-              <div class="diagram-col">
-                <div class="diagram-line line-nun"></div>
-                <div class="diagram-label">NUN SUKUN</div>
-              </div>
-              <div class="diagram-col">
-                <div class="diagram-line line-ya"></div>
-                <div class="diagram-label">{{ ruleLettersLabel }}</div>
-              </div>
+            <div v-if="displayMeaning" class="meaning-text q-mt-sm">{{ displayMeaning }}</div>
+            <div v-if="displayAyah" class="ayah-text q-mt-md">
+              <div class="ayah-arabic arabic-font" dir="rtl">{{ displayAyahArabic }}</div>
+              <div class="ayah-translit">{{ displayAyahTranslit }}</div>
+              <div class="ayah-ref">{{ displayAyahRef }}</div>
+            </div>
+            <div class="ayah-row q-mt-lg row items-center justify-between">
+              <q-btn flat round dense icon="chevron_left" :disable="!hasPrevContent" @click="goPrevContent" />
+              <div class="text-caption text-serene-variant">Halaman {{ currentPage }} dari {{ totalPages }}</div>
+              <q-btn flat round dense icon="chevron_right" :disable="!hasNextContent" @click="goNextContent" />
             </div>
           </div>
 
@@ -76,13 +102,13 @@
             </q-card>
 
             <q-card class="attr-card serene-card q-mt-md">
-              <div class="card-title"><q-icon name="tune" color="serene-primary" size="sm" class="q-mr-sm" />Attributes</div>
+              <div class="card-title"><q-icon name="tune" color="serene-primary" size="sm" class="q-mr-sm" />Atribut</div>
               <div class="info-cards row q-col-gutter-sm">
                 <div class="col-12">
                   <div class="info-card ghunnah-card">
                     <div class="info-icon"><q-icon name="volume_up" /></div>
                     <div class="info-body">
-                      <div class="info-name">Nasal Sound (Ghunnah)</div>
+                      <div class="info-name">Suara Nasal (Ghunnah)</div>
                       <div class="info-desc">{{ ghunnahFull }}</div>
                     </div>
                   </div>
@@ -91,13 +117,13 @@
                   <div class="info-card duration-card">
                     <div class="info-icon"><q-icon name="timer" /></div>
                     <div class="info-body">
-                      <div class="info-name">Duration</div>
-                      <div class="info-desc">{{ moduleData?.duration || 2 }} Beats — Hold the nasalization for approximately {{ moduleData?.duration || 2 }} beats.</div>
+                      <div class="info-name">Durasi</div>
+                      <div class="info-desc">{{ moduleData?.duration || 2 }} Beats — Tahan dengung hidung selama sekitar {{ moduleData?.duration || 2 }} ketukan.</div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="pro-tip q-mt-md"><b>Pro tip:</b> {{ proTipText }}</div>
+              <div class="pro-tip q-mt-md"><b>Tips:</b> {{ proTipText }}</div>
             </q-card>
           </div>
         </div>
@@ -107,7 +133,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onBeforeUnmount, computed, nextTick } from 'vue';
+import { ref, onMounted, onBeforeUnmount, computed, nextTick, watch } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useQuasar } from 'quasar';
 import axios from 'axios';
@@ -121,6 +147,8 @@ const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
 const moduleId = route.params.id;
+const videoPlayer = ref(null);
+let player = null;
 
 const moduleData = ref(null);
 const quizes = ref([]);
@@ -129,34 +157,54 @@ const sectionName = ref('');
 const startingChat = ref(false);
 const nextModuleId = ref(null);
 
-const accessToken = localStorage.getItem('token');
-const userId = Number(localStorage.getItem('id'));
-
-const currentOrder = computed(() => {
-  const cats = ['core','advanced','reference'];
-  const sameCat = (moduleData.value?.category || 'core');
-  // crude: show overall position based on order_index when available
-  return moduleData.value?.order_index || '—';
-});
-const totalCount = computed(() => 0); // optional, or fetch total
-const progressPercent = computed(() => moduleData.value?.progress_percent || 0);
+const contentTab = ref('content');
+const currentPage = ref(1);
+const totalPages = computed(() => (moduleData.value?.video_header_id ? 1 : 0) + 1);
+const hasPrevContent = computed(() => currentPage.value > 1);
+const hasNextContent = computed(() => currentPage.value < totalPages.value);
 
 const displayArabic = computed(() => moduleData.value?.arabic_text || '');
 const displayTransliteration = computed(() => moduleData.value?.transliteration || '');
+const displayMeaning = computed(() => moduleData.value?.meaning || '');
 const ruleLetters = computed(() => {
   const desc = moduleData.value?.description || '';
   const names = desc.match(/[A-Z][a-z]+/g) || [];
   return names.filter(n => !['Nun','Mim','Ham','Wau','Ya','Ra','Lam'].includes(n)).slice(0,4);
 });
-const ruleLettersLabel = computed(() => ruleLetters.value.join(' ') || '—');
-const ghunnahLabel = computed(() => (moduleData.value?.ghunnah ? 'Aktif (dengung hidung)' : 'Tidak aktif (baca jelas)'));
-const ghunnahFull = computed(() => moduleData.value?.ghunnah ? 'The sound is merged into the nose for a soft hum.' : 'Read clearly without nasalization.');
-const proTipText = computed(() => 'Try holding your nose while saying it; the sound should stop if you are doing it correctly!');
+const ghunnahFull = computed(() => moduleData.value?.ghunnah ? 'Suara digabung ke dalam hidung untuk menghasilkan dengung lembut.' : 'Baca jelas tanpa dengung nasal.');
+const proTipText = computed(() => 'Coba tahan napas sedikit saat menghafal aturan ini; konsistensi lebih penting dari kecepatan.');
+
+// mapping ayat contoh per modul (id -> arabic, translit, ref)
+const ayahMap = {
+  10: { arabic: 'إِنَّا أَنْزَلْنَاهُ قُرْآنًا عَرَبِيًّا', translit: 'Inna anzalnahu quranan arabiyyan', ref: 'QS. Yusuf: 2' },
+  11: { arabic: 'وَلَرَبُّكَ أَكْرَمٌ عَظِيمٌ', translit: 'Wa rabbuka akramun adzimun', ref: 'QS. Al-Kautsar: 1' },
+  12: { arabic: 'وَمِنَ النَّاسِ مَن يَشْتَرِي لَهْوَ الْحَدِيثِ', translit: 'Wa minan-nasi man yasytari lahwal-hadits', ref: 'QS. Luqman: 6' },
+  13: { arabic: 'لَا يُحِبُّ اللَّهُ الْجَهْرَ بِالسُّوءِ', translit: 'La yuhabbullahul-jahras-sui', ref: 'QS. An-Nisa: 148' },
+  14: { arabic: 'فَاقْرَءُوا مَا تَيَسَّرَ مِنَ الْقُرْآنِ', translit: ' Faqrau maa yayassara minal-quran', ref: 'QS. Al-Muzzammil: 20' },
+};
+const displayAyahArabic = computed(() => ayahMap[moduleData.value?.id]?.arabic || '');
+const displayAyahTranslit = computed(() => ayahMap[moduleData.value?.id]?.translit || '');
+const displayAyahRef = computed(() => ayahMap[moduleData.value?.id]?.ref || '');
+const displayAyat = computed(() => !!(ayahMap[moduleData.value?.id]?.arabic));
+
+const goPrevContent = () => { if (currentPage.value > 1) currentPage.value--; };
+const goNextContent = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
+
+function initVideoJs(videoId) {
+  if (player) player.dispose();
+  player = videojs(videoPlayer.value, {
+    techOrder: ['youtube'],
+    sources: [{ type: 'video/youtube', src: `https://www.youtube.com/watch?v=${videoId}` }],
+    controls: true, autoplay: false, preload: 'auto',
+    youtube: { modestbranding: 1, rel: 0, showinfo: 0, iv_load_policy: 3 },
+    responsive: true, fluid: true
+  });
+  player.on('error', () => console.error('VideoJS Error:', player.error()));
+}
 
 const goBack = () => router.go(-1);
 const goToAnswerPage = (question) => router.push({ path: `/quiz-answer/${question.id}` });
 const goToNextModule = () => { if (nextModuleId.value) router.push(`/module/${nextModuleId.value}`); else router.push('/tajwid'); };
-
 const startChat = async () => {
   startingChat.value = true;
   try {
@@ -167,7 +215,7 @@ const startChat = async () => {
       type: 'chat',
       answer_type: 'text',
       is_completed: 0,
-      created_by: Number(userId),
+      created_by: Number(localStorage.getItem('id')),
     }, { headers: authHeader() });
     const newQuizId = res.data?.id || res.data?.data?.id;
     if (newQuizId) router.push({ path: `/quiz-answer/${newQuizId}` });
@@ -178,18 +226,6 @@ const startChat = async () => {
   } finally {
     startingChat.value = false;
   }
-};
-
-const playAudio = () => {
-  // Play a simple tone via Web Audio API / browser speech for now
-  try {
-    const Speech = window.SpeechSynthesisUtterance || window.speechSynthesis;
-    if (!Speech) return;
-    const u = new SpeechSynthesisUtterance(displayTransliteration.value || '');
-    u.lang = 'en-US';
-    u.rate = 0.8;
-    window.speechSynthesis?.speak(u);
-  } catch (e) { console.error(e); }
 };
 
 const fetchNextModule = async () => {
@@ -220,10 +256,31 @@ onMounted(async () => {
     sectionName.value = sec?.section_name || '';
     isPassed.value = !!moduleData.value?.is_completed;
     if (moduleData.value?.is_completed) await fetchNextModule();
+
+    const raw = moduleData.value?.video_header_id || '';
+    const match = raw.match(/(?:youtu\.be\/|v=)([^&]+)/);
+    const videoId = match?.[1];
+    if (videoId) {
+      videoReady.value = true;
+      await nextTick();
+      initVideoJs(videoId);
+    }
   } catch (error) {
     console.error('Failed to fetch data:', error);
   }
 });
+
+const videoReady = ref(false);
+watch(contentTab, async (val) => {
+  if (val === 'video' && videoReady.value && !player) {
+    await nextTick();
+    const raw = moduleData.value?.video_header_id || '';
+    const match = raw.match(/(?:youtu\.be\/|v=)([^&]+)/);
+    const videoId = match?.[1];
+    if (videoId && videoPlayer.value) initVideoJs(videoId);
+  }
+});
+onBeforeUnmount(() => { if (player) { player.dispose(); player = null; } });
 </script>
 
 <style scoped>
@@ -235,17 +292,22 @@ onMounted(async () => {
 
 .lesson-layout { margin-top: 20px; }
 .lesson-card { background: #e6f4ea; border-radius: 24px; padding: 32px 24px; text-align: center; position: relative; overflow: hidden; min-height: 420px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.page-tabs { border-radius: 12px; overflow: hidden; }
+.video-wrap, .video-player, .video-placeholder { width: 100%; }
+.video-player { height: 0; padding-bottom: 56.25%; position: relative; }
+.video-player video { position: absolute; inset: 0; width: 100%; height: 100%; }
+.video-thumb { width: 100%; height: 0; padding-bottom: 56.25%; }
+.play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: white; opacity: .9; z-index: 1; }
+
 .example-chip { position: absolute; top: 16px; left: 16px; background: var(--serene-primary); color: #fff; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
 .arabic-display { font-size: 3rem; color: var(--serene-on-surface); line-height: 1.4; margin-top: 16px; font-family: 'Noto Serif', serif; }
 .transliteration { font-size: 1.1rem; color: var(--serene-primary); font-weight: 600; margin-top: 10px; font-style: italic; }
-.listen-btn { border-radius: 999px; padding: 10px 18px; font-weight: 600; }
-
-.diagram { display: flex; gap: 24px; margin-top: auto; padding-top: 24px; }
-.diagram-col { display: flex; flex-direction: column; align-items: center; gap: 8px; }
-.diagram-line { width: 6px; height: 80px; border-radius: 999px; }
-.line-nun { background: #006948; }
-.line-ya { background: #fe932c; }
-.diagram-label { font-size: 12px; font-weight: 700; letter-spacing: 0.08em; color: var(--serene-on-surface-variant); }
+.meaning-text { font-size: 0.95rem; color: var(--serene-on-surface-variant); margin-top: 8px; }
+.ayah-text { background: #fff; border-radius: 16px; padding: 16px 20px; margin-top: 12px; }
+.ayah-arabic { font-size: 2rem; color: var(--serene-on-surface); line-height: 1.6; font-family: 'Noto Serif', serif; }
+.ayah-translit { font-size: 1rem; color: var(--serene-primary); font-style: italic; margin-top: 6px; }
+.ayah-ref { font-size: 0.85rem; color: var(--serene-on-surface-variant); margin-top: 4px; }
+.ayah-row { width: 100%; margin-top: auto; padding-top: 20px; }
 
 .rule-stack { }
 .rule-card { padding: 20px 22px; border-radius: 16px; }

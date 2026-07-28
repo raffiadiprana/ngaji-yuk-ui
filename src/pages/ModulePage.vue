@@ -61,27 +61,26 @@
             <q-tab-panel name="quiz" class="q-pa-none">
               <div class="quiz-section">
                 <q-card
-                  v-for="(q, index) in quizes"
-                  :key="q.id"
+                  v-if="quizes.length > 0"
                   class="quiz-card q-mt-md serene-card-soft"
                 >
                   <q-card-section>
-                    <div class="quiz-question">Pertanyaan {{ index + 1 }}</div>
-                    <div class="quiz-text">{{ q.question }}</div>
+                    <div class="quiz-question">Percakapan Modul</div>
+                    <div class="quiz-text">{{ quizes[0].question }}</div>
                     <div class="quiz-actions row items-center justify-between">
                       <q-btn
                         label="Lanjutkan Chat"
                         class="serene-btn-primary"
-                        @click="goToAnswerPage(q)"
+                        @click="goToAnswerPage(quizes[0])"
                       />
-                      <div v-if="isPassed[q.id]" class="quiz-passed">
+                      <div v-if="isPassed[quizes[0].id]" class="quiz-passed">
                         Lulus
                       </div>
                     </div>
                   </q-card-section>
                 </q-card>
 
-                <div v-if="quizes.length === 0" class="empty-state text-serene-variant q-py-lg column items-center">
+                <div v-else class="empty-state text-serene-variant q-py-lg column items-center">
                   <q-icon name="chat" size="40px" color="serene-primary" class="q-mb-sm" />
                   <div class="q-mb-md text-center">Belum ada percakapan. Mulai chat dengan guru untuk bertanya seputar modul ini.</div>
                   <q-btn

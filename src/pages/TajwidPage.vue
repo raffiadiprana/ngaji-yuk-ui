@@ -61,8 +61,8 @@
               </q-btn>
             </div>
 
-            <!-- Sub-lessons (modul) untuk section aktif -->
-            <div v-if="sectionStatus(sec).cls === 'is-active' && sec._modules.length" class="sub-lessons q-mt-md">
+            <!-- Sub-lessons (modul) untuk section aktif / selesai -->
+            <div v-if="(sectionStatus(sec).cls === 'is-active' || sectionStatus(sec).cls === 'is-done') && sec._modules.length" class="sub-lessons q-mt-md">
               <div
                 v-for="(m, i) in sec._modules"
                 :key="m.id"

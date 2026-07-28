@@ -236,15 +236,12 @@ const updateCheckedBy = async () => {
 
 
 const submitTextAnswer = async () => {
-  const instructorId = Number(quiz.value?.module_detail?.instructor_id);
   if (!answerInput.value.trim()) return;
 
   try {
     await axios.post(`${api.API_BASE_URL}/answers`, {
       quiz_id: quizId,
       user_id: userId,
-      instructor_id: instructorId,
-      reply_to: santriId,
       answer_type: 'text',
       answer_value: answerInput.value.trim(),
       is_passed: 0,
@@ -276,13 +273,10 @@ const closeConfirmDialog = () => {
 };
 
 const tandaiLulus= async () => {
-  const instructorId = Number(quiz.value?.module_detail?.instructor_id);
   try {
     await axios.post(`${api.API_BASE_URL}/answers`, {
       quiz_id: quizId,
       user_id: userId,
-      instructor_id: instructorId,
-      reply_to: santriId,
       answer_type: 'text',
       answer_value: "Selamat anda telah lulus Quiz ini",
       is_passed: 1,
@@ -293,7 +287,14 @@ const tandaiLulus= async () => {
     });
 
     answerInput.value = '';
-  
+
+    // Tandai quiz sebagai selesai -> memicu modul completed & unlock modul berikutnya
+    await axios.patch(`${api.API_BASE_URL}/quiz/${quizId}`, {
+      is_completed: 1
+    }, {
+      headers: authHeader(),
+    });
+
     // Update checked_by after submit
     await updateCheckedBy();
     await fetchAnswers();

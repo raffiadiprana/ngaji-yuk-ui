@@ -223,16 +223,16 @@ const shortName = () => {
   return raw;
 };
 
-// Statis sementara (backend streak menyusul)
 const streak = ref(5);
-const activeLesson = ref('Hukum Nun Sukun & Tanwin');
-const progress = ref(70);
-const doneCount = ref(3);
-const remainCount = ref(2);
-const continueLesson = ref('Idgham Bighunnah');
-const continueDesc = ref('Pelajari cara meleburkan suara nun mati ke dalam huruf Ya, Nun, Mim, atau Wau.');
-const continueArabic = ref('مَن يَقُولُ');
+const activeLesson = ref('—');
+const progress = ref(0);
+const doneCount = ref(0);
+const remainCount = ref(0);
+const continueLesson = ref('—');
+const continueDesc = ref('');
+const continueArabic = ref('');
 const continueModuleId = ref(null);
+const allModules = ref([]);
 
 // Ayat Harian (statis, bisa diacak per hari)
 const dailyVerses = [
@@ -247,8 +247,43 @@ const quickActions = [
 ];
 
 const goContinue = () => {
-  if (continueModuleId.value) $router.push(`/lesson/${continueModuleId.value}`);
+  if (continueModuleId.value) $router.push(`/module/${continueModuleId.value}`);
   else $router.push('/tajwid');
+};
+
+const computeHomeCards = () => {
+  const mods = allModules.value
+  const unlocked = mods.filter(m => !m.is_locked)
+  const completed = mods.filter(m => m.is_completed)
+  const inProgress = unlocked.filter(m => !m.is_completed)
+
+  // Sedang Dipelajari = modul pertama yang belum selesai & unlocked
+  if (inProgress.length) {
+    const m = inProgress[0]
+    activeLesson.value = m.title
+    progress.value = m.progress_percent || 0
+  } else if (completed.length) {
+    activeLesson.value = completed[completed.length - 1].title
+    progress.value = 100
+  } else if (unlocked.length) {
+    activeLesson.value = unlocked[0].title
+    progress.value = 0
+  }
+
+  // Lanjutkan Belajar = modul berikutnya yang unlocked & belum completed
+  const next = unlocked.find(m => !m.is_completed)
+  if (next) {
+    continueLesson.value = next.title
+    continueDesc.value = next.description || 'Lanjutkan belajar hukum tajwid ini.'
+    continueModuleId.value = next.id
+  } else {
+    continueLesson.value = 'Semua modul selesai 🎉'
+    continueModuleId.value = null
+  }
+
+  // Count
+  doneCount.value = completed.length
+  remainCount.value = mods.length - completed.length
 };
 
 const fetchSections = async () => {
@@ -286,12 +321,15 @@ onMounted(async () => {
   await fetchSections();
 
   const [modulesResult, logsResult] = await Promise.allSettled([
-    axios.get(`${api.API_BASE_URL}/modules`, { headers: authHeader() }),
+    axios.get(`${api.API_BASE_URL}/modules`, { headers: authHeader(), params: { user_id: userId, is_deleted: 0 } }),
     axios.get(`${api.API_BASE_URL}/videologs`, { headers: authHeader(), params: { user_id: userId } })
   ]);
 
   if (modulesResult.status === 'fulfilled') {
-    courses.value = modulesResult.value.data.data || [];
+    const mods = modulesResult.value.data.data || [];
+    courses.value = mods;
+    allModules.value = mods;
+    computeHomeCards();
   }
 
   if (logsResult.status === 'fulfilled') {

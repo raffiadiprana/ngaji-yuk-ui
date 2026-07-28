@@ -148,63 +148,47 @@
         <div class="section-header">
           <h5 class="section-title">
             <q-icon name="chat" color="serene-primary" class="q-mr-sm" />
-            Daftar Chat
+            Chat Masuk
           </h5>
           <q-btn
-            label="Tambah Chat"
-            icon="add"
-            rounded
+            label="Lihat Semua"
+            flat
             dense
-            class="serene-btn-primary"
-            @click="onAddQuiz"
+            class="text-serene-primary"
+            @click="router.push('/guru-inbox')"
           />
         </div>
 
-        <div class="card-grid">
-          <q-card
-            v-for="quiz in quizzes"
-            :key="quiz.id"
-            class="content-card interactive hover-lift"
-            @click="editQuiz(quiz)"
-          >
-            <q-card-section class="card-header">
-              <q-icon name="chat" color="serene-primary" size="sm" />
-              <div class="text-subtitle1 text-weight-bold q-ml-sm ellipsis-text">{{ quiz.question }}</div>
-            </q-card-section>
-
-            <q-separator />
-
-            <q-card-actions align="right" class="card-actions">
-              <q-btn flat round dense icon="more_vert" @click.stop>
-                <q-menu auto-close>
-                  <q-list>
-                    <q-item clickable @click="editQuiz(quiz)">
-                      <q-item-section avatar>
-                        <q-icon name="edit" color="serene-primary" />
-                      </q-item-section>
-                      <q-item-section>Edit</q-item-section>
-                    </q-item>
-                    <q-item clickable @click="deleteQuiz(quiz)">
-                      <q-item-section avatar>
-                        <q-icon name="delete" color="negative" />
-                      </q-item-section>
-                      <q-item-section>Hapus</q-item-section>
-                    </q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
-            </q-card-actions>
-          </q-card>
+        <div v-if="loadingChats" class="text-center q-py-md text-serene-variant">
+          Memuat...
         </div>
 
-        <q-btn
-          v-if="hasMoreQuizzes"
-          label="Tampilkan lebih banyak"
-          outline
-          class="serene-btn-outline full-width q-mt-md"
-          @click="loadMoreQuizzes"
-          :loading="loadingQuizzes"
-        />
+        <q-list v-else separator class="chat-list">
+          <q-item
+            v-for="item in incomingChats"
+            :key="item.id"
+            clickable
+            @click="openChat(item)"
+            class="interactive hover-lift"
+          >
+            <q-item-section avatar>
+              <q-avatar size="40px">
+                <img :src="item.user_detail?.avatar ? api.API_UPLOADS_URL + '/' + item.user_detail?.avatar : 'https://placehold.co/100?text=👤'" />
+              </q-avatar>
+            </q-item-section>
+            <q-item-section>
+              <q-item-label class="text-weight-bold text-serene-on-surface">{{ item.user_detail?.display_name || ('User ' + item.user_id) }}</q-item-label>
+              <q-item-label caption class="text-serene-variant ellipsis-text">{{ item.answer_type === 'file' ? 'Voice Note' : (item.answer_value || 'Chat baru') }}</q-item-label>
+            </q-item-section>
+            <q-item-section side>
+              <q-btn flat round icon="chevron_right" @click.stop="openChat(item)" />
+            </q-item-section>
+          </q-item>
+        </q-list>
+
+        <div v-if="!loadingChats && incomingChats.length === 0" class="empty-state text-serene-variant q-py-lg text-center">
+          Belum ada chat masuk dari santri.
+        </div>
       </div>
     </div>
   </div>
@@ -223,7 +207,7 @@
   
   const profile = ref({});
   const courses = ref([]);
-  const quizzes = ref([]);
+  const incomingChats = ref([]);
   const lessons = ref([]);
   const accessToken = localStorage.getItem('token');
   const instructorId = localStorage.getItem('id');
@@ -234,11 +218,8 @@
   const loadingCourses = ref(false);
   const hasMoreCourses = ref(true);
 
-  // Paging for Quizzes
-  const skipQuizzes = ref(0);
-  const limitQuizzes = 10;
-  const loadingQuizzes = ref(false);
-  const hasMoreQuizzes = ref(true);
+  // Paging for Chats (incoming from santri)
+  const loadingChats = ref(false);
 
   // Paging for Lessons
   const skipLessons = ref(0);
@@ -259,9 +240,9 @@
       }
     }
   
-    // Load pertama kali untuk kursus, quiz, dan lessons
+    // Load pertama kali untuk kursus, chat, dan lessons
     await fetchCourses();
-    await fetchQuizzes();
+    await fetchChats();
     await fetchLessons();
   });
   
@@ -295,33 +276,25 @@
     }
   };
 
-  // Fungsi untuk mengambil data quiz berdasarkan skip dan limit
-  const fetchQuizzes = async () => {
-    if (loadingQuizzes.value) return;
-    loadingQuizzes.value = true;
-
+  // Fungsi untuk mengambil chat masuk dari santri (tanpa CRUD guru)
+  const fetchChats = async () => {
+    loadingChats.value = true;
     try {
-      const res = await axios.get(`${api.API_BASE_URL}/quiz`, {
+      const res = await axios.get(`${api.API_BASE_URL}/answers`, {
         headers: authHeader(),
-        params: { 
-          created_by: instructorId,  // Filter berdasarkan instructor_id pada module
-          $skip: skipQuizzes.value, 
-          $limit: limitQuizzes,
+        params: {
+          instructor_id: instructorId,
+          'user_id[$ne]': instructorId
         }
       });
-
-      const fetchedQuizzes = res.data.data || [];
-
-      if (fetchedQuizzes.length > 0) {
-        quizzes.value.push(...fetchedQuizzes);
-      }
-
-      hasMoreQuizzes.value = fetchedQuizzes.length === limitQuizzes;
-
+      incomingChats.value = (res.data.data || []).filter(answer =>
+        (!answer.checked_by || answer.checked_by === null)
+      );
     } catch (err) {
-      console.error('Failed to fetch quizzes:', err);
+      console.error('Failed to fetch chats:', err);
+      incomingChats.value = [];
     } finally {
-      loadingQuizzes.value = false;
+      loadingChats.value = false;
     }
   };
 
@@ -363,14 +336,6 @@
     }
   };
 
-  // Fungsi untuk menangani tombol "Load More" untuk quiz
-  const loadMoreQuizzes = () => {
-    if (!loadingQuizzes.value && hasMoreQuizzes.value) {
-      skipQuizzes.value += limitQuizzes;
-      fetchQuizzes();
-    }
-  };
-
   // Fungsi untuk menangani tombol "Load More" untuk lessons
   const loadMoreLessons = () => {
     if (!loadingLessons.value && hasMoreLessons.value) {
@@ -381,10 +346,6 @@
   
   const onAddModule = () => {
     router.push('/module-form');
-  };
-
-  const onAddQuiz = () => {
-    router.push('/quiz-form');
   };
 
   const onAddLesson = () => {
@@ -433,50 +394,14 @@
     })
   };
 
-  const editQuiz = (quiz) => {
-    router.push(`/quiz-form/${quiz.id}`);
-  };
-  
-  const deleteQuiz = (quiz) => {
-    console.log('Delete quiz:', quiz);
-    $q.dialog({
-      title: 'Konfirmasi',
-      message: 'Apakah anda yakin akan menghapus Quiz ini?',
-      ok: {
-        label: 'Ya',
-        color: 'primary'
-      },
-      cancel: {
-        label: 'Kembali',
-        color: 'red'
-      }
-    }).onOk(async () => {
-      const payload = {
-        is_deleted : 1
-      }
-      
-      await axios.patch(`${api.API_BASE_URL}/quiz/${quiz.id}`, payload, {
-        headers: authHeader()
-      })
-
-      $q.dialog({
-        title: 'Berhasil',
-        message: 'Quiz berhasil dihapus',
-        ok: {
-          label: 'OK',
-          color: 'primary'
-        }
-      }).onOk(() => {
-        location.reload()
-      })
-
-    }).onCancel(() => {
-      console.log('Cancel Delete quiz:')
-    })
-  };
-
   const editLesson = (lesson) => {
     router.push(`/lesson-form/${lesson.id}`);
+
+  };
+
+  // Guru membuka conversation chat dari santri (tanpa CRUD)
+  const openChat = (item) => {
+    router.push(`/guru-quiz-answer/${item.quiz_id}/${item.user_id}`);
   };
 
   const deleteLesson = (lesson) => {

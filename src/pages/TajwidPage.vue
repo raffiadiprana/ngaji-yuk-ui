@@ -7,14 +7,28 @@
           <h1 class="headline-font kurikulum-title">Kurikulum Tajwid</h1>
           <p class="text-serene-variant">Ikuti perjalanan belajarmu melewati setiap checkpoint hukum tajwid.</p>
         </div>
-        <q-btn
-          v-if="isGuru || isAdmin"
-          class="serene-btn-primary"
-          label="Tambah Hukum Tajwid"
-          icon="add"
-          rounded
-          @click="onAddTajwid"
-        />
+        <div class="row q-gutter-sm">
+          <q-btn
+            :class="activeTab === 'core' ? 'serene-btn-primary' : 'serene-btn-ghost'"
+            label="Pembelajaran"
+            no-caps
+            @click="activeTab = 'core'"
+          />
+          <q-btn
+            :class="activeTab === 'reference' ? 'serene-btn-primary' : 'serene-btn-ghost'"
+            label="Referensi"
+            no-caps
+            @click="activeTab = 'reference'"
+          />
+          <q-btn
+            v-if="isGuru || isAdmin"
+            class="serene-btn-primary"
+            label="Tambah Hukum Tajwid"
+            icon="add"
+            rounded
+            @click="onAddTajwid"
+          />
+        </div>
       </header>
 
       <!-- Progress Overview -->
@@ -35,8 +49,8 @@
         </div>
       </section>
 
-      <!-- Roadmap Checkpoints -->
-      <section class="roadmap">
+      <!-- Roadmap Checkpoints (Pembelajaran) -->
+      <section v-if="activeTab === 'core'" class="roadmap">
         <div
           v-for="(tajwid, idx) in sections"
           :key="tajwid.id"
@@ -97,6 +111,37 @@
         </div>
       </section>
 
+      <!-- Referensi (bebas akses) -->
+      <section v-else class="reference-section">
+        <div class="text-caption text-serene-variant q-mb-md">
+          Kamus rujukan tajwid — bebas diakses kapan saja tanpa harus menyelesaikan materi lain.
+        </div>
+        <div class="row q-col-gutter-md">
+          <div
+            v-for="ref in referenceModules"
+            :key="ref.id"
+            class="col-12 col-sm-6 col-md-4"
+          >
+            <q-card class="serene-card reference-card interactive hover-lift" @click="router.push(`/module/${ref.id}`)">
+              <q-card-section>
+                <div class="row items-center no-wrap">
+                  <q-avatar size="44px" class="bg-serene-surface text-serene-primary flex flex-center">
+                    <q-icon name="menu_book" />
+                  </q-avatar>
+                  <div class="col q-ml-md min-width-0">
+                    <div class="text-weight-bold text-serene-on-surface ellipsis">{{ ref.title }}</div>
+                    <div class="text-caption text-serene-variant q-mt-xs">Referensi</div>
+                  </div>
+                </div>
+              </q-card-section>
+            </q-card>
+          </div>
+        </div>
+        <div v-if="!referenceModules.length" class="text-center text-serene-variant q-py-lg">
+          Belum ada modul referensi.
+        </div>
+      </section>
+
       <!-- Load More -->
       <q-btn
         v-if="hasMoreGuru"
@@ -133,6 +178,10 @@ const role = localStorage.getItem('role')
 const isGuru = computed(() => role === 'guru' || role === 'admin')
 const isAdmin = computed(() => role === 'admin')
 
+const activeTab = ref('core')
+const referenceModules = ref([])
+const allModules = ref([])
+
 const completedCount = ref(0)
 const overallProgress = computed(() => {
   if (!sections.value.length) return 0
@@ -158,7 +207,22 @@ onMounted(async () => {
     try { profile.value = JSON.parse(profileData) } catch (e) { console.error(e) }
   }
   await fetchSection()
+  await fetchAllModules()
 })
+
+const fetchAllModules = async () => {
+  try {
+    const userId = Number(localStorage.getItem('id'))
+    const res = await axios.get(`${api.API_BASE_URL}/modules`, {
+      headers: authHeader(),
+      params: { user_id: userId, is_deleted: 0 }
+    })
+    allModules.value = res.data?.data ?? []
+    referenceModules.value = allModules.value.filter(m => m.category === 'reference')
+  } catch (e) {
+    console.error('[TajwidPage] gagal ambil modules:', e)
+  }
+}
 
 const fetchSection = async () => {
   if (loadingGuru.value) return
@@ -198,11 +262,16 @@ const openMaterial = async (tajwid) => {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/modules`, {
       headers: authHeader(),
-      params: { section_id: tajwid.id }
+      params: { section_id: tajwid.id, user_id: Number(localStorage.getItem('id')), is_deleted: 0 }
     })
     const mods = res.data?.data ?? []
     if (mods.length) {
-      router.push(`/module/${mods[0].id}`)
+      const first = mods[0]
+      if (first.is_locked && !(isGuru.value || isAdmin.value)) {
+        $q.notify({ type: 'warning', message: 'Modul ini terkunci. Selesaikan modul sebelumnya terlebih dahulu.' })
+        return
+      }
+      router.push(`/module/${first.id}`)
     } else if (isGuru.value || isAdmin.value) {
       router.push(`/module-form?section_id=${tajwid.id}`)
     } else {
@@ -263,6 +332,8 @@ const deleteTajwid = (section) => {
 .ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .min-width-0 { min-width: 0; }
 .serene-btn-ghost { color: var(--serene-primary); }
+.reference-card { border-radius: 16px; padding: 16px; }
+.reference-card:hover { transform: translateY(-2px); }
 @media (max-width: 1023px) {
   .kurikulum-container { padding: 16px 14px; }
   .kurikulum-title { font-size: 1.4rem; }

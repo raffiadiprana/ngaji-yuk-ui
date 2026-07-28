@@ -18,9 +18,7 @@
 
 /* Versi lembut (untuk login/register, tidak terlalu mencolok) */
 .aurora-bg-soft {
-  background: linear-gradient(120deg, #e7eefe, #dce2f3, #e2e8f8, #f0f3ff, #e7eefe);
-  background-size: 300% 300%;
-  animation: auroraShift 22s ease infinite;
+  background: var(--serene-bg);
 }
 
 /* ---- Mikro-interaksi: hover & active ---- */

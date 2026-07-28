@@ -1,82 +1,83 @@
 <template>
-  <q-page class="q-pa-md">
-    <!-- Header -->
-    <q-header elevated class="bg-green-gradient text-white">
+  <q-page class="guru-quiz-answer-page">
+    <q-header elevated class="bg-green-gradient text-white serene-header">
       <q-toolbar>
         <q-btn flat round dense icon="arrow_back" @click="goBack" />
         <q-toolbar-title>{{ quiz?.module_detail.title || 'Quiz Detail' }}</q-toolbar-title>
-        
+
         <q-btn
-            flat
-            dense
-            round
-            size="md"
-            icon="more_vert"
-            class="absolute-top-right q-mt-sm q-mr-sm"
-          >
-            <q-menu auto-close>
-              <q-list style="min-width: 100px;">
-                <q-item clickable @click="openConfirmDialog">
-                  <q-item-section>Tandai lulus</q-item-section>
-                </q-item>
-              </q-list>
-            </q-menu>
-          </q-btn>
+          flat
+          dense
+          round
+          size="md"
+          icon="more_vert"
+          class="absolute-top-right q-mt-sm q-mr-sm"
+        >
+          <q-menu auto-close>
+            <q-list style="min-width: 100px;">
+              <q-item clickable @click="openConfirmDialog">
+                <q-item-section>Tandai lulus</q-item-section>
+              </q-item>
+            </q-list>
+          </q-menu>
+        </q-btn>
       </q-toolbar>
     </q-header>
 
-     <!-- Dialog Konfirmasi -->
-     <q-dialog v-model="showConfirmDialog">
-      <q-card>
-        <q-card-section>
-          <div class="text-h6">Konfirmasi</div>
-          <div class="q-mt-sm">Apakah Anda yakin ingin menandai quiz ini sebagai lulus?</div>
-        </q-card-section>
-        <q-card-actions align="right">
-          <q-btn flat label="Batal" @click="closeConfirmDialog" />
-          <q-btn flat label="Ya" color="primary" @click="tandaiLulus" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-    
-    <!-- Question -->
-    <div class="q-mt-md">
-      <div class="text-h6 q-mb-xs">Question:</div>
-      <q-card flat bordered class="q-pa-md">
-        <div>
-          {{ quiz?.question }}
-        </div>
-        <div v-if="quiz?.media_id != ''">
-          <audio :src="getAudioUrl(quiz?.media_id)" controls v-if="quiz?.media_id" />
-          <div v-else class="text-grey">No audio available.</div>
-        </div>
-      </q-card>
-    </div>
+    <div class="content-wrapper">
+      <!-- Dialog Konfirmasi -->
+      <q-dialog v-model="showConfirmDialog">
+        <q-card class="serene-card">
+          <q-card-section>
+            <div class="text-h6">Konfirmasi</div>
+            <div class="q-mt-sm text-serene-variant">Apakah Anda yakin ingin menandai quiz ini sebagai lulus?</div>
+          </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="Batal" @click="closeConfirmDialog" />
+            <q-btn flat label="Ya" class="serene-btn-primary" @click="tandaiLulus" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
 
-    <!-- Answer List -->
-    <div class="q-mt-lg">
-      <div class="text-h6 q-mb-sm">Submitted Answers:</div>
-      <div v-for="answer in answers" :key="answer.id" class="q-mb-sm">
-        <q-chat-message
-          :sent="answer.user_id === userId"
-          :label="formatDate(answer.created_date)"
-          :name="capitalize(answer.user_detail?.user_role || 'Unknown') + ' ' + (answer.user_detail?.display_name || 'Unknown')"
-          :bg-color="answer.user_id === userId ? 'green-3' : 'grey-3'"
-          text-color="black"
-        >
-          <template v-slot:default>
-            <div v-if="answer.answer_type == 'text'">
-              {{ answer?.answer_value }}
-            </div>
-            <div v-if="answer.answer_type == 'file'">
-              <audio :src="getAudioUrl(answer?.answer_value)" controls class="col-2" />
-            </div>
-          </template>
-        </q-chat-message>
+      <!-- Question -->
+      <div class="q-mt-md">
+        <div class="text-h6 q-mb-xs text-serene-on-surface">Question:</div>
+        <q-card flat bordered class="q-pa-md serene-card">
+          <div>
+            {{ quiz?.question }}
+          </div>
+          <div v-if="quiz?.media_id != ''">
+            <audio :src="getAudioUrl(quiz?.media_id)" controls v-if="quiz?.media_id" />
+            <div v-else class="text-serene-variant">No audio available.</div>
+          </div>
+        </q-card>
+      </div>
+
+      <!-- Answer List -->
+      <div class="q-mt-lg">
+        <div class="text-h6 q-mb-sm text-serene-on-surface">Submitted Answers:</div>
+        <div v-for="answer in answers" :key="answer.id" class="q-mb-sm">
+          <q-chat-message
+            :sent="answer.user_id === userId"
+            :label="formatDate(answer.created_date)"
+            :name="capitalize(answer.user_detail?.user_role || 'Unknown') + ' ' + (answer.user_detail?.display_name || 'Unknown')"
+            :bg-color="answer.user_id === userId ? 'green-3' : 'grey-3'"
+            text-color="black"
+          >
+            <template v-slot:default>
+              <div v-if="answer.answer_type == 'text'">
+                {{ answer?.answer_value }}
+              </div>
+              <div v-if="answer.answer_type == 'file'">
+                <audio :src="getAudioUrl(answer?.answer_value)" controls class="col-2" />
+              </div>
+            </template>
+          </q-chat-message>
+        </div>
       </div>
     </div>
-
-    <!-- Input Answer -->
+  </q-page>
+</template>
     <div class="fixed-bottom q-pa-sm bg-white" style="z-index: 100;padding-bottom: 70px;">
       <div class="row items-center no-wrap q-gutter-sm">
         <q-input
@@ -405,6 +406,18 @@ onMounted(async () => {
 .text-h6 {
   font-weight: bold;
 }
+.guru-quiz-answer-page {
+  min-height: 100vh;
+  background: var(--serene-bg);
+  position: relative;
+}
+
+.content-wrapper {
+  position: relative;
+  z-index: 1;
+  padding: 0 16px;
+}
+
 .q-page {
   padding-bottom: 100px;
 }

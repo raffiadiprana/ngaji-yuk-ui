@@ -54,7 +54,7 @@
         <div class="tabs-section q-mt-lg serene-card">
           <q-tabs v-model="tab" class="serene-tabs">
             <q-tab name="lessons" label="Lessons" />
-            <q-tab name="quiz" label="Kuis" />
+            <q-tab name="quiz" label="Chat" icon="chat" />
           </q-tabs>
 
           <q-tab-panels v-model="tab" animated>
@@ -100,7 +100,7 @@
             <q-tab-panel name="quiz" class="q-pa-none">
               <div class="quiz-section">
                 <div v-if="quizes.length === 0" class="empty-state text-serene-variant q-py-lg">
-                  Belum ada kuis untuk modul ini.
+                  Belum ada chat untuk modul ini.
                 </div>
                 <q-card
                   v-for="(q, index) in quizes"

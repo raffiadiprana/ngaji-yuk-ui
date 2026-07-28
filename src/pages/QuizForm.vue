@@ -45,7 +45,6 @@
     </div>
   </q-page>
 </template>
-</template>
 
 <script setup>
 import { useQuasar } from 'quasar'

@@ -215,7 +215,7 @@ const fetchAllModules = async () => {
     const userId = Number(localStorage.getItem('id'))
     const res = await axios.get(`${api.API_BASE_URL}/modules`, {
       headers: authHeader(),
-      params: { user_id: userId, is_deleted: 0 }
+      params: { is_deleted: 0 }
     })
     allModules.value = res.data?.data ?? []
     referenceModules.value = allModules.value.filter(m => m.category === 'reference')
@@ -262,7 +262,7 @@ const openMaterial = async (tajwid) => {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/modules`, {
       headers: authHeader(),
-      params: { section_id: tajwid.id, user_id: Number(localStorage.getItem('id')), is_deleted: 0 }
+      params: { section_id: tajwid.id, is_deleted: 0 }
     })
     const mods = res.data?.data ?? []
     if (mods.length) {

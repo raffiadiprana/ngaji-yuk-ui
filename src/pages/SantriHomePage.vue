@@ -321,7 +321,7 @@ onMounted(async () => {
   await fetchSections();
 
   const [modulesResult, logsResult] = await Promise.allSettled([
-    axios.get(`${api.API_BASE_URL}/modules`, { headers: authHeader(), params: { user_id: userId, is_deleted: 0 } }),
+    axios.get(`${api.API_BASE_URL}/modules`, { headers: authHeader(), params: { is_deleted: 0 } }),
     axios.get(`${api.API_BASE_URL}/videologs`, { headers: authHeader(), params: { user_id: userId } })
   ]);
 

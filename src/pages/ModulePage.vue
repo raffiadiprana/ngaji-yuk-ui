@@ -148,7 +148,7 @@ const nextModuleId = ref(null);
 
 const currentPage = ref(1);
 const videoReady = ref(false);
-const totalPages = computed(() => (moduleData.value?.video_header_id ? 1 : 0) + 1);
+const totalPages = computed(() => 2); // Page 1: Video, Page 2: Konten Materi (selalu ada)
 const hasPrevContent = computed(() => currentPage.value > 1);
 const hasNextContent = computed(() => currentPage.value < totalPages.value);
 

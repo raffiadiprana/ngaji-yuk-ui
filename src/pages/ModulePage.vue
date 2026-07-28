@@ -53,49 +53,10 @@
         <!-- Tabs Section -->
         <div class="tabs-section q-mt-lg serene-card">
           <q-tabs v-model="tab" class="serene-tabs">
-            <q-tab name="lessons" label="Lessons" />
             <q-tab name="quiz" label="Chat" icon="chat" />
           </q-tabs>
 
           <q-tab-panels v-model="tab" animated>
-            <!-- Lessons Tab -->
-            <q-tab-panel name="lessons" class="q-pa-none">
-              <q-card
-                v-for="lesson in lessons"
-                :key="lesson.id"
-                flat
-                bordered
-                class="lesson-card q-mt-md interactive hover-lift"
-                @click="$router.push(`/lesson/${lesson.id}`)"
-              >
-                <q-item>
-                  <q-item-section avatar>
-                    <q-img
-                      :src="lessonThumbnail(lesson)"
-                      class="lesson-thumbnail"
-                    >
-                      <q-icon name="play_circle" class="play-icon" />
-                    </q-img>
-                  </q-item-section>
-                  <q-item-section>
-                    <q-item-label class="lesson-title">{{ lesson.title }}</q-item-label>
-                    <q-item-label class="lesson-description">{{ lesson.description }}</q-item-label>
-                  </q-item-section>
-                  <q-item-section side>
-                    <q-btn
-                      v-if="isLessonPassed[lesson.id]"
-                      flat dense round
-                      icon="check_circle"
-                      class="passed-icon"
-                    />
-                  </q-item-section>
-                </q-item>
-              </q-card>
-              <div v-if="lessons.length === 0" class="empty-state text-serene-variant q-py-lg">
-                Belum ada sub-materi untuk modul ini.
-              </div>
-            </q-tab-panel>
-
             <!-- Chat Tab -->
             <q-tab-panel name="quiz" class="q-pa-none">
               <div class="quiz-section">
@@ -155,12 +116,10 @@ const router = useRouter();
 const route = useRoute();
 const $q = useQuasar();
 
-const tab = ref('lessons');
+const tab = ref('quiz');
 const moduleData = ref(null);
-const lessons = ref([]);
 const quizes = ref([]);
 const isPassed = ref({});
-const isLessonPassed = ref({});
 
 const accessToken = localStorage.getItem('token');
 const userId = Number(localStorage.getItem('id'));
@@ -184,12 +143,6 @@ const instructorAvatar = computed(() => {
     ? `${api.API_UPLOADS_URL}/${moduleData.value.instructor_profile.avatar}`
     : 'https://placehold.co/100';
 });
-
-const lessonThumbnail = (lesson) => {
-  return lesson?.thumbnail 
-    ? `${api.API_UPLOADS_URL}/${lesson.thumbnail}`
-    : 'https://placehold.co/100x70';
-};
 
 // Methods
 const goBack = () => router.go(-1);
@@ -238,18 +191,6 @@ const checkIfQuizPassed = async (quizId) => {
   }
 };
 
-const checkIfLessonPassed = async (lessonid) => {
-  try {
-    const response = await axios.get(`${api.API_BASE_URL}/videologs`, {
-      headers: authHeader(),
-      params: { parent_id: lessonid, user_id: userId, is_complete: 1 }
-    });
-    isLessonPassed.value[lessonid] = response.data?.data?.length > 0;
-  } catch (error) {
-    console.error('Failed to check lesson status:', error);
-  }
-};
-
 function initVideoJs(videoId) {
   if (player) player.dispose();
 
@@ -280,11 +221,8 @@ function initVideoJs(videoId) {
 // Lifecycle Hooks
 onMounted(async () => {
   try {
-    const [moduleRes, lessonsRes, quizRes] = await Promise.all([
+    const [moduleRes, quizRes] = await Promise.all([
       axios.get(`${api.API_BASE_URL}/modules?id=${moduleId}`, {
-        headers: authHeader(),
-      }),
-      axios.get(`${api.API_BASE_URL}/lessons?module_id=${moduleId}`, {
         headers: authHeader(),
       }),
       axios.get(`${api.API_BASE_URL}/quiz?modules_id=${moduleId}`, {
@@ -293,12 +231,10 @@ onMounted(async () => {
     ]);
 
     moduleData.value = moduleRes.data.data[0] || null;
-    lessons.value = lessonsRes.data.data;
     quizes.value = quizRes.data.data;
 
     // Check completion status
     await Promise.all([
-      ...lessons.value.map(lesson => checkIfLessonPassed(lesson.id)),
       ...quizes.value.map(quiz => checkIfQuizPassed(quiz.id))
     ]);
 

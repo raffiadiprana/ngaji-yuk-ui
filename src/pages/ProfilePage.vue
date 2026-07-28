@@ -139,10 +139,10 @@
         </q-card-section>
       </q-card>
 
-      <!-- Riwayat Quiz -->
+      <!-- Riwayat Chat -->
       <q-card class="serene-card">
         <q-card-section>
-          <h2 class="headline-font section-h2 q-mb-md">Riwayat Quiz</h2>
+          <h2 class="headline-font section-h2 q-mb-md">Riwayat Chat</h2>
           <q-list bordered separator class="rounded-borders">
             <q-item v-for="quiz in groupedQuizzes" :key="quiz.quiz_id" class="q-mb-sm hover-lift rounded-borders" clickable @click="openAnswer(quiz)">
               <q-item-section>

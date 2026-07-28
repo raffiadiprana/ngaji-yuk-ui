@@ -143,15 +143,15 @@
         />
       </div>
 
-      <!-- Quiz Section -->
+      <!-- Chat Section -->
       <div class="section-card serene-card q-mt-lg">
         <div class="section-header">
           <h5 class="section-title">
-            <q-icon name="quiz" color="serene-primary" class="q-mr-sm" />
-            Daftar Quiz
+            <q-icon name="chat" color="serene-primary" class="q-mr-sm" />
+            Daftar Chat
           </h5>
           <q-btn
-            label="Tambah Quiz"
+            label="Tambah Chat"
             icon="add"
             rounded
             dense
@@ -168,7 +168,7 @@
             @click="editQuiz(quiz)"
           >
             <q-card-section class="card-header">
-              <q-icon name="quiz" color="serene-primary" size="sm" />
+              <q-icon name="chat" color="serene-primary" size="sm" />
               <div class="text-subtitle1 text-weight-bold q-ml-sm ellipsis-text">{{ quiz.question }}</div>
             </q-card-section>
 

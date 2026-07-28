@@ -1,31 +1,32 @@
 <template>
-    <q-page padding>
-      <!-- Header -->
-      <q-header elevated class="bg-green-gradient text-white">
+    <q-page class="tajwid-form-page">
+      <q-header elevated class="bg-green-gradient text-white serene-header">
         <q-toolbar>
           <q-btn flat round dense icon="arrow_back" @click="goBack" />
           <q-toolbar-title>{{ form.title || 'Tambah Hukum Tajwid' }}</q-toolbar-title>
         </q-toolbar>
       </q-header>
-  
-      <q-card class="my-card">
-        <q-card-section>
-          <q-form @submit.prevent="submitForm" ref="formRef" class="q-gutter-md">
-            <!-- Question -->
-            <q-input
-              filled
-              v-model="form.section_name"
-              label="Nama Hukum Tajwid"
-              :rules="[val => !!val || 'Nama Hukum Tajwid wajib diisi']"
-            />
-  
-            <div class="row justify-end q-gutter-sm q-mt-md">
-              <q-btn label="Batal" color="grey" flat @click="cancel" />
-              <q-btn type="submit" :label="isEdit ? 'Update' : 'Tambah'" color="primary" :loading="loading" />
-            </div>
-          </q-form>
-        </q-card-section>
-      </q-card>
+
+      <div class="page-container">
+        <q-card class="my-card serene-card">
+          <q-card-section>
+            <q-form @submit.prevent="submitForm" ref="formRef" class="q-gutter-md">
+              <!-- Question -->
+              <q-input
+                filled
+                v-model="form.section_name"
+                label="Nama Hukum Tajwid"
+                :rules="[val => !!val || 'Nama Hukum Tajwid wajib diisi']"
+              />
+
+              <div class="row justify-end q-gutter-sm q-mt-md">
+                <q-btn label="Batal" color="grey" flat @click="cancel" />
+                <q-btn type="submit" :label="isEdit ? 'Update' : 'Tambah'" class="serene-btn-primary" :loading="loading" />
+              </div>
+            </q-form>
+          </q-card-section>
+        </q-card>
+      </div>
     </q-page>
   </template>
   

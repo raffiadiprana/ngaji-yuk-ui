@@ -1,10 +1,5 @@
 <template>
   <div class="admin-page">
-    <div class="aurora-bg" aria-hidden="true">
-      <span class="aurora a1" />
-      <span class="aurora a2" />
-      <span class="aurora a3" />
-    </div>
 
     <div class="container q-pa-md">
       <!-- Welcome Section -->
@@ -473,24 +468,7 @@ const deleteGuru = async (guru) => {
 .admin-page {
   min-height: 100vh;
   background: var(--serene-bg);
-  position: relative;
 }
-.aurora-bg {
-  position: fixed;
-  inset: 0;
-  overflow: hidden;
-  z-index: 0;
-  pointer-events: none;
-}
-.aurora {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(70px);
-  opacity: 0.25;
-}
-.aurora.a1 { width: 420px; height: 420px; background: var(--serene-primary); top: -120px; left: -100px; }
-.aurora.a2 { width: 360px; height: 360px; background: var(--serene-secondary); bottom: -120px; right: -80px; }
-.aurora.a3 { width: 300px; height: 300px; background: #a7f3d0; top: 40%; left: 60%; }
 
 .container {
   position: relative;

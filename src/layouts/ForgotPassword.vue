@@ -1,17 +1,17 @@
 <template>
-  <q-layout view="hHh lpR fFf" class="bg-green-gradient">
+  <q-layout view="hHh lpR fFf" class="aurora-bg-soft serene-auth">
     <q-page-container>
       <q-page class="flex flex-center q-pa-md">
-        <q-card class="glass-card q-pa-lg" style="width: 100%; max-width: 400px">
+        <q-card class="serene-auth-card q-pa-lg" style="width: 100%; max-width: 400px">
           <div class="flex flex-center q-mb-md">
-            <q-avatar size="80px" class="bg-white text-green-7">
+            <q-avatar size="80px" class="bg-serene-primary text-white shadow-2">
               <q-icon name="lock_reset" size="60px" />
             </q-avatar>
           </div>
 
           <q-card-section class="text-center">
-            <div class="text-h5 text-white q-mb-xs">Lupa Password</div>
-            <div class="text-caption text-grey-3">
+            <div class="headline-font text-h5 text-serene-on-surface q-mb-xs">Lupa Password</div>
+            <div class="text-caption text-serene-variant">
               {{ step === 1 ? 'Masukkan email Anda untuk memulai' : 'Buat password baru untuk akun Anda' }}
             </div>
           </q-card-section>
@@ -25,16 +25,13 @@
                 type="email"
                 filled
                 dense
-                dark
-                color="white"
-                input-class="text-white"
-                class="forgot-input q-mb-sm"
+                class="serene-input q-mb-sm"
+                color="serene-primary"
               />
               <q-btn
                 label="Cari Akun"
-                color="green-10"
                 unelevated
-                class="full-width q-mt-md"
+                class="full-width serene-btn-primary q-mt-md"
                 :loading="loading"
                 @click="handleCheck"
               />
@@ -48,10 +45,8 @@
                 :type="showPwd ? 'text' : 'password'"
                 filled
                 dense
-                dark
-                color="white"
-                input-class="text-white"
-                class="forgot-input q-mb-sm"
+                class="serene-input q-mb-sm"
+                color="serene-primary"
               >
                 <template v-slot:append>
                   <q-icon
@@ -63,16 +58,15 @@
               </q-input>
               <q-btn
                 label="Reset Password"
-                color="green-10"
                 unelevated
-                class="full-width q-mt-md"
+                class="full-width serene-btn-primary q-mt-md"
                 :loading="loading"
                 @click="handleReset"
               />
               <q-btn
                 flat
                 label="Kembali"
-                class="full-width text-white q-mt-xs"
+                class="full-width text-serene-primary q-mt-xs"
                 @click="step = 1"
               />
             </template>
@@ -80,7 +74,7 @@
             <q-btn
               flat
               label="Kembali ke Login"
-              class="full-width text-white q-mt-sm"
+              class="full-width text-serene-variant q-mt-sm"
               @click="router.push('/')"
             />
           </q-card-section>
@@ -172,23 +166,18 @@ const handleReset = async () => {
 </script>
 
 <style scoped>
-.bg-green-gradient {
-  background: linear-gradient(to bottom right, #2e817c, #3f9e5f);
+.serene-auth {
   min-height: 100vh;
 }
 
-.glass-card {
-  backdrop-filter: blur(15px);
-  background-color: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
+.serene-auth-card {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid var(--serene-outline-variant);
+  box-shadow: 0 12px 40px rgba(5, 150, 105, 0.1);
 }
 
-.forgot-input :deep(.q-field__control) {
-  background-color: rgba(255, 255, 255, 0.08) !important;
-}
-
-.forgot-input :deep(.q-field__label) {
-  color: rgba(255, 255, 255, 0.7) !important;
+.serene-input :deep(.q-field__control) {
+  border-radius: 12px;
 }
 </style>

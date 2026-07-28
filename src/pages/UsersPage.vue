@@ -1,10 +1,10 @@
 <template>
-  <div class="q-pa-md">
+  <div class="users-page q-pa-md">
     <!-- Welcome -->
-    <div class="row items-center hp-profil-header q-mb-md">
+    <div class="row items-center hp-profil-header q-mb-md serene-card q-pa-md">
       <div class="col">
-        <h5 class="text-bold">
-          Welcome <span class="text-primary">{{ profile.display_name || 'Guest' }}</span>
+        <h5 class="text-bold text-serene-on-surface">
+          Welcome <span class="text-serene-primary">{{ profile.display_name || 'Guest' }}</span>
         </h5>
       </div>
       <q-btn flat dense round icon="notifications" class="q-mr-sm" />
@@ -12,8 +12,8 @@
 
     <!-- Guru Header -->
     <div class="row items-center justify-between q-mb-md">
-      <h6 class="text-bold">Daftar Guru</h6>
-      <q-btn label="Tambah Guru" color="green" flat rounded dense @click="onAddGuru" />
+      <h6 class="text-bold text-serene-on-surface">Daftar Guru</h6>
+      <q-btn label="Tambah Guru" color="serene-primary" flat rounded dense @click="onAddGuru" />
     </div>
 
     <!-- List Guru -->
@@ -21,13 +21,13 @@
       <q-item
         v-for="guru in gurus"
         :key="guru.id"
-        class="q-mb-md"
+        class="q-mb-md serene-card hover-lift"
         clickable
         @click="editGuru(guru)"
         bordered
       >
         <q-item-section>
-          <q-item-label class="text-h6 text-weight-medium">{{ guru.email }}</q-item-label>
+          <q-item-label class="text-h6 text-weight-medium text-serene-on-surface">{{ guru.email }}</q-item-label>
         </q-item-section>
 
         <q-item-section side>
@@ -50,19 +50,19 @@
     <q-btn
       label="Tampilkan lebih banyak"
       flat
-      class="full-width q-mt-md"
+      class="full-width q-mt-md serene-btn-ghost"
       @click="loadMoreCourses"
       :loading="loadingGuru"
       :disable="loadingGuru || !hasMoreGuru"
     />
 
     <!-- Riwayat Donasi -->
-    <div>
+    <div class="q-mt-lg">
       <div class="row items-center justify-between">
-        <h6 class="text-bold">Riwayat Donasi</h6>
+        <h6 class="text-bold text-serene-on-surface">Riwayat Donasi</h6>
       </div>
 
-      <q-list bordered separator style="margin-top: -20px;">
+      <q-list bordered separator class="serene-card q-mt-sm" style="border-radius: 16px; overflow: hidden;">
         <q-item v-for="donation in donations" :key="donation.id" class="q-mb-sm">
           <q-item-section avatar>
             <q-avatar rounded size="56px">
@@ -71,14 +71,14 @@
           </q-item-section>
 
           <q-item-section>
-            <q-item-label class="text-bold">{{ donation.account_name }}</q-item-label>
-            <q-item-label caption class="text-grey">
+            <q-item-label class="text-bold text-serene-on-surface">{{ donation.account_name }}</q-item-label>
+            <q-item-label caption class="text-serene-variant">
               {{ donation.bank_name }} - {{ donation.source_bank }}
             </q-item-label>
-            <q-item-label caption class="text-primary">
+            <q-item-label caption class="text-serene-primary">
               Rp {{ Number(donation.amount).toLocaleString('id-ID') }}
             </q-item-label>
-            <q-item-label caption>
+            <q-item-label caption class="text-serene-variant">
               {{ formatDate(donation.created_at) }}
             </q-item-label>
           </q-item-section>

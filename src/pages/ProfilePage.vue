@@ -1,5 +1,5 @@
 <template>
-  <q-page padding class="profile-page">
+  <q-page padding class="profile-page bg-serene">
     <div class="profile-container">
       <!-- Header Profil -->
       <section class="serene-card profile-header q-mb-lg">
@@ -125,7 +125,7 @@
             <q-item v-for="item in history" :key="item.id" class="q-mb-sm hover-lift rounded-borders" clickable @click="openModule(item)">
               <q-item-section>
                 <q-item-label class="text-bold">{{ item.module_detail?.title || 'Tanpa Judul' }}</q-item-label>
-                <q-item-label caption class="text-grey-7">{{ item.module_detail?.module_detail?.title || 'Tanpa Modul' }}</q-item-label>
+                <q-item-label caption class="text-serene-variant">{{ item.module_detail?.module_detail?.title || 'Tanpa Modul' }}</q-item-label>
                 <q-item-label caption>{{ item.is_complete ? '✅ Selesai' : '⏳ Belum Selesai' }}</q-item-label>
                 <q-linear-progress :value="item.duration ? item.last_position / item.duration : 0" color="serene-primary" rounded size="10px" class="q-mt-sm progress-glow" />
               </q-item-section>
@@ -147,7 +147,7 @@
             <q-item v-for="quiz in groupedQuizzes" :key="quiz.quiz_id" class="q-mb-sm hover-lift rounded-borders" clickable @click="openAnswer(quiz)">
               <q-item-section>
                 <q-item-label class="text-bold">{{ quiz.quiz_detail.question }}</q-item-label>
-                <q-item-label caption class="text-grey-7">{{ quiz.quiz_detail?.module_detail?.title }}</q-item-label>
+                <q-item-label caption class="text-serene-variant">{{ quiz.quiz_detail?.module_detail?.title }}</q-item-label>
                 <q-item-label caption>{{ quiz.is_passed ? '✅ Selesai' : '⏳ Belum Selesai' }}</q-item-label>
               </q-item-section>
             </q-item>

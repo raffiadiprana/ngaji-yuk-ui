@@ -1,6 +1,6 @@
 <template>
-  <q-page class="bg-grey-2">
-    <q-header elevated class="bg-primary text-white">
+  <q-page class="user-form-page">
+    <q-header elevated class="bg-green-gradient text-white serene-header">
       <q-toolbar>
         <q-btn flat round dense icon="arrow_back" @click="cancel" />
         <q-toolbar-title class="text-h6">
@@ -10,7 +10,7 @@
     </q-header>
 
     <div class="q-pa-md form-container">
-      <q-card class="form-card q-pa-md">
+      <q-card class="form-card serene-card q-pa-md">
         <q-form @submit.prevent="submitForm" ref="formRef" class="q-gutter-y-md">
           <!-- Email Field -->
           <q-input
@@ -19,6 +19,8 @@
             type="email"
             filled
             dense
+            class="serene-input"
+            color="serene-primary"
             :error="emailError"
             :error-message="emailErrorMsg"
             @blur="validateEmail"
@@ -32,6 +34,8 @@
             type="password"
             filled
             dense
+            class="serene-input"
+            color="serene-primary"
           />
 
           <!-- Display Name -->
@@ -40,6 +44,8 @@
             label="Nama Tampilan"
             filled
             dense
+            class="serene-input"
+            color="serene-primary"
           />
 
           <!-- Job Title -->
@@ -48,6 +54,8 @@
             label="Pekerjaan / Kegiatan Saat Ini"
             filled
             dense
+            class="serene-input"
+            color="serene-primary"
           />
 
           <!-- Role -->
@@ -57,6 +65,8 @@
             label="Peran"
             filled
             dense
+            class="serene-input"
+            color="serene-primary"
             emit-value
             map-options
             :rules="[val => !!val || 'Peran wajib dipilih']"
@@ -64,18 +74,18 @@
 
           <!-- Avatar Section -->
           <div class="avatar-section">
-            <div class="text-subtitle2 q-mb-sm">Foto Profil</div>
-            
+            <div class="text-subtitle2 q-mb-sm text-serene-on-surface">Foto Profil</div>
+
             <!-- Avatar Preview -->
             <div v-if="avatarPreview" class="avatar-preview-container q-mb-sm">
               <q-avatar size="100px" class="avatar-preview">
                 <q-img :src="avatarPreview" />
-                <q-btn 
-                  round 
-                  dense 
-                  flat 
-                  icon="close" 
-                  class="avatar-remove-btn" 
+                <q-btn
+                  round
+                  dense
+                  flat
+                  icon="close"
+                  class="avatar-remove-btn"
                   @click="clearAvatar"
                 />
               </q-avatar>
@@ -91,6 +101,7 @@
               style="width: 100%"
               flat
               bordered
+              class="serene-uploader"
             />
             <div class="text-caption text-grey q-mt-xs">
               Format: JPG/PNG
@@ -99,12 +110,12 @@
 
           <!-- Action Buttons -->
           <div class="row justify-end q-mt-lg q-gutter-sm">
-            <q-btn label="Batal" color="grey" flat @click="cancel" />
-            <q-btn 
-              type="submit" 
-              :label="isEdit ? 'Update' : 'Tambah'" 
-              color="primary" 
-              :loading="loading" 
+            <q-btn label="Batal" color="serene-primary" flat @click="cancel" />
+            <q-btn
+              type="submit"
+              :label="isEdit ? 'Update' : 'Tambah'"
+              class="serene-btn-primary"
+              :loading="loading"
             />
           </div>
         </q-form>
@@ -335,13 +346,30 @@ const cancel = () => {
 </script>
 
 <style scoped>
+.user-form-page {
+  min-height: 100vh;
+  background: var(--serene-bg);
+}
+
 .form-container {
   max-width: 600px;
   margin: 0 auto;
 }
 
 .form-card {
-  border-radius: 8px;
+  border-radius: 16px;
+}
+
+.serene-input :deep(.q-field__control) {
+  border-radius: 12px;
+}
+
+.serene-uploader {
+  border-radius: 12px;
+}
+
+.serene-uploader .q-uploader__header {
+  background-color: var(--serene-primary) !important;
 }
 
 .avatar-section {

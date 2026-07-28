@@ -1,18 +1,20 @@
 <template>
-  <q-page padding>
+  <q-page padding class="donations-page">
     <!-- Form Donasi -->
-    <q-card class="my-card">
+    <q-card class="my-card serene-card q-pa-md">
       <q-card-section>
         <q-form @submit.prevent="submitForm" ref="formRef" class="q-gutter-md">
-          <q-input v-model="form.account_name" label="Nama Pemilik Rekening" filled />
-          <q-input v-model="form.bank_name" label="Nama Bank Asal" filled />
-          <q-input v-model="form.source_bank" label="Nomor Rekening Bank Asal" filled />
+          <q-input v-model="form.account_name" label="Nama Pemilik Rekening" filled class="serene-input" color="serene-primary" />
+          <q-input v-model="form.bank_name" label="Nama Bank Asal" filled class="serene-input" color="serene-primary" />
+          <q-input v-model="form.source_bank" label="Nomor Rekening Bank Asal" filled class="serene-input" color="serene-primary" />
           <q-input
             v-model="form.amount"
             label="Nominal Transfer"
             type="number"
             filled
             prefix="Rp"
+            class="serene-input"
+            color="serene-primary"
           />
 
           <q-uploader
@@ -21,11 +23,11 @@
             accept="image/*"
             @added="onFileChange"
             :auto-upload="false"
-            class="q-mt-md"
+            class="q-mt-md serene-uploader"
           />
 
           <div class="row justify-end q-gutter-sm">
-            <q-btn label="Kirim Donasi" color="primary" type="submit" :loading="loading" />
+            <q-btn label="Kirim Donasi" class="serene-btn-primary" type="submit" :loading="loading" />
           </div>
         </q-form>
       </q-card-section>
@@ -34,9 +36,9 @@
     <q-separator spaced />
 
     <!-- History -->
-    <q-card class="my-card q-mt-md">
+    <q-card class="my-card q-mt-md serene-card q-pa-md">
       <q-card-section>
-        <div class="text-h6 q-mb-md">Riwayat Donasi Anda</div>
+        <div class="text-h6 q-mb-md text-serene-on-surface">Riwayat Donasi Anda</div>
         <q-list bordered separator>
           <q-item v-for="item in history" :key="item.id" class="q-mb-sm">
             <q-item-section avatar>
@@ -46,32 +48,32 @@
             </q-item-section>
 
             <q-item-section>
-              <q-item-label class="text-bold">{{ item.account_name }}</q-item-label>
-              <q-item-label caption class="text-grey">
+              <q-item-label class="text-bold text-serene-on-surface">{{ item.account_name }}</q-item-label>
+              <q-item-label caption class="text-serene-variant">
                 {{ item.bank_name }} - {{ item.source_bank }}
               </q-item-label>
-              <q-item-label caption class="text-primary">
+              <q-item-label caption class="text-serene-primary">
                 Rp {{ Number(item.amount).toLocaleString('id-ID') }}
               </q-item-label>
-              <q-item-label caption>
+              <q-item-label caption class="text-serene-variant">
                 {{ formatDate(item.created_at) }}
               </q-item-label>
-            
+
               <q-badge
                 outline
-                :color="item.is_verified == 1 ? 'green' : 
+                :color="item.is_verified == 1 ? 'green' :
                         item.is_verified == 2 ? 'red' : 'orange'"
                 class="q-mt-sm"
                 align="left"
               >
-                {{ item.is_verified == 1? 'Terverifikasi' : 
+                {{ item.is_verified == 1? 'Terverifikasi' :
                         item.is_verified == 2 ? 'Ditolak' : 'Menunggu Verifikasi' }}
               </q-badge>
 
               <div v-if="item.reject_reason" class="text-negative q-mt-sm">
                 Alasan Penolakan: {{ item.reject_reason }}
               </div>
-            </q-item-section>            
+            </q-item-section>
           </q-item>
         </q-list>
       </q-card-section>
@@ -198,9 +200,22 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.donations-page {
+  background: var(--serene-bg);
+  min-height: 100vh;
+}
 .my-card {
   max-width: 700px;
   margin: auto;
+}
+.serene-input :deep(.q-field__control) {
+  border-radius: 12px;
+}
+.serene-uploader {
+  border-radius: 12px;
+}
+.serene-uploader .q-uploader__header {
+  background-color: var(--serene-primary) !important;
 }
 .q-item-label {
   line-height: 1.2;

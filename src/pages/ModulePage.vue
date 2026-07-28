@@ -161,7 +161,8 @@ const startChat = async () => {
       {
         question: `Pertanyaan dari santri mengenai modul ${moduleData.value?.title || moduleId}`,
         modules_id: Number(moduleId),
-        created_by: userId,
+        media_id: '',
+        created_by: Number(userId),
       },
       { headers: authHeader() }
     );

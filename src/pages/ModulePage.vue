@@ -161,7 +161,7 @@ const startChat = async () => {
       {
         question: `Pertanyaan dari santri mengenai modul ${moduleData.value?.title || moduleId}`,
         modules_id: Number(moduleId),
-        media_id: null,
+        media_id: 0,
         type: 'chat',
         answer_type: 'text',
         created_by: Number(userId),
@@ -375,22 +375,7 @@ onBeforeUnmount(() => {
 }
 
 .serene-tabs {
-  border-bottom: none;
-}
-
-.serene-tabs .q-tabs__content {
   display: none;
-}
-
-.serene-tabs .q-tab {
-  color: var(--serene-on-surface-variant);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-
-.serene-tabs .q-tab--active {
-  color: var(--serene-primary);
 }
 
 .passed-icon {

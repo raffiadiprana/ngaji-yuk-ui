@@ -161,7 +161,7 @@ const startChat = async () => {
       {
         question: `Pertanyaan dari santri mengenai modul ${moduleData.value?.title || moduleId}`,
         modules_id: Number(moduleId),
-        media_id: '',
+        media_id: null,
         type: 'chat',
         answer_type: 'text',
         created_by: Number(userId),
@@ -375,7 +375,11 @@ onBeforeUnmount(() => {
 }
 
 .serene-tabs {
-  border-bottom: 1px solid var(--serene-border);
+  border-bottom: none;
+}
+
+.serene-tabs .q-tabs__content {
+  display: none;
 }
 
 .serene-tabs .q-tab {

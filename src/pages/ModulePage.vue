@@ -53,7 +53,7 @@
         <!-- Tabs Section -->
         <div class="tabs-section q-mt-lg serene-card">
           <q-tabs v-model="tab" class="serene-tabs">
-            <q-tab name="quiz" label="Chat" />
+            <q-tab name="quiz" />
           </q-tabs>
 
           <q-tab-panels v-model="tab" animated>
@@ -164,7 +164,6 @@ const startChat = async () => {
         media_id: '',
         type: 'chat',
         answer_type: 'text',
-        is_completed: 0,
         created_by: Number(userId),
       },
       { headers: authHeader() }

@@ -1,7 +1,6 @@
 <template>
   <q-page class="module-page">
     <div class="page-container">
-      <!-- Top header -->
       <div class="lesson-header q-mb-md">
         <div class="row items-center no-wrap">
           <q-btn flat round dense icon="arrow_back" @click="goBack" class="q-mr-sm" />
@@ -20,15 +19,8 @@
       </div>
 
       <div class="lesson-layout row q-col-gutter-md">
-        <!-- Left -->
         <div class="col-12 col-md-7">
-          <div class="page-tabs row q-mb-md">
-            <q-btn label="Video" :color="contentTab==='video' ? 'serene-primary' : 'grey-3'" :text-color="contentTab==='video' ? 'white' : 'black'" dense class="col-6 q-py-sm q-mx-xs q-px-xs" @click="contentTab='video'" />
-            <q-btn label="Konten Materi" :color="contentTab==='content' ? 'serene-primary' : 'grey-3'" :text-color="contentTab==='content' ? 'white' : 'black'" dense class="col-6 q-py-sm q-mx-xs q-px-xs" @click="contentTab='content'" />
-          </div>
-
-          <!-- Page 1: Video -->
-          <div v-if="contentTab==='video'" class="lesson-card video-page">
+          <div v-if="currentPage === 1" class="lesson-card video-page">
             <div class="video-wrap">
               <div v-if="videoReady" class="video-player">
                 <video ref="videoPlayer" class="vjs-default-skin vjs-big-play-centered" controls playsinline allowfullscreen></video>
@@ -47,13 +39,12 @@
             </div>
           </div>
 
-          <!-- Page 2: Content -->
           <div v-else class="lesson-card content-page">
             <div class="example-chip">Contoh 01</div>
             <div class="arabic-display arabic-font" dir="rtl">{{ displayArabic || 'مِنْ بَعْدِ' }}</div>
             <div class="transliteration">{{ displayTransliteration || 'Min Ba’di' }}</div>
             <div v-if="displayMeaning" class="meaning-text q-mt-sm">{{ displayMeaning }}</div>
-            <div v-if="displayAyah" class="ayah-text q-mt-md">
+            <div v-if="displayAyat" class="ayah-text q-mt-md">
               <div class="ayah-arabic arabic-font" dir="rtl">{{ displayAyahArabic }}</div>
               <div class="ayah-translit">{{ displayAyahTranslit }}</div>
               <div class="ayah-ref">{{ displayAyahRef }}</div>
@@ -65,7 +56,6 @@
             </div>
           </div>
 
-          <!-- Chat CTA + next -->
           <div class="q-mt-md">
             <q-card class="chat-cta serene-card-soft">
               <div class="row items-center no-wrap">
@@ -90,7 +80,6 @@
           </div>
         </div>
 
-        <!-- Right sidebar -->
         <div class="col-12 col-md-5">
           <div class="rule-stack">
             <q-card class="rule-card serene-card">
@@ -157,8 +146,8 @@ const sectionName = ref('');
 const startingChat = ref(false);
 const nextModuleId = ref(null);
 
-const contentTab = ref('content');
 const currentPage = ref(1);
+const videoReady = ref(false);
 const totalPages = computed(() => (moduleData.value?.video_header_id ? 1 : 0) + 1);
 const hasPrevContent = computed(() => currentPage.value > 1);
 const hasNextContent = computed(() => currentPage.value < totalPages.value);
@@ -174,13 +163,12 @@ const ruleLetters = computed(() => {
 const ghunnahFull = computed(() => moduleData.value?.ghunnah ? 'Suara digabung ke dalam hidung untuk menghasilkan dengung lembut.' : 'Baca jelas tanpa dengung nasal.');
 const proTipText = computed(() => 'Coba tahan napas sedikit saat menghafal aturan ini; konsistensi lebih penting dari kecepatan.');
 
-// mapping ayat contoh per modul (id -> arabic, translit, ref)
 const ayahMap = {
   10: { arabic: 'إِنَّا أَنْزَلْنَاهُ قُرْآنًا عَرَبِيًّا', translit: 'Inna anzalnahu quranan arabiyyan', ref: 'QS. Yusuf: 2' },
   11: { arabic: 'وَلَرَبُّكَ أَكْرَمٌ عَظِيمٌ', translit: 'Wa rabbuka akramun adzimun', ref: 'QS. Al-Kautsar: 1' },
   12: { arabic: 'وَمِنَ النَّاسِ مَن يَشْتَرِي لَهْوَ الْحَدِيثِ', translit: 'Wa minan-nasi man yasytari lahwal-hadits', ref: 'QS. Luqman: 6' },
   13: { arabic: 'لَا يُحِبُّ اللَّهُ الْجَهْرَ بِالسُّوءِ', translit: 'La yuhabbullahul-jahras-sui', ref: 'QS. An-Nisa: 148' },
-  14: { arabic: 'فَاقْرَءُوا مَا تَيَسَّرَ مِنَ الْقُرْآنِ', translit: ' Faqrau maa yayassara minal-quran', ref: 'QS. Al-Muzzammil: 20' },
+  14: { arabic: 'فَاقْرَءُوا مَا تَيَسَّرَ مِنَ الْقُرْآنِ', translit: ' Faqrau maa yayassara minal-quran', ref: 'QS. Al-Muzzammil: 20' }
 };
 const displayAyahArabic = computed(() => ayahMap[moduleData.value?.id]?.arabic || '');
 const displayAyahTranslit = computed(() => ayahMap[moduleData.value?.id]?.translit || '');
@@ -270,7 +258,6 @@ onMounted(async () => {
   }
 });
 
-const videoReady = ref(false);
 watch(contentTab, async (val) => {
   if (val === 'video' && videoReady.value && !player) {
     await nextTick();
@@ -285,20 +272,17 @@ onBeforeUnmount(() => { if (player) { player.dispose(); player = null; } });
 
 <style scoped>
 .module-page { min-height: 100vh; background: var(--serene-bg); }
-.page-container { max-width: 1200px; margin: 0 auto; padding: 24px 16px 48px; }
+.page-container { max-width: 1100px; margin: 0 auto; padding: 24px 16px 48px; }
 .lesson-header { background: #fff; border-radius: 16px; padding: 16px 20px; border: 1px solid var(--serene-border); }
 .progress-track { height: 8px; background: var(--serene-surface-container-low); border-radius: 999px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--serene-primary); border-radius: 999px; transition: width .3s ease; }
-
 .lesson-layout { margin-top: 20px; }
 .lesson-card { background: #e6f4ea; border-radius: 24px; padding: 32px 24px; text-align: center; position: relative; overflow: hidden; min-height: 420px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.page-tabs { border-radius: 12px; overflow: hidden; }
 .video-wrap, .video-player, .video-placeholder { width: 100%; }
 .video-player { height: 0; padding-bottom: 56.25%; position: relative; }
 .video-player video { position: absolute; inset: 0; width: 100%; height: 100%; }
 .video-thumb { width: 100%; height: 0; padding-bottom: 56.25%; }
 .play-icon { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 48px; color: white; opacity: .9; z-index: 1; }
-
 .example-chip { position: absolute; top: 16px; left: 16px; background: var(--serene-primary); color: #fff; padding: 4px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; }
 .arabic-display { font-size: 3rem; color: var(--serene-on-surface); line-height: 1.4; margin-top: 16px; font-family: 'Noto Serif', serif; }
 .transliteration { font-size: 1.1rem; color: var(--serene-primary); font-weight: 600; margin-top: 10px; font-style: italic; }
@@ -308,14 +292,12 @@ onBeforeUnmount(() => { if (player) { player.dispose(); player = null; } });
 .ayah-translit { font-size: 1rem; color: var(--serene-primary); font-style: italic; margin-top: 6px; }
 .ayah-ref { font-size: 0.85rem; color: var(--serene-on-surface-variant); margin-top: 4px; }
 .ayah-row { width: 100%; margin-top: auto; padding-top: 20px; }
-
 .rule-stack { }
 .rule-card { padding: 20px 22px; border-radius: 16px; }
 .card-title { font-weight: 700; color: var(--serene-on-surface); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
 .rule-text { font-size: 1rem; color: var(--serene-on-surface-variant); line-height: 1.7; }
 .letter-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .letter-chip { min-width: 40px; justify-content: center; font-weight: 700; border-radius: 10px; }
-
 .attr-card { padding: 20px 22px; border-radius: 16px; }
 .info-cards { }
 .info-card { border-radius: 16px; padding: 14px 16px; display: flex; align-items: flex-start; gap: 12px; }
@@ -325,11 +307,9 @@ onBeforeUnmount(() => { if (player) { player.dispose(); player = null; } });
 .info-name { font-weight: 700; color: var(--serene-on-surface); font-size: 0.9rem; }
 .info-desc { font-size: 0.82rem; color: var(--serene-on-surface-variant); margin-top: 2px; line-height: 1.45; }
 .pro-tip { background: #fff8e1; color: #6e5a00; padding: 12px 14px; border-radius: 12px; border-left: 4px solid #ffe082; font-size: 0.88rem; line-height: 1.5; }
-
 .chat-cta { padding: 16px 20px; border-radius: 16px; }
 .quiz-passed { display: inline-flex; align-items: center; color: var(--serene-secondary); font-weight: 600; font-size: 0.85rem; margin-top: 8px; }
 .next-module-banner { background: var(--serene-secondary-container); border-radius: 16px; padding: 14px 18px; display: flex; align-items: center; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
-
 @media (min-width: 600px) {
   .page-container { padding: 32px 24px 64px; }
   .lesson-card { padding: 36px 28px; min-height: 460px; }

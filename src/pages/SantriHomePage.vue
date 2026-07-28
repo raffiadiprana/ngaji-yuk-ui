@@ -291,7 +291,9 @@ const fetchSections = async () => {
     const params = {};
     if (searchText.value.trim()) params['section_name[$like]'] = `%${String(searchText.value.trim())}%`;
     const sectionsRes = await axios.get(`${api.API_BASE_URL}/sections`, { headers: authHeader(), params });
-    sections.value = sectionsRes.data.data || [];
+    const secs = sectionsRes.data.data || [];
+    secs.sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+    sections.value = secs;
   } catch (e) {
     console.error('Failed to fetch sections:', e);
     sections.value = [];

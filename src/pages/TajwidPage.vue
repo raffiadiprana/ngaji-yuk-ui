@@ -230,7 +230,10 @@ const fetchSection = async () => {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/sections`, { headers: authHeader() })
     const fetched = res.data.data || []
-    if (fetched.length) sections.value.push(...fetched)
+    if (fetched.length) {
+      sections.value.push(...fetched)
+      sections.value.sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+    }
     hasMoreGuru.value = fetched.length === limitGurus
     // Demo: anggap 1 selesai
     completedCount.value = Math.min(1, sections.value.length)

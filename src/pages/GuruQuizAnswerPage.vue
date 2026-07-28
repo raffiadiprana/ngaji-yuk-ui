@@ -78,18 +78,19 @@
     </div>
 
     <!-- Input Answer -->
-    <div class="fixed-bottom q-pa-sm bg-white" style="z-index: 100;padding-bottom: 70px;">
-      <div class="row items-center no-wrap q-gutter-sm">
+    <div class="fixed-bottom q-pa-sm serene-input-bar" style="z-index: 100;padding-bottom: 70px;">
+      <div class="chat-input-container row items-center no-wrap q-gutter-sm">
         <q-input
           filled
           dense
+          rounded
           v-model="answerInput"
-          placeholder="Type your answer..."
+          placeholder="Ketik balasan..."
           class="col"
           @keyup.enter="submitTextAnswer"
         />
-        <q-btn flat round icon="send" @click="submitTextAnswer" :disable="!answerInput" />
-        <q-btn flat round :icon="recording ? 'stop' : 'mic'" @click="toggleRecording" :loading="false" />
+        <q-btn flat round icon="send" color="serene-primary" @click="submitTextAnswer" :disable="!answerInput" />
+        <q-btn flat round :icon="recording ? 'stop' : 'mic'" color="serene-primary" @click="toggleRecording" :loading="false" />
       </div>
       <q-banner v-if="recording" class="text-center text-grey q-mt-sm" dense>
         Recording... {{ recordingDuration }}s
@@ -421,5 +422,20 @@ onMounted(async () => {
 
 .q-page {
   padding-bottom: 100px;
+}
+
+.serene-input-bar {
+  background: var(--serene-surface);
+  border-top: 1px solid var(--serene-border);
+}
+
+.chat-input-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.serene-input-bar .q-input {
+  background: var(--serene-bg);
+  border-radius: 9999px;
 }
 </style>

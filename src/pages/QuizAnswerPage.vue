@@ -123,7 +123,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import axios from 'axios';
 import api from 'src/config/api'
@@ -206,39 +206,6 @@ const fetchAnswers = async () => {
   answers.value = res.data?.data || [];
 };
 
-const updateCheckedBy = async () => {
-  try {// Filter answers that have no checked_by and need to be updated
-    const answersToUpdate = answers.value.filter((answer) => {
-      return answer.reply_to === userId && !answer.checked_by; // Only update answers where `checked_by` is empty or null
-    });
-
-    // If there are no answers to update, return early
-    if (answersToUpdate.length === 0) {
-      console.log('No answers to update');
-      return;
-    }
-
-    // Map over the answers that need updating and set `checked_by` to instructorId
-    const updatedAnswers = answersToUpdate.map((answer) => ({
-      checked_by: userId, // Only send `checked_by` to update
-    }));
-
-    // Send update requests to the server for the filtered answers (only send checked_by)
-    const updatePromises = updatedAnswers.map((updatedAnswer, index) =>
-      axios.patch(`${api.API_BASE_URL}/answers/${answersToUpdate[index].id}`, updatedAnswer, {
-        headers: authHeader(),
-      })
-    );
-
-    // Wait for all updates to finish
-    await Promise.all(updatePromises);
-
-    console.log('Answers updated successfully');
-  } catch (error) {
-    console.error('Failed to update checked_by:', error);
-  }
-};
-
 const submitTextAnswer = async () => {
   const instructorId = Number(quiz.value?.module_detail?.instructor_id);
   if (!answerInput.value.trim()) return;
@@ -256,8 +223,7 @@ const submitTextAnswer = async () => {
     });
     answerInput.value = '';
 
-    // Update checked_by after submit
-    await updateCheckedBy();
+    // Refresh percakapan
     await fetchAnswers();
   } catch (err) {
     alert("Failed to submit answer. Please try again.");
@@ -342,8 +308,7 @@ const handleRecordingStop = async () => {
     }, {
       headers: authHeader(),
     });
-    // Update checked_by after submit
-    await updateCheckedBy();
+    // Refresh percakapan
     await fetchAnswers();
   } catch (err) {
     console.error("Upload or answer submit failed:", err);

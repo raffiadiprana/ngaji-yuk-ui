@@ -78,7 +78,7 @@
               @click="startChat"
             />
           </div>
-          <div v-if="quizes.length > 0 && isPassed[quizes[0].id]" class="quiz-passed q-mt-sm">
+          <div v-if="quizes.length > 0 && isModulePassed" class="quiz-passed q-mt-sm">
             <q-icon name="verified" color="serene-secondary" size="sm" class="q-mr-xs" />Lulus oleh guru
           </div>
         </q-card>
@@ -189,17 +189,8 @@ const startChat = async () => {
   }
 };
 
-const checkIfQuizPassed = async (quizId) => {
-  try {
-    const response = await axios.get(`${api.API_BASE_URL}/answers`, {
-      headers: authHeader(),
-      params: { quiz_id: quizId, reply_to: userId, is_passed: 1 }
-    });
-    isPassed.value[quizId] = response.data?.data?.length > 0;
-  } catch (error) {
-    console.error('Failed to check quiz status:', error);
-  }
-};
+// Status lulus diambil dari moduleData.is_completed (dihitung resolver backend dari quiz.is_completed)
+const isModulePassed = computed(() => !!moduleData.value?.is_completed);
 
 function initVideoJs(videoId) {
   if (player) player.dispose();
@@ -226,8 +217,6 @@ onMounted(async () => {
     const secs = secRes.data?.data || [];
     const sec = secs.find(s => s.id === moduleData.value?.section_id);
     sectionName.value = sec?.section_name || '';
-
-    await Promise.all(quizes.value.map(quiz => checkIfQuizPassed(quiz.id)));
 
     const raw = moduleData.value?.video_header_id || '';
     const match = raw.match(/(?:youtu\.be\/|v=)([^&]+)/);

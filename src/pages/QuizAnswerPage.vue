@@ -25,13 +25,13 @@
 
       <!-- Answer List -->
       <div class="q-mt-lg">
-        <div class="text-h6 q-mb-sm text-serene-on-surface">Submitted Answers:</div>
+        <div class="text-h6 q-mb-sm text-serene-on-surface">Percakapan:</div>
         <div v-for="answer in answers" :key="answer.id" class="q-mb-sm">
           <q-chat-message
             :sent="answer.user_id === userId"
             :label="formatDate(answer.created_date)"
             :name="capitalize(answer.user_detail?.user_role || 'Unknown') + ' ' + (answer.user_detail?.display_name || 'Unknown')"
-            :bg-color="answer.user_id === userId ? 'green-3' : 'grey-3'"
+            :bg-color="answer.user_id === userId ? 'serene-sent' : 'serene-recv'"
             text-color="black"
           >
             <template v-slot:default>
@@ -53,15 +53,15 @@
             filled
             dense
             v-model="answerInput"
-            placeholder="Type your answer..."
-            class="col"
+            placeholder="Ketik pesan..."
+            class="col serene-input"
             @keyup.enter="submitTextAnswer"
           />
-          <q-btn flat round icon="send" class="text-serene-primary" @click="submitTextAnswer" :disable="!answerInput" />
-          <q-btn flat round :icon="recording ? 'stop' : 'mic'" class="text-serene-primary" @click="toggleRecording" :loading="false" />
+          <q-btn flat round icon="send" class="serene-send-btn" @click="submitTextAnswer" :disable="!answerInput" />
+          <q-btn flat round :icon="recording ? 'stop' : 'mic'" class="serene-send-btn" @click="toggleRecording" :loading="false" />
         </div>
         <q-banner v-if="recording" class="text-center text-serene-variant q-mt-sm" dense>
-          Recording... {{ recordingDuration }}s
+          Merekam... {{ recordingDuration }}s
         </q-banner>
       </div>
 
@@ -337,8 +337,18 @@ onMounted(async () => {
 }
 
 .serene-input-bar {
-  background: white;
+  background: var(--serene-surface);
   border-top: 1px solid var(--serene-border);
+}
+
+.serene-input .q-field__control {
+  background: var(--serene-bg);
+  border-radius: var(--serene-radius);
+}
+
+.serene-send-btn {
+  color: var(--serene-primary);
+  background: var(--serene-surface-variant);
 }
 
 .text-h6 {

@@ -100,6 +100,11 @@ module.exports = configure(function (/* ctx */) {
     framework: {
       config: {},
 
+      colors: {
+        'serene-sent': '#b2dfdb',
+        'serene-recv': '#e0f2f1'
+      },
+
       // iconSet: 'material-icons', // Quasar icon set
       // lang: 'en-US', // Quasar language pack
 

@@ -8,26 +8,9 @@
           <p class="text-serene-variant">Ikuti perjalanan belajarmu melewati setiap checkpoint hukum tajwid.</p>
         </div>
         <div class="row q-gutter-sm">
-          <q-btn
-            :class="activeTab === 'core' ? 'serene-btn-primary' : 'serene-btn-ghost'"
-            label="Pembelajaran"
-            no-caps
-            @click="activeTab = 'core'"
-          />
-          <q-btn
-            :class="activeTab === 'reference' ? 'serene-btn-primary' : 'serene-btn-ghost'"
-            label="Referensi"
-            no-caps
-            @click="activeTab = 'reference'"
-          />
-          <q-btn
-            v-if="isGuru || isAdmin"
-            class="serene-btn-primary"
-            label="Tambah Hukum Tajwid"
-            icon="add"
-            rounded
-            @click="onAddTajwid"
-          />
+          <q-btn :class="activeTab === 'core' ? 'serene-btn-primary' : 'serene-btn-ghost'" label="Pembelajaran" no-caps @click="activeTab = 'core'" />
+          <q-btn :class="activeTab === 'reference' ? 'serene-btn-primary' : 'serene-btn-ghost'" label="Referensi" no-caps @click="activeTab = 'reference'" />
+          <q-btn v-if="isGuru || isAdmin" class="serene-btn-primary" label="Tambah Hukum Tajwid" icon="add" rounded @click="onAddTajwid" />
         </div>
       </header>
 
@@ -37,97 +20,91 @@
           <span class="text-serene-variant text-caption">Progres Keseluruhan</span>
           <span class="text-weight-bold text-serene-primary">{{ overallProgress }}%</span>
         </div>
-        <q-linear-progress
-          :value="overallProgress / 100"
-          color="serene-primary"
-          class="progress-glow rounded-borders"
-          style="height:10px;"
-        />
+        <q-linear-progress :value="overallProgress / 100" color="serene-primary" class="progress-glow rounded-borders" style="height:10px;" />
         <div class="row q-gutter-md q-pt-sm text-caption text-serene-variant">
-          <span>{{ completedCount }} Selesai</span>
-          <span>{{ sections.length - completedCount }} Tersisa</span>
+          <span>{{ doneModules }} Modul Selesai</span>
+          <span>{{ totalModules - doneModules }} Tersisa</span>
         </div>
       </section>
 
-      <!-- Roadmap Checkpoints (Pembelajaran) -->
-      <section v-if="activeTab === 'core'" class="roadmap">
+      <!-- Timeline (Pembelajaran) -->
+      <section v-if="activeTab === 'core'" class="timeline">
         <div
-          v-for="(tajwid, idx) in sections"
-          :key="tajwid.id"
-          class="roadmap-node"
-          :class="nodeStatus(tajwid).cls"
+          v-for="sec in sections"
+          :key="sec.id"
+          class="timeline-node"
+          :class="sectionStatus(sec).cls"
         >
-          <div class="roadmap-marker">
-            <q-icon :name="nodeStatus(tajwid).icon" size="22px" />
+          <div class="timeline-marker">
+            <q-icon :name="sectionStatus(sec).icon" size="22px" />
           </div>
-          <q-card
-            class="serene-card roadmap-card interactive hover-lift"
-            @click="onNodeClick(tajwid)"
-          >
+          <q-card class="serene-card timeline-card">
             <div class="row items-center no-wrap">
-              <q-avatar size="48px" class="roadmap-avatar flex flex-center bg-serene-surface text-serene-primary">
-                {{ tajwid.section_name.charAt(0).toUpperCase() }}
-              </q-avatar>
-              <div class="col q-ml-md min-width-0">
+              <div class="col min-width-0">
                 <div class="row items-center justify-between">
-                  <div class="text-weight-bold text-serene-on-surface text-subtitle1 ellipsis">{{ tajwid.section_name }}</div>
-                  <q-chip
-                    v-if="nodeStatus(tajwid).label"
-                    :color="nodeStatus(tajwid).chipColor"
-                    text-color="white"
-                    size="sm"
-                    class="q-ml-sm"
-                  >{{ nodeStatus(tajwid).label }}</q-chip>
+                  <div class="text-weight-bold text-serene-on-surface text-subtitle1 ellipsis">{{ sec.section_name }}</div>
+                  <q-chip :color="sectionStatus(sec).chipColor" text-color="white" size="sm" class="q-ml-sm">{{ sectionStatus(sec).label }}</q-chip>
                 </div>
-                <div class="text-caption text-serene-variant q-mt-xs">Hukum Tajwid · Checkpoint {{ idx + 1 }}</div>
+                <div class="text-caption text-serene-variant q-mt-xs">
+                  {{ sec._done }}/{{ sec._total }} modul · {{ sec._percent }}%
+                </div>
+                <q-linear-progress :value="sec._percent / 100" color="serene-primary" class="q-mt-xs rounded-borders" style="height:6px;" />
               </div>
               <q-btn v-if="isGuru || isAdmin" flat round dense icon="more_vert" @click.stop class="q-ml-sm">
                 <q-menu auto-close>
                   <q-list style="min-width: 170px;">
-                    <q-item clickable @click="openMaterial(tajwid)">
-                      <q-item-section avatar><q-icon name="visibility" /></q-item-section>
-                      <q-item-section>Lihat Materi</q-item-section>
-                    </q-item>
-                    <q-item v-if="isGuru || isAdmin" clickable @click="addMaterial(tajwid)" class="text-serene-primary">
-                      <q-item-section avatar><q-icon name="note_add" /></q-item-section>
-                      <q-item-section>Tambah Materi</q-item-section>
-                    </q-item>
-                    <q-item v-if="isGuru || isAdmin" clickable @click="editTajwid(tajwid)" class="text-serene-primary">
-                      <q-item-section avatar><q-icon name="edit" /></q-item-section>
-                      <q-item-section>Edit Nama Hukum</q-item-section>
-                    </q-item>
-                    <q-item v-if="isGuru || isAdmin" clickable @click="deleteTajwid(tajwid)" class="text-negative">
-                      <q-item-section avatar><q-icon name="delete" /></q-item-section>
-                      <q-item-section>Delete</q-item-section>
-                    </q-item>
+                    <q-item clickable @click="addMaterial(sec)"><q-item-section avatar><q-icon name="note_add" /></q-item-section><q-item-section>Tambah Materi</q-item-section></q-item>
+                    <q-item clickable @click="editTajwid(sec)" class="text-serene-primary"><q-item-section avatar><q-icon name="edit" /></q-item-section><q-item-section>Edit Nama Hukum</q-item-section></q-item>
+                    <q-item clickable @click="deleteTajwid(sec)" class="text-negative"><q-item-section avatar><q-icon name="delete" /></q-item-section><q-item-section>Delete</q-item-section></q-item>
                   </q-list>
                 </q-menu>
               </q-btn>
             </div>
+
+            <!-- Sub-lessons (modul) untuk section aktif -->
+            <div v-if="sectionStatus(sec).cls === 'is-active' && sec._modules.length" class="sub-lessons q-mt-md">
+              <div
+                v-for="(m, i) in sec._modules"
+                :key="m.id"
+                class="sub-lesson row items-center no-wrap q-pa-sm rounded-borders"
+                :class="{ 'sub-locked': m.is_locked }"
+                @click="!m.is_locked && router.push(`/module/${m.id}`)"
+              >
+                <div class="sub-icon flex flex-center">
+                  <q-icon :name="m.is_completed ? 'check_circle' : (m.is_locked ? 'lock' : 'play_circle')" :color="m.is_completed ? 'serene-secondary' : (m.is_locked ? 'grey' : 'serene-primary')" size="20px" />
+                </div>
+                <div class="col q-ml-md min-width-0">
+                  <div class="text-weight-medium text-serene-on-surface ellipsis">{{ i + 1 }}. {{ m.title }}</div>
+                  <div class="text-caption text-serene-variant">{{ m.is_completed ? 'Selesai' : (m.is_locked ? 'Terkunci' : 'Siap dipelajari') }}</div>
+                </div>
+                <q-btn
+                  v-if="!m.is_locked"
+                  unelevated
+                  dense
+                  rounded
+                  :color="m.is_completed ? 'serene-secondary-container' : 'serene-primary'"
+                  :text-color="m.is_completed ? 'serene-on-secondary-container' : 'white'"
+                  :label="m.is_completed ? 'Review' : 'Mulai'"
+                  class="q-ml-md"
+                  @click.stop="router.push(`/module/${m.id}`)"
+                />
+                <q-icon v-else name="lock" color="grey" size="20px" class="q-ml-md" />
+              </div>
+            </div>
           </q-card>
         </div>
-        <div v-if="!sections.length" class="text-center text-serene-variant q-py-lg">
-          Belum ada hukum tajwid.
-        </div>
+        <div v-if="!sections.length" class="text-center text-serene-variant q-py-lg">Belum ada hukum tajwid.</div>
       </section>
 
-      <!-- Referensi (bebas akses) -->
+      <!-- Referensi -->
       <section v-else class="reference-section">
-        <div class="text-caption text-serene-variant q-mb-md">
-          Kamus rujukan tajwid — bebas diakses kapan saja tanpa harus menyelesaikan materi lain.
-        </div>
+        <div class="text-caption text-serene-variant q-mb-md">Kamus rujukan tajwid — bebas diakses kapan saja tanpa harus menyelesaikan materi lain.</div>
         <div class="row q-col-gutter-md">
-          <div
-            v-for="ref in referenceModules"
-            :key="ref.id"
-            class="col-12 col-sm-6 col-md-4"
-          >
+          <div v-for="ref in referenceModules" :key="ref.id" class="col-12 col-sm-6 col-md-4">
             <q-card class="serene-card reference-card interactive hover-lift" @click="router.push(`/module/${ref.id}`)">
               <q-card-section>
                 <div class="row items-center no-wrap">
-                  <q-avatar size="44px" class="bg-serene-surface text-serene-primary flex flex-center">
-                    <q-icon name="menu_book" />
-                  </q-avatar>
+                  <q-avatar size="44px" class="bg-serene-surface text-serene-primary flex flex-center"><q-icon name="menu_book" /></q-avatar>
                   <div class="col q-ml-md min-width-0">
                     <div class="text-weight-bold text-serene-on-surface ellipsis">{{ ref.title }}</div>
                     <div class="text-caption text-serene-variant q-mt-xs">Referensi</div>
@@ -137,21 +114,8 @@
             </q-card>
           </div>
         </div>
-        <div v-if="!referenceModules.length" class="text-center text-serene-variant q-py-lg">
-          Belum ada modul referensi.
-        </div>
+        <div v-if="!referenceModules.length" class="text-center text-serene-variant q-py-lg">Belum ada modul referensi.</div>
       </section>
-
-      <!-- Load More -->
-      <q-btn
-        v-if="hasMoreGuru"
-        label="Tampilkan lebih banyak"
-        outline
-        class="serene-btn-ghost full-width q-mt-md"
-        @click="loadMoreCourses"
-        :loading="loadingGuru"
-      />
-      <p v-else class="text-grey-6 text-center q-mt-md">Tidak ada data lagi</p>
     </div>
   </div>
 </template>
@@ -167,129 +131,66 @@ import { authHeader } from 'src/config/auth'
 
 const router = useRouter()
 
-const profile = ref({})
 const sections = ref([])
-const quizzes = ref([])
-const lessons = ref([])
-const accessToken = localStorage.getItem('token')
-const instructorId = localStorage.getItem('id')
+const referenceModules = ref([])
+const allModules = ref([])
 
 const role = localStorage.getItem('role')
 const isGuru = computed(() => role === 'guru' || role === 'admin')
 const isAdmin = computed(() => role === 'admin')
 
 const activeTab = ref('core')
-const referenceModules = ref([])
-const allModules = ref([])
 
-const completedCount = ref(0)
-const overallProgress = computed(() => {
-  if (!sections.value.length) return 0
-  return Math.round((completedCount.value / sections.value.length) * 100)
-})
+const totalModules = computed(() => allModules.value.filter(m => m.category !== 'reference').length)
+const doneModules = computed(() => allModules.value.filter(m => m.category !== 'reference' && m.is_completed).length)
+const overallProgress = computed(() => totalModules.value ? Math.round((doneModules.value / totalModules.value) * 100) : 0)
 
-const nodeStatus = (tajwid) => {
-  // Placeholder status: sebagian besar "available", pertama "in-progress"
-  const idx = sections.value.indexOf(tajwid)
-  if (idx === 0) return { cls: 'is-active', icon: 'play_circle', label: 'Berlangsung', chipColor: 'serene-primary' }
-  if (idx < completedCount.value) return { cls: 'is-done', icon: 'check_circle', label: 'Selesai', chipColor: 'serene-secondary' }
-  return { cls: 'is-todo', icon: 'radio_button_unchecked', label: '', chipColor: 'grey' }
+// Hitung status tiap section dari modulnya
+const enrichSections = () => {
+  sections.value.forEach(sec => {
+    const mods = allModules.value.filter(m => m.section_id === sec.id && m.category !== 'reference')
+    sec._modules = mods
+    sec._total = mods.length
+    sec._done = mods.filter(m => m.is_completed).length
+    sec._percent = sec._total ? Math.round((sec._done / sec._total) * 100) : 0
+  })
 }
 
-const skipGurus = ref(0)
-const limitGurus = 10
-const loadingGuru = ref(false)
-const hasMoreGuru = ref(true)
+const sectionStatus = (sec) => {
+  const mods = sec._modules || []
+  if (!mods.length) return { cls: 'is-todo', icon: 'radio_button_unchecked', label: 'Segera', chipColor: 'grey' }
+  const anyLocked = mods.some(m => m.is_locked)
+  const allDone = mods.every(m => m.is_completed)
+  if (allDone) return { cls: 'is-done', icon: 'check_circle', label: 'Selesai', chipColor: 'serene-secondary' }
+  if (!anyLocked) return { cls: 'is-active', icon: 'play_circle', label: 'Berlangsung', chipColor: 'serene-primary' }
+  return { cls: 'is-locked', icon: 'lock', label: 'Terkunci', chipColor: 'grey' }
+}
 
 onMounted(async () => {
-  const profileData = localStorage.getItem('profile')
-  if (profileData) {
-    try { profile.value = JSON.parse(profileData) } catch (e) { console.error(e) }
-  }
-  await fetchSection()
-  await fetchAllModules()
+  await Promise.all([fetchSection(), fetchAllModules()])
+  enrichSections()
 })
 
 const fetchAllModules = async () => {
   try {
-    const userId = Number(localStorage.getItem('id'))
-    const res = await axios.get(`${api.API_BASE_URL}/modules`, {
-      headers: authHeader(),
-      params: { is_deleted: 0 }
-    })
+    const res = await axios.get(`${api.API_BASE_URL}/modules`, { headers: authHeader(), params: { is_deleted: 0 } })
     allModules.value = res.data?.data ?? []
     referenceModules.value = allModules.value.filter(m => m.category === 'reference')
-  } catch (e) {
-    console.error('[TajwidPage] gagal ambil modules:', e)
-  }
+  } catch (e) { console.error('[TajwidPage] gagal ambil modules:', e) }
 }
 
 const fetchSection = async () => {
-  if (loadingGuru.value) return
-  loadingGuru.value = true
   try {
     const res = await axios.get(`${api.API_BASE_URL}/sections`, { headers: authHeader() })
     const fetched = res.data.data || []
-    if (fetched.length) {
-      sections.value.push(...fetched)
-      sections.value.sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
-    }
-    hasMoreGuru.value = fetched.length === limitGurus
-    // Demo: anggap 1 selesai
-    completedCount.value = Math.min(1, sections.value.length)
-  } catch (err) {
-    console.error('Failed to fetch sections:', err)
-  } finally {
-    loadingGuru.value = false
-  }
-}
-
-const loadMoreCourses = () => {
-  if (!loadingGuru.value && hasMoreGuru.value) {
-    skipGurus.value += limitGurus
-    fetchSection()
-  }
+    fetched.sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
+    sections.value = fetched
+  } catch (err) { console.error('Failed to fetch sections:', err) }
 }
 
 const onAddTajwid = () => router.push('/tajwid-form')
 const editTajwid = (tajwid) => router.push(`/tajwid-form/${tajwid.id}`)
-
-// Klik card roadmap (semua role): buka isi konten materi (module) pertama section itu.
-const onNodeClick = async (tajwid) => {
-  await openMaterial(tajwid)
-}
-
-// Buka materi: cari module pertama di section, arahkan ke /module/:id.
-// Kalau belum ada materi: santri dapat info, guru/admin diarahkan ke form tambah materi.
-const openMaterial = async (tajwid) => {
-  try {
-    const res = await axios.get(`${api.API_BASE_URL}/modules`, {
-      headers: authHeader(),
-      params: { section_id: tajwid.id, is_deleted: 0 }
-    })
-    const mods = res.data?.data ?? []
-    if (mods.length) {
-      const first = mods[0]
-      if (first.is_locked && !(isGuru.value || isAdmin.value)) {
-        $q.notify({ type: 'warning', message: 'Modul ini terkunci. Selesaikan modul sebelumnya terlebih dahulu.' })
-        return
-      }
-      router.push(`/module/${first.id}`)
-    } else if (isGuru.value || isAdmin.value) {
-      router.push(`/module-form?section_id=${tajwid.id}`)
-    } else {
-      $q.notify({ type: 'info', message: 'Belum ada materi untuk hukum tajwid ini.' })
-    }
-  } catch (e) {
-    console.error('[TajwidPage] gagal ambil modules section:', e)
-    $q.notify({ type: 'negative', message: 'Gagal membuka materi.' })
-  }
-}
-
-// Guru/Admin: tambah materi baru untuk section ini
-const addMaterial = (tajwid) => {
-  router.push(`/module-form?section_id=${tajwid.id}`)
-}
+const addMaterial = (tajwid) => router.push(`/module-form?section_id=${tajwid.id}`)
 
 const deleteTajwid = (section) => {
   $q.dialog({
@@ -302,9 +203,8 @@ const deleteTajwid = (section) => {
     await axios.delete(`${api.API_BASE_URL}/sections/${section.id}`, { headers: authHeader() })
     $q.notify({ type: 'positive', message: 'Hukum Tajwid berhasil dihapus', position: 'top', timeout: 2000 })
     sections.value = []
-    skipGurus.value = 0
-    completedCount.value = 0
     await fetchSection()
+    enrichSections()
   })
 }
 </script>
@@ -315,31 +215,37 @@ const deleteTajwid = (section) => {
 .kurikulum-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
 .kurikulum-title { font-size: 1.8rem; color: var(--serene-on-surface); }
 .kurikulum-progress { border-radius: 16px; padding: 24px; }
-.roadmap { position: relative; padding-left: 8px; }
-.roadmap-node { position: relative; display: flex; align-items: flex-start; gap: 16px; padding-bottom: 20px; }
-.roadmap-node::before {
+.timeline { position: relative; padding-left: 8px; }
+.timeline-node { position: relative; display: flex; align-items: flex-start; gap: 16px; padding-bottom: 22px; }
+.timeline-node::before {
   content: ''; position: absolute; left: 21px; top: 44px; bottom: -4px;
   width: 2px; background: var(--serene-surface); z-index: 0;
 }
-.roadmap-node:last-child::before { display: none; }
-.roadmap-marker {
+.timeline-node:last-child::before { display: none; }
+.timeline-marker {
   position: relative; z-index: 1; flex: 0 0 auto;
   width: 44px; height: 44px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
   background: var(--serene-surface); color: var(--serene-outline-variant);
 }
-.roadmap-node.is-done .roadmap-marker { background: var(--serene-secondary-container); color: var(--serene-secondary); }
-.roadmap-node.is-active .roadmap-marker { background: var(--serene-primary-container); color: var(--serene-primary); box-shadow: 0 0 0 4px rgba(0,105,72,.15); }
-.roadmap-card { flex: 1; border-radius: 16px; padding: 18px; }
-.roadmap-avatar { font-weight: 700; }
+.timeline-node.is-done .timeline-marker { background: var(--serene-secondary-container); color: var(--serene-secondary); }
+.timeline-node.is-active .timeline-marker { background: var(--serene-primary-container); color: var(--serene-primary); box-shadow: 0 0 0 4px rgba(0,105,72,.15); }
+.timeline-node.is-locked .timeline-marker { background: var(--serene-surface-variant); color: var(--serene-outline-variant); }
+.timeline-card { flex: 1; border-radius: 16px; padding: 18px; }
+.timeline-node.is-locked .timeline-card { opacity: .72; }
 .ellipsis { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .min-width-0 { min-width: 0; }
+.sub-lessons { border-top: 1px solid var(--serene-border); }
+.sub-lesson { cursor: pointer; transition: background .15s ease; }
+.sub-lesson:hover { background: var(--serene-surface); }
+.sub-lesson.sub-locked { cursor: not-allowed; }
+.sub-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--serene-surface); }
 .serene-btn-ghost { color: var(--serene-primary); }
 .reference-card { border-radius: 16px; padding: 16px; }
 .reference-card:hover { transform: translateY(-2px); }
 @media (max-width: 1023px) {
   .kurikulum-container { padding: 16px 14px; }
   .kurikulum-title { font-size: 1.4rem; }
-  .roadmap-card { padding: 14px; }
+  .timeline-card { padding: 14px; }
 }
 </style>

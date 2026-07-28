@@ -53,6 +53,20 @@
         </div>
       </div>
 
+      <!-- Tombol Materi Selanjutnya (muncul hanya kalau lulus guru) -->
+      <div v-if="isPassedByGuru" class="next-module-banner q-mt-md">
+        <q-icon name="verified" color="serene-secondary" size="sm" class="q-mr-xs" />
+        <span class="text-weight-bold text-serene-secondary">Selamat, materi ini telah lulus!</span>
+        <q-btn
+          v-if="nextModuleId"
+          label="Materi Selanjutnya"
+          icon-right="arrow_forward"
+          class="serene-btn-primary q-ml-md"
+          @click="goToNextModule"
+        />
+        <q-btn v-else label="Kembali ke Kurikulum" icon-right="arrow_forward" class="serene-btn-primary q-ml-md" @click="router.push('/tajwid')" />
+      </div>
+
       <!-- Input Answer -->
       <div class="fixed-bottom q-pa-sm serene-input-bar" style="z-index: 100;padding-bottom: 70px;">
         <div class="chat-input-container row items-center no-wrap q-gutter-sm">
@@ -130,6 +144,27 @@ const recordingDuration = ref(0);
 let mediaRecorder = null;
 let timerInterval = null;
 let chunks = ref([]);
+
+// Next module (muncul kalau lulus guru)
+const nextModuleId = ref(null);
+const isPassedByGuru = computed(() => quiz.value?.is_completed === 1);
+const goToNextModule = () => {
+  if (nextModuleId.value) router.push(`/module/${nextModuleId.value}`);
+  else router.push('/tajwid');
+};
+const fetchNextModule = async () => {
+  const cur = quiz.value?.module_detail;
+  if (!cur || cur.category === 'reference') return;
+  try {
+    const res = await axios.get(`${api.API_BASE_URL}/modules`, {
+      headers: authHeader(),
+      params: { is_deleted: 0, category: cur.category }
+    });
+    const mods = (res.data?.data || []).sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+    const idx = mods.findIndex(m => m.id === cur.id);
+    if (idx >= 0 && idx + 1 < mods.length) nextModuleId.value = mods[idx + 1].id;
+  } catch (e) { console.error(e); }
+};
 
 // Dialogs
 const showVoiceDialog = ref(false);
@@ -321,6 +356,7 @@ onMounted(async () => {
   });
   quiz.value = quizRes.data?.data?.[0] || null;
   await fetchAnswers();
+  if (isPassedByGuru.value) await fetchNextModule();
 
   setInterval(async () => {
     if (quiz.value) {
@@ -346,6 +382,16 @@ onMounted(async () => {
 .serene-input-bar {
   background: var(--serene-surface);
   border-top: 1px solid var(--serene-border);
+}
+
+.next-module-banner {
+  background: var(--serene-secondary-container);
+  border-radius: 16px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .chat-input-container {

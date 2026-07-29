@@ -167,31 +167,40 @@ const submitForm = async () => {
   loading.value = true
 
   try {
+    const _API_BASE_URL_ = API_BASE_URL
+    const _USER_ID_ = userId
+    const _AUTH_HEADER_ = authHeader()
+
     let proofFilename = ''
     if (form.value.proof) {
       const formData = new FormData()
       formData.append('file', form.value.proof)
-      const res = await axios.post(`${API_BASE_URL}/uploads`, formData, {
+      const res = await axios.post(`${_API_BASE_URL_}/uploads`, formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
-      ...authHeader()}
+          ..._AUTH_HEADER_
+        }
       })
       proofFilename = res.data.filename
     }
 
-    await axios.post(`${API_BASE_URL}/donations`, {
-      user_id: Number(userId),
+    const payload = {
+      user_id: Number(_USER_ID_),
       account_name: form.value.account_name,
       bank_name: form.value.bank_name,
       source_bank: form.value.source_bank,
       amount: Number(form.value.amount),
       proof_image: proofFilename,
       is_verified: 0
-    }, {
+    }
+    console.log('[DONATIONS_DEBUG] POST payload', payload)
+    console.log('[DONATIONS_DEBUG] headers', _AUTH_HEADER_)
+    const post = await axios.post(`${_API_BASE_URL_}/donations`, payload, {
       headers: {
-        ...authHeader()
+        ..._AUTH_HEADER_
       }
     })
+    console.log('[DONATIONS_DEBUG] POST status', post.status)
 
     $q.notify({ type: 'positive', message: 'Donasi berhasil dikirim' , timeout: 2000, onDismiss: () => {
       window.location.reload()
@@ -206,11 +215,10 @@ const submitForm = async () => {
       is_verified : 0
     }
 
-
     if (formRef.value) formRef.value.resetValidation()
 
   } catch (err) {
-    console.error(err)
+    console.error('[DONATIONS_DEBUG] submit error', err)
     $q.notify({ type: 'negative', message: 'Gagal mengirim donasi' })
   } finally {
     loading.value = false

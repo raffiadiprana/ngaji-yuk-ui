@@ -41,11 +41,15 @@
           </div>
 
           <div v-else class="lesson-card content-page">
-            <div v-if="displayAyat" class="ayah-text q-mt-md">
-              <div class="ayah-arabic arabic-font" dir="rtl" v-html="highlightedAyah"></div>
-              <div class="ayah-translit">{{ displayAyahTranslit }}</div>
-              <div class="ayah-ref">{{ displayAyahRef }}</div>
-              <q-btn v-if="voiceNoteUrl" outline round color="serene-primary" icon="volume_up" class="q-mt-md" @click="playVoiceNote" />
+            <div v-if="displayAyat" class="ayah-wrap">
+              <div class="ayah-card">
+                <div class="ayah-arabic arabic-font" dir="rtl" v-html="highlightedAyah"></div>
+                <div class="ayah-meta row items-center justify-between q-mt-sm">
+                  <div class="ayah-translit">{{ displayAyahTranslit }}</div>
+                  <q-btn v-if="voiceNoteUrl" flat round dense icon="volume_up" color="serene-primary" size="sm" class="play-btn" @click="playVoiceNote" />
+                </div>
+                <div class="ayah-ref">{{ displayAyahRef }}</div>
+              </div>
             </div>
             <div class="ayah-row q-mt-lg row items-center justify-between">
               <q-btn flat round dense icon="chevron_left" :disable="!hasPrevContent" @click="goPrevContent" />
@@ -288,11 +292,13 @@ onBeforeUnmount(() => { if (player) { player.dispose(); player = null; } });
 .arabic-display { font-size: 3rem; color: var(--serene-on-surface); line-height: 1.4; margin-top: 16px; font-family: 'Noto Serif', serif; }
 .transliteration { font-size: 1.1rem; color: var(--serene-primary); font-weight: 600; margin-top: 10px; font-style: italic; }
 .meaning-text { font-size: 0.95rem; color: var(--serene-on-surface-variant); margin-top: 8px; }
-.ayah-text { background: #fff; border-radius: 16px; padding: 16px 20px; margin-top: 12px; max-width: 640px; margin-inline: auto; }
+.ayah-wrap { display: flex; justify-content: center; }
+.ayah-card { background: #fff; border-radius: 16px; padding: 18px 22px; max-width: 620px; width: 100%; }
 .ayah-arabic { font-size: 2rem; color: var(--serene-on-surface); line-height: 1.6; font-family: 'Noto Serif', serif; }
 .highlight-red { color: #d32f2f; font-weight: 800; }
-.ayah-translit { font-size: 1rem; color: var(--serene-primary); font-style: italic; margin-top: 6px; }
-.ayah-ref { font-size: 0.85rem; color: var(--serene-on-surface-variant); margin-top: 4px; }
+.ayah-translit { font-size: 1rem; color: var(--serene-primary); font-style: italic; }
+.ayah-ref { font-size: 0.85rem; color: var(--serene-on-surface-variant); margin-top: 6px; }
+.play-btn { box-shadow: none; }
 .ayah-row { width: 100%; margin-top: auto; padding-top: 20px; }
 .rule-stack { }
 .rule-card { padding: 20px 22px; border-radius: 16px; }

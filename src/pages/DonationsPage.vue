@@ -183,9 +183,7 @@ const loadHistory = async () => {
       headers: authHeader(),
       params: { 
         user_id: userId,
-        $sort: {
-          created_at: -1 // urutkan dari terbaru ke terlama
-        } 
+        '$limit': 100
       }
     })
     history.value = res.data.data || res.data

@@ -19,7 +19,7 @@
         <div class="text-caption text-serene-variant q-mt-xs">Modul {{ currentOrder }} dari {{ totalCount }}</div>
       </div>
 
-      <div class="lesson-layout row justify-center">
+      <div class="lesson-layout flex justify-center">
         <div class="col-12 col-md-8 col-lg-7">
           <div v-if="currentPage === 1" class="lesson-card video-page">
             <div class="video-wrap">
@@ -278,7 +278,7 @@ onBeforeUnmount(() => { if (player) { player.dispose(); player = null; } });
 .progress-track { height: 8px; background: var(--serene-surface-container-low); border-radius: 999px; overflow: hidden; }
 .progress-fill { height: 100%; background: var(--serene-primary); border-radius: 999px; transition: width .3s ease; }
 .lesson-layout { margin-top: 20px; }
-.lesson-card { background: #e6f4ea; border-radius: 24px; padding: 32px 24px; text-align: center; position: relative; overflow: hidden; min-height: 420px; display: flex; flex-direction: column; align-items: center; justify-content: center; max-width: 960px; margin-left: auto; margin-right: auto; }
+.lesson-card { background: #e6f4ea; border-radius: 24px; padding: 32px 24px; text-align: center; position: relative; overflow: hidden; min-height: 420px; display: flex; flex-direction: column; align-items: center; justify-content: center; max-width: 960px; margin-inline: auto; }
 .video-wrap, .video-player, .video-placeholder { width: 100%; }
 .video-player { height: 0; padding-bottom: 56.25%; position: relative; }
 .video-player video { position: absolute; inset: 0; width: 100%; height: 100%; }

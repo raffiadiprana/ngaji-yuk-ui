@@ -11,7 +11,7 @@
         <div class="form-main">
           <q-card class="form-card serene-card">
             <div class="card-title"><q-icon name="info" color="serene-primary" size="sm" class="q-mr-sm" />Informasi Dasar</div>
-            <q-input filled v-model="form.title" label="Judul Materi" class="serene-input" :rules="[val => !!val || 'Judul wajib diisi']" />
+            <q-input filled v-model="form.title" label="Judul Materi" class="serene-input" />
             <div class="row q-col-gutter-md q-mt-sm">
               <div class="col-12 col-sm-6">
                 <q-select filled v-model="form.section_id" :options="sectionsOptions" label="Section / Bab" class="serene-input" :rules="[val => val !== null && val !== undefined || 'Section wajib dipilih']" />

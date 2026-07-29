@@ -1,18 +1,14 @@
 <template>
   <q-page class="module-form-page">
-
     <q-header elevated class="serene-header">
       <q-toolbar>
         <q-btn flat round dense icon="arrow_back" @click="goBack" />
         <q-toolbar-title>{{ isEdit ? 'Edit Materi Tajwid' : 'Input Materi Tajwid' }}</q-toolbar-title>
       </q-toolbar>
     </q-header>
-
     <div class="page-container">
       <div class="form-grid">
-        <!-- Main column -->
         <div class="form-main">
-          <!-- Basic Info -->
           <q-card class="form-card serene-card">
             <div class="card-title"><q-icon name="info" color="serene-primary" size="sm" class="q-mr-sm" />Basic Info</div>
             <q-input filled v-model="form.title" label="Judul Materi" class="serene-input" :rules="[val => !!val || 'Judul wajib diisi']" />
@@ -31,7 +27,6 @@
             </div>
           </q-card>
 
-          <!-- Visual Content -->
           <q-card class="form-card serene-card">
             <div class="card-title"><q-icon name="visibility" color="serene-primary" size="sm" class="q-mr-sm" />Konten Visual</div>
             <div class="row q-col-gutter-md">
@@ -53,14 +48,33 @@
             </div>
           </q-card>
 
-          <!-- The Rule -->
           <q-card class="form-card serene-card">
             <div class="card-title"><q-icon name="menu_book" color="serene-primary" size="sm" class="q-mr-sm" />The Rule</div>
             <q-input filled type="textarea" v-model="form.description" label="Penjelasan Detail" class="serene-input" placeholder="Jelaskan aturan, posisi lidah, dan kesalahan umum..." autogrow />
             <q-input filled v-model="form.video_header_id" label="Video Header (YouTube URL)" class="serene-input q-mt-sm" placeholder="Opsional" />
           </q-card>
 
-          <!-- Attributes & Media -->
+          <q-card class="form-card serene-card">
+            <div class="card-title"><q-icon name="auto_stories" color="serene-primary" size="sm" class="q-mr-sm" />Contoh Ayat Al-Quran</div>
+            <q-input filled v-model="form.marked_ayah" label="Ayat Lengkap" class="serene-input" placeholder="Tempel ayat Al-Quran lengkap..." autogrow />
+            <q-input filled v-model="form.highlight_words_input" label="Kata yang Disorot (pisah koma)" class="serene-input q-mt-sm" placeholder="contoh: نْ, لَهُ" />
+          </q-card>
+
+          <q-card class="form-card serene-card">
+            <div class="card-title"><q-icon name="mic" color="serene-primary" size="sm" class="q-mr-sm" />Contoh Suara Guru</div>
+            <div class="row q-col-gutter-sm">
+              <div class="col-12 col-sm-6">
+                <q-btn outline color="serene-primary" :label="recording ? 'Berhenti Rekam' : 'Rekam Suara'" class="q-mr-sm" @click="toggleRecord" :disable="uploading" />
+              </div>
+              <div class="col-12 col-sm-6">
+                <q-file v-if="recordedBlob" filled v-model="audioFile" label="Ganti Audio" accept="audio/*" class="serene-input" />
+              </div>
+            </div>
+            <div v-if="recordedBlob" class="q-mt-sm">
+              <audio :src="recordedBlobUrl" controls class="q-mt-sm" style="width:100%" />
+            </div>
+          </q-card>
+
           <div class="row q-col-gutter-md">
             <div class="col-12 col-md-6">
               <q-card class="form-card serene-card attr-card">
@@ -73,7 +87,7 @@
                   <q-toggle v-model="form.ghunnah" color="serene-primary" />
                 </div>
                 <div class="q-py-xs">
-                  <div class="text-weight-medium text-serene-on-surface q-mb-xs">Duration / Harakat</div>
+                  <div class="text-weight-medium text-serif-on-surface q-mb-xs">Duration / Harakat</div>
                   <q-slider v-model="form.duration" :min="1" :max="6" label :label-value="`${form.duration} Beats`" color="serene-primary" />
                 </div>
               </q-card>
@@ -89,7 +103,7 @@
                 </div>
                 <div v-else class="upload-zone q-mt-sm">
                   <q-icon name="cloud_upload" size="32px" color="serene-primary" />
-                  <div class="text-caption text-serene-variant q-mt-xs">Drag & drop file (MP3, WAV, JPG, PNG)</div>
+                  <div class="text-caption text-serif-variant q-mt-xs">Drag & drop file (MP3, WAV, JPG, PNG)</div>
                 </div>
               </q-card>
             </div>
@@ -97,7 +111,6 @@
         </div>
       </div>
 
-      <!-- Sticky action bar -->
       <div class="action-bar">
         <q-btn label="Batal" color="grey" flat @click="cancel" class="q-mr-sm" />
         <q-btn label="Simpan Draft" outline class="serene-btn-ghost q-mr-sm" :loading="loading" @click="submitForm('draft')" />
@@ -123,6 +136,11 @@ const loading = ref(false)
 const sectionsOptions = ref([])
 const thumbnailFile = ref(null)
 const thumbnailPreview = ref(null)
+const recording = ref(false)
+const uploading = ref(false)
+const recordedBlob = ref(null)
+const audioFile = ref(null)
+const recordedBlobUrl = computed(() => recordedBlob.value ? URL.createObjectURL(recordedBlob.value) : '')
 
 const categoryOptions = [
   { label: 'Core (Fondasi)', value: 'core' },
@@ -145,6 +163,9 @@ const form = ref({
   ghunnah: false,
   duration: 2,
   instructor_id: localStorage.getItem('id') || null,
+  marked_ayah: '',
+  highlight_words_input: '',
+  voice_note_url: ''
 })
 
 const isEdit = computed(() => !!form.value.id)
@@ -170,6 +191,28 @@ const uploadFile = async () => {
   form.value.thumbnail = res.data.filename
 }
 
+const toggleRecord = async () => {
+  if (recording.value) {
+    recording.value = false
+    return
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    const recorder = new MediaRecorder(stream)
+    const chunks = []
+    recorder.ondataavailable = (e) => { if (e.data.size) chunks.push(e.data) }
+    recorder.onstop = () => {
+      stream.getTracks().forEach(t => t.stop())
+      recordedBlob.value = new Blob(chunks, { type: 'audio/webm' })
+    }
+    recorder.start()
+    recording.value = true
+    window.__currentRecorder = recorder
+  } catch (e) {
+    $q.notify({ type: 'negative', message: 'Microphone access denied' })
+  }
+}
+
 const submitForm = async (mode) => {
   if (mode === 'publish' && !form.value.title) {
     $q.notify({ type: 'warning', message: 'Judul wajib diisi' })
@@ -178,6 +221,16 @@ const submitForm = async (mode) => {
   loading.value = true
   try {
     if (thumbnailFile.value) await uploadFile()
+    if (audioFile.value) {
+      uploading.value = true
+      const fd = new FormData()
+      fd.append('file', audioFile.value)
+      const res = await axios.post(`${api.API_BASE_URL}/uploads`, fd, {
+        headers: { 'Content-Type': 'multipart/form-data', ...authHeader() }
+      })
+      form.value.voice_note_url = res.data.filename
+      uploading.value = false
+    }
     const payload = {
       title: form.value.title,
       description: form.value.description || '',
@@ -191,11 +244,14 @@ const submitForm = async (mode) => {
       order_index: Number(form.value.order_index),
       instructor_id: Number(form.value.instructor_id),
       is_draft: mode === 'draft' ? 1 : 0,
+      marked_ayah: form.value.marked_ayah || '',
+      highlight_words: (form.value.highlight_words_input || '').split(',').map(s => s.trim()).filter(Boolean),
+      voice_note_url: form.value.voice_note_url || ''
     }
     if (isEdit.value) {
       await axios.patch(`${api.API_BASE_URL}/modules/${form.value.id}`, payload, { headers: authHeader() })
     } else {
-      await axios.post(`${api.API_BASE_URL}/modules/`, payload, { headers: authHeader() })
+      await axios.post(`${api.API_BASE_URL}/modules`, payload, { headers: authHeader() })
     }
     $q.dialog({ title: 'Berhasil', message: 'Data berhasil disimpan.', ok: { label: 'OK', color: 'primary' } }).onOk(() => router.back())
   } catch (error) {
@@ -203,6 +259,7 @@ const submitForm = async (mode) => {
     $q.notify({ type: 'negative', message: 'Gagal menyimpan materi.' })
   } finally {
     loading.value = false
+    recording.value = false
   }
 }
 
@@ -229,6 +286,9 @@ onMounted(async () => {
       form.value.category = d.category || 'core'
       form.value.order_index = d.order_index || 0
       form.value.instructor_id = d.instructor_id || form.value.instructor_id
+      form.value.marked_ayah = d.marked_ayah || ''
+      form.value.highlight_words_input = Array.isArray(d.highlight_words) ? d.highlight_words.join(', ') : ''
+      form.value.voice_note_url = d.voice_note_url || ''
     } catch (e) { console.error(e) }
   } else if (route.query.section_id) {
     form.value.section_id = Number(route.query.section_id)
@@ -242,7 +302,7 @@ onMounted(async () => {
 .form-grid { display: block; }
 .form-card { border-radius: 16px; padding: 20px 24px; margin-bottom: 20px; }
 .form-main { display: block; }
-.card-title { font-weight: 700; color: var(--serene-on-surface); margin-bottom: 14px; display: flex; align-items: center; }
+.card-title { font-weight: 700; color: var(--serene-on-surface); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
 .serene-input { background: var(--serene-surface); border-radius: 12px; }
 .serene-arabic :deep(.q-field__native) { font-family: 'Noto Serif', serif; font-size: 1.3rem; }
 .attr-card { height: 100%; }

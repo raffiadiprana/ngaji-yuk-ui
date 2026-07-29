@@ -194,6 +194,7 @@ const uploadFile = async () => {
 const toggleRecord = async () => {
   if (recording.value) {
     recording.value = false
+    window.__currentRecorder?.stop()
     return
   }
   try {

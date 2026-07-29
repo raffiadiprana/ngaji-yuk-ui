@@ -111,17 +111,18 @@ const router = useRouter()
 const sections = ref([])
 const allModules = ref([])
 
-const isGuru = computed(() => role === 'guru')
-const isAdmin = computed(() => role === 'admin')
+const role = ref(localStorage.getItem('role') || '')
+const isGuru = computed(() => role.value === 'guru')
+const isAdmin = computed(() => role.value === 'admin')
 
-const totalModules = computed(() => allModules.value.filter(m => m.category !== 'reference').length)
-const doneModules = computed(() => allModules.value.filter(m => m.category !== 'reference' && m.is_completed).length)
+const totalModules = computed(() => allModules.value.length)
+const doneModules = computed(() => allModules.value.filter(m => m.is_completed).length)
 const overallProgress = computed(() => totalModules.value ? Math.round((doneModules.value / totalModules.value) * 100) : 0)
 
 // Hitung status tiap section dari modulnya
 const enrichSections = () => {
   sections.value.forEach(sec => {
-    const mods = allModules.value.filter(m => m.section_id === sec.id && m.category !== 'reference')
+    const mods = allModules.value.filter(m => m.section_id === sec.id)
     sec._modules = mods
     sec._total = mods.length
     sec._done = mods.filter(m => m.is_completed).length
@@ -149,7 +150,6 @@ const fetchAllModules = async () => {
   try {
     const res = await axios.get(`${api.API_BASE_URL}/modules`, { headers: authHeader(), params: { is_deleted: 0, '$limit': 100 } })
     allModules.value = res.data?.data ?? []
-    referenceModules.value = allModules.value.filter(m => m.category === 'reference')
   } catch (e) { console.error('[TajwidPage] gagal ambil modules:', e) }
 }
 

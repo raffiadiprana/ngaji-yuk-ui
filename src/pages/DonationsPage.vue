@@ -38,14 +38,16 @@
                   :rules="[v => !!v || 'Wajib diisi']"
                 />
                 <q-input
-                  v-model="form.amount"
+                  v-model="amountText"
                   label="Nominal Transfer"
-                  type="number"
                   filled
-                  prefix="Rp"
                   class="serene-input"
                   color="serene-primary"
-                  :rules="[v => (Number(v) > 0) || 'Nominal harus lebih dari 0']"
+                  mask="#.###"
+                  fill-mask="0"
+                  reverse-fill-mask
+                  :rules="[v => amountNumber(v) > 0 || 'Nominal harus lebih dari 0']"
+                  @update:model-value="onAmountChange"
                 />
 
                 <q-uploader
@@ -118,7 +120,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import axios from 'axios'
 import api from 'src/config/api'
 import { authHeader } from 'src/config/auth'
@@ -141,6 +143,7 @@ const form = ref({
   proof: null,
   is_verified: 0
 })
+const amountText = ref('')
 
 const history = ref([])
 
@@ -156,6 +159,17 @@ const formatDate = (date) => {
     hour: '2-digit',
     minute: '2-digit'
   })
+}
+
+const amountNumber = (val) => {
+  const raw = String(val || '').replace(/\./g, '')
+  const n = Number(raw)
+  return Number.isFinite(n) ? n : 0
+}
+
+const onAmountChange = (val) => {
+  amountText.value = val
+  form.value.amount = String(amountNumber(val))
 }
 
 const submitForm = async () => {
@@ -185,7 +199,7 @@ const submitForm = async () => {
       account_name: form.value.account_name,
       bank_name: form.value.bank_name,
       source_bank: form.value.source_bank,
-      amount: Number(form.value.amount),
+      amount: Number(amountNumber(amountText.value)),
       proof_image: proofFilename,
       is_verified: 0
     }
@@ -210,7 +224,9 @@ const submitForm = async () => {
       proof: null,
       is_verified : 0
     }
+    amountText.value = ''
 
+    await nextTick()
     if (formRef.value) formRef.value.resetValidation()
 
   } catch (err) {

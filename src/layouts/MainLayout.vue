@@ -28,6 +28,7 @@
           </q-item>
 
           <q-item
+            v-if="!isGuru"
             clickable v-ripple :to="learnUrl"
             :active="isActive(learnUrl)"
             active-class="serene-nav-active"

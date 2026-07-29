@@ -14,7 +14,7 @@
             <q-input filled v-model="form.title" label="Judul Materi" class="serene-input" />
             <div class="row q-col-gutter-md q-mt-sm">
               <div class="col-12 col-sm-6">
-                <q-select filled v-model="form.section_id" :options="sectionsOptions" label="Section / Bab" class="serene-input" :rules="[val => val !== null && val !== undefined || 'Section wajib dipilih']" />
+                <q-select filled v-model="form.section_id" :options="sectionsOptions" label="Section / Bab" option-label="label" option-value="value" emit-value map-options class="serene-input" :rules="[val => val !== null && val !== undefined || 'Section wajib dipilih']" />
               </div>
               <div class="col-12 col-sm-6">
                 <q-select filled v-model="form.category" :options="categoryOptions" label="Kategori" option-label="label" option-value="value" emit-value map-options class="serene-input" />

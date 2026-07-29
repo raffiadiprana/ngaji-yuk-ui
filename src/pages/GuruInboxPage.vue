@@ -90,12 +90,16 @@ import { authHeader } from 'src/config/auth'
       const res = await axios.get(`${api.API_BASE_URL}/answers`, {
         headers: authHeader(),
         params: { 
-            'user_id[$ne]': instructorId
+          '$or': [
+            { user_id: instructorId },
+            { reply_to: instructorId }
+          ],
+          '$limit': 100
         }
       })
-      const all = res.data.data.filter(answer => 
-        (!answer.checked_by || answer.checked_by === null)
-      ) || [];
+      const all = (res.data.data || []).filter(answer =>
+        !answer.checked_by
+      );
       // Group by quiz_id (1 thread = 1 item), ambil pesan terakhir + hitung tumpukan
       const map = {}
       for (const a of all) {

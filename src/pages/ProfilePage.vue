@@ -111,7 +111,7 @@
             <q-input v-model="pwd.next" label="Password Baru" :type="showPwd ? 'text' : 'password'" filled class="serene-input" color="serene-primary" />
             <q-input v-model="pwd.confirm" label="Konfirmasi Password Baru" :type="showPwd ? 'text' : 'password'" filled class="serene-input" color="serene-primary" />
             <div class="col-span-2 row justify-end q-gutter-sm q-mt-sm">
-              <q-btn label="Ubah Password" class="serene-btn-primary" :loading="pwdLoading" type="submit" />
+              <q-btn label="Ubah Password" class="serene-btn-primary" :loading="loading" type="submit" />
             </div>
           </q-form>
         </q-card-section>
@@ -182,7 +182,6 @@ const userId = localStorage.getItem('id')
 
 const formRef = ref(null)
 const loading = ref(false)
-const pwdLoading = ref(false)
 const loadingHistory = ref(false)
 const loadingQuizHistory = ref(false)
 
@@ -276,7 +275,6 @@ const submitProfile = async () => {
 }
 
 const showPwd = ref(false)
-const pwdLoading = ref(false)
 const pwd = ref({ current: '', next: '', confirm: '' })
 
 const changePassword = async () => {
@@ -288,7 +286,7 @@ const changePassword = async () => {
     $q.notify({ type: 'negative', message: 'Konfirmasi password tidak cocok' })
     return
   }
-  pwdLoading.value = true
+  loading.value = true
   try {
     const check = await axios.post(`${API_BASE_URL}/authentication`, {
       strategy: 'local',
@@ -304,7 +302,7 @@ const changePassword = async () => {
     const msg = err?.response?.data?.message || 'Gagal mengubah password'
     $q.notify({ type: 'negative', message: msg })
   } finally {
-    pwdLoading.value = false
+    loading.value = false
   }
 }
 
@@ -312,7 +310,6 @@ const history = ref([])
 const skipHistory = ref(0)
 const limitHistory = 5
 const hasMoreHistory = ref(true)
-const loadingHistory = ref(false)
 
 const loadVideoHistory = async () => {
   if (loadingHistory.value || !hasMoreHistory.value) return

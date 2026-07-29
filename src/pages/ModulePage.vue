@@ -1,5 +1,5 @@
 <template>
-  <!-- ModulePage v2026-07-29 -->
+  <!-- ModulePage v2026-07-29b -->
   <q-page class="module-page">
     <div class="page-container">
       <div class="lesson-header q-mb-md">

@@ -8,8 +8,6 @@
           <p class="text-serene-variant">Ikuti perjalanan belajarmu melewati setiap checkpoint hukum tajwid.</p>
         </div>
         <div class="row q-gutter-sm">
-          <q-btn :class="activeTab === 'core' ? 'serene-btn-primary' : 'serene-btn-ghost'" label="Pembelajaran" no-caps @click="activeTab = 'core'" />
-          <q-btn :class="activeTab === 'reference' ? 'serene-btn-primary' : 'serene-btn-ghost'" label="Referensi" no-caps @click="activeTab = 'reference'" />
           <q-btn v-if="isGuru || isAdmin" class="serene-btn-primary" label="Tambah Hukum Tajwid" icon="add" rounded @click="onAddTajwid" />
         </div>
       </header>
@@ -28,7 +26,7 @@
       </section>
 
       <!-- Timeline (Pembelajaran) -->
-      <section v-if="activeTab === 'core'" class="timeline">
+      <section class="timeline">
         <div
           v-for="sec in sections"
           :key="sec.id"
@@ -95,27 +93,6 @@
         </div>
         <div v-if="!sections.length" class="text-center text-serene-variant q-py-lg">Belum ada hukum tajwid.</div>
       </section>
-
-      <!-- Referensi -->
-      <section v-else class="reference-section">
-        <div class="text-caption text-serene-variant q-mb-md">Kamus rujukan tajwid — bebas diakses kapan saja tanpa harus menyelesaikan materi lain.</div>
-        <div class="row q-col-gutter-md">
-          <div v-for="ref in referenceModules" :key="ref.id" class="col-12 col-sm-6 col-md-4">
-            <q-card class="serene-card reference-card interactive hover-lift" @click="router.push(`/module/${ref.id}`)">
-              <q-card-section>
-                <div class="row items-center no-wrap">
-                  <q-avatar size="44px" class="bg-serene-surface text-serene-primary flex flex-center"><q-icon name="menu_book" /></q-avatar>
-                  <div class="col q-ml-md min-width-0">
-                    <div class="text-weight-bold text-serene-on-surface ellipsis">{{ ref.title }}</div>
-                    <div class="text-caption text-serene-variant q-mt-xs">Referensi</div>
-                  </div>
-                </div>
-              </q-card-section>
-            </q-card>
-          </div>
-        </div>
-        <div v-if="!referenceModules.length" class="text-center text-serene-variant q-py-lg">Belum ada modul referensi.</div>
-      </section>
     </div>
   </div>
 </template>
@@ -132,14 +109,11 @@ import { authHeader } from 'src/config/auth'
 const router = useRouter()
 
 const sections = ref([])
-const referenceModules = ref([])
 const allModules = ref([])
 
 const role = localStorage.getItem('role')
 const isGuru = computed(() => role === 'guru' || role === 'admin')
 const isAdmin = computed(() => role === 'admin')
-
-const activeTab = ref('core')
 
 const totalModules = computed(() => allModules.value.filter(m => m.category !== 'reference').length)
 const doneModules = computed(() => allModules.value.filter(m => m.category !== 'reference' && m.is_completed).length)

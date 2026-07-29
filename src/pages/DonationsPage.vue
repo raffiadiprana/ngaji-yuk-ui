@@ -1,17 +1,12 @@
 <template>
   <q-page padding class="donations-page">
     <div class="page-container q-pa-md">
-      <div class="welcome-section">
-        <div class="row items-center no-wrap">
-          <div class="col-auto">
-            <q-icon name="volunteer_activism" size="md" color="serene-primary" />
-          </div>
-          <div class="col">
-            <div class="text-h5 welcome-title q-mb-xs">Form Donasi</div>
-            <div class="text-subtitle2 welcome-subtitle text-serene-variant">
-              Kirim bukti transfer untuk mendukung perkembangan aplikasi.
-            </div>
-          </div>
+      <div class="welcome-section serene-card">
+        <div class="welcome-content">
+          <h4 class="welcome-title">
+            Assalamu'alaikum
+          </h4>
+          <p class="welcome-subtitle">Kirim bukti transfer untuk mendukung perkembangan aplikasi.</p>
         </div>
       </div>
 
@@ -57,9 +52,6 @@
                     <span class="text-weight-bold">Rp</span>
                   </template>
                 </q-input>
-                <div v-if="amountFormatted" class="text-caption text-serene-variant q-mt-xs">
-                  {{ amountFormatted }}
-                </div>
 
                 <q-uploader
                   label="Upload Bukti Transfer"
@@ -155,7 +147,6 @@ const form = ref({
   is_verified: 0
 })
 const amountText = ref('')
-const amountFormatted = ref('')
 
 const amountNumber = (val) => {
   const raw = String(val || '').replace(/[^\d]/g, '')
@@ -163,16 +154,9 @@ const amountNumber = (val) => {
   return Number.isFinite(n) ? n : 0
 }
 
-const formatAmount = (val) => {
-  const n = amountNumber(val)
-  if (!n) return ''
-  return 'Rp ' + n.toLocaleString('id-ID')
-}
-
 const onAmountChange = (val) => {
   const n = amountNumber(val)
-  amountText.value = String(n)
-  amountFormatted.value = formatAmount(n)
+  amountText.value = n ? n.toLocaleString('id-ID') : ''
   form.value.amount = String(n)
 }
 

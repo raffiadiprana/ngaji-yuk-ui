@@ -192,17 +192,6 @@ const formatDate = (date) => {
   })
 }
 
-const amountNumber = (val) => {
-  const raw = String(val || '').replace(/\./g, '')
-  const n = Number(raw)
-  return Number.isFinite(n) ? n : 0
-}
-
-const onAmountChange = (val) => {
-  amountText.value = val
-  form.value.amount = String(amountNumber(val))
-}
-
 const submitForm = async () => {
   if (!formRef.value.validate()) return
   loading.value = true
@@ -243,9 +232,7 @@ const submitForm = async () => {
     })
     console.log('[DONATIONS_DEBUG] POST status', post.status)
 
-    $q.notify({ type: 'positive', message: 'Donasi berhasil dikirim' , timeout: 2000, onDismiss: () => {
-      window.location.reload()
-    }})
+    $q.notify({ type: 'positive', message: 'Donasi berhasil dikirim', timeout: 2000 })
     await loadHistory()
     form.value = {
       account_name: '',
@@ -253,7 +240,7 @@ const submitForm = async () => {
       source_bank: '',
       amount: '',
       proof: null,
-      is_verified : 0
+      is_verified: 0
     }
     amountText.value = ''
     amountFormatted.value = ''

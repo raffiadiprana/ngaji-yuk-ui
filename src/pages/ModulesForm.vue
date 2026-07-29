@@ -245,8 +245,10 @@ const submitForm = async (mode) => {
       instructor_id: Number(form.value.instructor_id),
       is_draft: mode === 'draft' ? 1 : 0,
       marked_ayah: form.value.marked_ayah || '',
-      highlight_words: (form.value.highlight_words_input || '').split(',').map(s => s.trim()).filter(Boolean),
       voice_note_url: form.value.voice_note_url || ''
+    }
+    if (form.value.highlight_words_input) {
+      payload._highlight_words_backend_disabled = true
     }
     if (isEdit.value) {
       await axios.patch(`${api.API_BASE_URL}/modules/${form.value.id}`, payload, { headers: authHeader() })

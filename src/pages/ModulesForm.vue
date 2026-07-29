@@ -240,7 +240,7 @@ const submitForm = async (mode) => {
       meaning: form.value.meaning,
       video_header_id: form.value.video_header_id,
       thumbnail: form.value.thumbnail,
-      section_id: Number(form.value.section_id),
+      section_id: typeof form.value.section_id === 'string' ? Number(form.value.section_id) : form.value.section_id,
       category: form.value.category,
       order_index: Number(form.value.order_index),
       instructor_id: Number(form.value.instructor_id),

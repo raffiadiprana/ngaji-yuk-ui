@@ -5,28 +5,16 @@
       <header class="kurikulum-header q-mb-lg">
         <div>
           <h1 class="headline-font kurikulum-title">Kurikulum Tajwid</h1>
-          <p class="text-serene-variant">Ikuti perjalanan belajarmu melewati setiap checkpoint hukum tajwid.</p>
+          <p class="text-serene-variant">Kelola materi pembelajaran untuk murid-murid Anda.</p>
         </div>
         <div class="row q-gutter-sm">
           <q-btn v-if="isAdmin" class="serene-btn-primary" label="Tambah Hukum Tajwid" icon="add" rounded @click="onAddTajwid" />
         </div>
       </header>
 
-      <!-- Progress Overview -->
-      <section class="serene-card-soft kurikulum-progress q-mb-lg">
-        <div class="row items-center justify-between q-mb-sm">
-          <span class="text-serene-variant text-caption">Progres Keseluruhan</span>
-          <span class="text-weight-bold text-serene-primary">{{ overallProgress }}%</span>
-        </div>
-        <q-linear-progress :value="overallProgress / 100" color="serene-primary" class="progress-glow rounded-borders" style="height:10px;" />
-        <div class="row q-gutter-md q-pt-sm text-caption text-serene-variant">
-          <span>{{ doneModules }} Modul Selesai</span>
-          <span>{{ totalModules - doneModules }} Tersisa</span>
-        </div>
-      </section>
-
-      <!-- Timeline (Pembelajaran) -->
+      <!-- Timeline / Section Cards -->
       <section class="timeline">
+        <div v-if="!sections.length" class="text-center text-serene-variant q-py-lg">Belum ada hukum tajwid.</div>
         <div
           v-for="sec in sections"
           :key="sec.id"
@@ -37,7 +25,7 @@
             <q-icon :name="sectionStatus(sec).icon" size="22px" />
           </div>
           <q-card class="serene-card timeline-card">
-            <div class="row items-center no-wrap">
+            <div class="row items-start no-wrap">
               <div class="col min-width-0">
                 <div class="row items-center justify-between">
                   <div class="text-weight-bold text-serene-on-surface text-subtitle1 ellipsis">{{ sec.section_name }}</div>
@@ -59,39 +47,41 @@
               </q-btn>
             </div>
 
-            <!-- Sub-lessons (modul) untuk section aktif / selesai -->
-            <div v-if="(sectionStatus(sec).cls === 'is-active' || sectionStatus(sec).cls === 'is-done') && sec._modules.length" class="sub-lessons q-mt-md">
+            <!-- Module Grid -->
+            <div v-if="sec._modules.length" class="row q-col-gutter-md q-mt-md">
               <div
                 v-for="(m, i) in sec._modules"
                 :key="m.id"
-                class="sub-lesson row items-center no-wrap q-pa-sm rounded-borders"
-                :class="{ 'sub-locked': m.is_locked }"
-                @click="!m.is_locked && router.push(`/module/${m.id}`)"
+                class="col-12 col-sm-6 col-md-4"
               >
-                <div class="sub-icon flex flex-center">
-                  <q-icon :name="m.is_completed ? 'check_circle' : (m.is_locked ? 'lock' : 'play_circle')" :color="m.is_completed ? 'serene-secondary' : (m.is_locked ? 'grey' : 'serene-primary')" size="20px" />
-                </div>
-                <div class="col q-ml-md min-width-0">
-                  <div class="text-weight-medium text-serene-on-surface ellipsis">{{ i + 1 }}. {{ m.title }}</div>
-                  <div class="text-caption text-serene-variant">{{ m.is_completed ? 'Selesai' : (m.is_locked ? 'Terkunci' : 'Siap dipelajari') }}</div>
-                </div>
-                <q-btn
-                  v-if="!m.is_locked"
-                  unelevated
-                  dense
-                  rounded
-                  :color="m.is_completed ? 'serene-secondary-container' : 'serene-primary'"
-                  :text-color="m.is_completed ? 'serene-on-secondary-container' : 'white'"
-                  :label="m.is_completed ? 'Review' : 'Mulai'"
-                  class="q-ml-md"
-                  @click.stop="router.push(`/module/${m.id}`)"
-                />
-                <q-icon v-else name="lock" color="grey" size="20px" class="q-ml-md" />
+                <q-card class="module-card serene-card" :class="{ 'sub-locked': m.is_locked }">
+                  <q-card-section>
+                    <div class="row items-center no-wrap">
+                      <div class="sub-icon flex flex-center q-mr-sm">
+                        <q-icon :name="m.is_completed ? 'check_circle' : (m.is_locked ? 'lock' : 'play_circle')" :color="m.is_completed ? 'serene-secondary' : (m.is_locked ? 'grey' : 'serene-primary')" size="20px" />
+                      </div>
+                      <div class="col min-width-0">
+                        <div class="text-weight-medium text-serene-on-surface ellipsis">{{ i + 1 }}. {{ m.title }}</div>
+                        <div class="text-caption text-serene-variant">{{ m.is_completed ? 'Selesai' : (m.is_locked ? 'Terkunci' : 'Siap dipelajari') }}</div>
+                      </div>
+                    </div>
+                  </q-card-section>
+                  <q-card-actions v-if="!m.is_locked" align="right">
+                    <q-btn
+                      unelevated
+                      dense
+                      rounded
+                      :color="m.is_completed ? 'serene-secondary-container' : 'serene-primary'"
+                      :text-color="m.is_completed ? 'serene-on-secondary-container' : 'white'"
+                      :label="m.is_completed ? 'Review' : 'Mulai'"
+                      @click="router.push(`/module/${m.id}`)"
+                    />
+                  </q-card-actions>
+                </q-card>
               </div>
             </div>
           </q-card>
         </div>
-        <div v-if="!sections.length" class="text-center text-serene-variant q-py-lg">Belum ada hukum tajwid.</div>
       </section>
     </div>
   </div>
@@ -100,7 +90,7 @@
 <script setup>
 import { useQuasar } from 'quasar'
 const $q = useQuasar()
-import { ref, onMounted, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import api from 'src/config/api'
@@ -135,7 +125,6 @@ const sectionStatus = (sec) => {
   if (!mods.length) return { cls: 'is-todo', icon: 'radio_button_unchecked', label: 'Segera', chipColor: 'grey' }
   const allDone = mods.every(m => m.is_completed)
   if (allDone) return { cls: 'is-done', icon: 'check_circle', label: 'Selesai', chipColor: 'serene-secondary' }
-  // aktif kalau ada minimal 1 modul yang tidak terkunci (boleh dipelajari)
   const hasUnlocked = mods.some(m => !m.is_locked)
   if (hasUnlocked) return { cls: 'is-active', icon: 'play_circle', label: 'Berlangsung', chipColor: 'serene-primary' }
   return { cls: 'is-locked', icon: 'lock', label: 'Terkunci', chipColor: 'grey' }
@@ -215,8 +204,9 @@ const deleteTajwid = (section) => {
 .sub-lesson.sub-locked { cursor: not-allowed; }
 .sub-icon { width: 32px; height: 32px; border-radius: 50%; background: var(--serene-surface); }
 .serene-btn-ghost { color: var(--serene-primary); }
-.reference-card { border-radius: 16px; padding: 16px; }
-.reference-card:hover { transform: translateY(-2px); }
+.module-card { border-radius: 16px; padding: 16px; transition: transform .15s ease, box-shadow .15s ease; }
+.module-card:hover { transform: translateY(-2px); }
+.module-card.sub-locked { opacity: .72; }
 @media (max-width: 1023px) {
   .kurikulum-container { padding: 16px 14px; }
   .kurikulum-title { font-size: 1.4rem; }

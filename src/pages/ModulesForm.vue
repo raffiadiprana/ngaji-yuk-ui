@@ -10,11 +10,11 @@
       <div class="form-grid">
         <div class="form-main">
           <q-card class="form-card serene-card">
-            <div class="card-title"><q-icon name="info" color="serene-primary" size="sm" class="q-mr-sm" />Basic Info</div>
+            <div class="card-title"><q-icon name="info" color="serene-primary" size="sm" class="q-mr-sm" />Informasi Dasar</div>
             <q-input filled v-model="form.title" label="Judul Materi" class="serene-input" :rules="[val => !!val || 'Judul wajib diisi']" />
             <div class="row q-col-gutter-md q-mt-sm">
               <div class="col-12 col-sm-6">
-                <q-select filled v-model="form.section_id" :options="sectionsOptions" label="Section" option-label="section_name" option-value="id" emit-value map-options class="serene-input" :rules="[val => val !== null && val !== undefined || 'Section wajib dipilih']" />
+                <q-select filled v-model="form.section_id" :options="sectionsOptions" label="Section / Bab" option-label="section_name" option-value="id" emit-value map-options class="serene-input" :rules="[val => val !== null && val !== undefined || 'Section wajib dipilih']" />
               </div>
               <div class="col-12 col-sm-6">
                 <q-select filled v-model="form.category" :options="categoryOptions" label="Kategori" option-label="label" option-value="value" emit-value map-options class="serene-input" />
@@ -22,7 +22,7 @@
             </div>
             <div class="row q-col-gutter-md q-mt-sm">
               <div class="col-6">
-                <q-input filled type="number" v-model.number="form.order_index" label="Nomor Urut" class="serene-input" hint="Untuk urutan materi dalam kategori" />
+                <q-input filled type="number" v-model.number="form.order_index" label="Nomor Urut" class="serene-input" hint="Urutan materi dalam section ini" />
               </div>
             </div>
           </q-card>
@@ -33,7 +33,7 @@
               <div class="col-12 col-md-7">
                 <q-input filled type="textarea" v-model="form.arabic_text" label="Teks Arab" dir="rtl" class="serene-input serene-arabic" placeholder="أدخل النص العربي هنا..." autogrow />
                 <q-input filled v-model="form.transliteration" label="Transliterasi" class="serene-input q-mt-sm" placeholder="e.g. Min Ba'di" />
-                <q-input filled v-model="form.meaning" label="Makna (Terjemahan)" class="serene-input q-mt-sm" placeholder="e.g. After that" />
+                <q-input filled v-model="form.meaning" label="Makna (Terjemahan)" class="serene-input q-mt-sm" placeholder="Terjemahan bahasa Indonesia..." />
               </div>
               <div class="col-12 col-md-5">
                 <div class="live-preview">
@@ -49,9 +49,9 @@
           </q-card>
 
           <q-card class="form-card serene-card">
-            <div class="card-title"><q-icon name="menu_book" color="serene-primary" size="sm" class="q-mr-sm" />The Rule</div>
+            <div class="card-title"><q-icon name="menu_book" color="serene-primary" size="sm" class="q-mr-sm" />Aturan Tajwid</div>
             <q-input filled type="textarea" v-model="form.description" label="Penjelasan Detail" class="serene-input" placeholder="Jelaskan aturan, posisi lidah, dan kesalahan umum..." autogrow />
-            <q-input filled v-model="form.video_header_id" label="Video Header (YouTube URL)" class="serene-input q-mt-sm" placeholder="Opsional" />
+            <q-input filled v-model="form.video_header_id" label="Video Pembelajaran (YouTube URL)" class="serene-input q-mt-sm" placeholder="https://www.youtube.com/watch?v=..." />
           </q-card>
 
           <q-card class="form-card serene-card">
@@ -61,7 +61,7 @@
           </q-card>
 
           <q-card class="form-card serene-card">
-            <div class="card-title"><q-icon name="mic" color="serene-primary" size="sm" class="q-mr-sm" />Contoh Suara Guru</div>
+            <div class="card-title"><q-icon name="mic" color="serene-primary" size="sm" class="q-mr-sm" />Suara Guru</div>
             <div class="row q-col-gutter-sm">
               <div class="col-12 col-sm-6">
                 <q-btn outline color="serene-primary" :label="recording ? 'Berhenti Rekam' : 'Rekam Suara'" class="q-mr-sm" @click="toggleRecord" :disable="uploading" />
@@ -87,7 +87,7 @@
                   <q-toggle v-model="form.ghunnah" color="serene-primary" />
                 </div>
                 <div class="q-py-xs">
-                  <div class="text-weight-medium text-serif-on-surface q-mb-xs">Duration / Harakat</div>
+                  <div class="text-weight-medium text-serene-on-surface q-mb-xs">Duration / Harakat</div>
                   <q-slider v-model="form.duration" :min="1" :max="6" label :label-value="`${form.duration} Beats`" color="serene-primary" />
                 </div>
               </q-card>
@@ -103,7 +103,7 @@
                 </div>
                 <div v-else class="upload-zone q-mt-sm">
                   <q-icon name="cloud_upload" size="32px" color="serene-primary" />
-                  <div class="text-caption text-serif-variant q-mt-xs">Drag & drop file (MP3, WAV, JPG, PNG)</div>
+                  <div class="text-caption text-serene-variant q-mt-xs">Drag & drop file (MP3, WAV, JPG, PNG)</div>
                 </div>
               </q-card>
             </div>
@@ -258,65 +258,36 @@ const submitForm = async (mode) => {
     $q.notify({ type: 'negative', message: 'Gagal menyimpan materi.' })
   } finally {
     loading.value = false
-    recording.value = false
   }
 }
 
 onMounted(async () => {
-  try {
-    const res = await axios.get(`${api.API_BASE_URL}/sections`, { headers: authHeader() })
-    sectionsOptions.value = (res.data?.data ?? []).sort((a, b) => (a.order_index || 0) - (b.order_index || 0))
-  } catch (e) { console.error(e) }
-
-  const id = route.params.id
-  if (id) {
-    try {
-      const res = await axios.get(`${api.API_BASE_URL}/modules/${id}`, { headers: authHeader() })
-      const d = res.data
-      form.value.id = d.id
-      form.value.title = d.title
-      form.value.description = d.description
-      form.value.arabic_text = d.arabic_text || ''
-      form.value.transliteration = d.transliteration || ''
-      form.value.meaning = d.meaning || ''
-      form.value.video_header_id = d.video_header_id || ''
-      form.value.thumbnail = d.thumbnail || ''
-      form.value.section_id = d.section_id
-      form.value.category = d.category || 'core'
-      form.value.order_index = d.order_index || 0
-      form.value.instructor_id = d.instructor_id || form.value.instructor_id
-      form.value.marked_ayah = d.marked_ayah || ''
-      form.value.highlight_words_input = Array.isArray(d.highlight_words) ? d.highlight_words.join(', ') : ''
-      form.value.voice_note_url = d.voice_note_url || ''
-    } catch (e) { console.error(e) }
-  } else if (route.query.section_id) {
-    form.value.section_id = Number(route.query.section_id)
+  const res = await axios.get(`${api.API_BASE_URL}/sections`, { headers: authHeader() })
+  sectionsOptions.value = (res.data.data || []).map(s => ({ label: s.section_name, value: s.id }))
+  if (route.query.section_id) form.value.section_id = Number(route.query.section_id)
+  if (route.query.id) {
+    const detail = await axios.get(`${api.API_BASE_URL}/modules/${route.query.id}`, { headers: authHeader() })
+    form.value = detail.data.data || form.value
   }
 })
 </script>
 
 <style scoped>
-.module-form-page { min-height: 100vh; background: var(--serene-bg); }
-.page-container { max-width: 900px; margin: 0 auto; padding: 24px 16px 100px; }
-.form-grid { display: block; }
-.form-card { border-radius: 16px; padding: 20px 24px; margin-bottom: 20px; }
-.form-main { display: block; }
-.card-title { font-weight: 700; color: var(--serene-on-surface); margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
-.serene-input { background: var(--serene-surface); border-radius: 12px; }
-.serene-arabic :deep(.q-field__native) { font-family: 'Noto Serif', serif; font-size: 1.3rem; }
-.attr-card { height: 100%; }
-.live-preview { }
-.preview-box { background: var(--serene-surface); border-radius: 12px; padding: 16px; text-align: center; min-height: 140px; display: flex; flex-direction: column; justify-content: center; }
-.preview-arabic { font-size: 2rem; color: var(--serene-on-surface); line-height: 1.8; }
-.preview-translit { font-size: 0.9rem; color: var(--serene-primary); font-weight: 600; margin-top: 6px; }
-.preview-meaning { font-size: 0.85rem; color: var(--serene-variant); }
-.upload-zone { border: 1.5px dashed var(--serene-outline-variant); border-radius: 12px; padding: 18px; text-align: center; }
-.action-bar { position: fixed; bottom: 0; left: 0; right: 0; background: var(--serene-surface); border-top: 1px solid var(--serene-border); padding: 12px 16px; display: flex; justify-content: flex-end; align-items: center; z-index: 50; }
-.serene-btn-ghost { color: var(--serene-primary); border-color: var(--serene-primary); }
-@media (min-width: 600px) {
-  .page-container { padding: 32px 24px 110px; }
-}
-@media (min-width: 1024px) {
-  .page-container { padding: 40px 0 110px; }
+.module-form-page { background: var(--serene-bg); min-height: 100vh; }
+.page-container { max-width: 960px; margin: 0 auto; padding: 24px 20px; }
+.form-grid { display: grid; gap: 20px; }
+.form-main { display: flex; flex-direction: column; gap: 16px; }
+.form-card { border-radius: 16px; padding: 18px; }
+.card-title { font-weight: 600; color: var(--serene-on-surface); margin-bottom: 10px; display: inline-flex; align-items: center; gap: 8px; }
+.serene-input :deep(.q-field__control) { border-radius: 12px; }
+.live-preview .preview-box { border-radius: 16px; padding: 20px; background: var(--serene-surface-container-low); border: 1px solid var(--serene-border); }
+.preview-arabic { font-family: 'Noto Serif Arabic', serif; font-size: 28px; line-height: 48px; text-align: right; }
+.preview-translit { color: var(--serene-on-surface-variant); margin-top: 6px; }
+.preview-meaning { color: var(--serene-on-surface); margin-top: 2px; }
+.upload-zone { border-radius: 16px; padding: 24px; border: 1px dashed var(--serene-outline-variant); background: var(--serene-surface-container-low); text-align: center; }
+.action-bar { display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; }
+.serene-btn-ghost { color: var(--serene-primary); }
+@media (max-width: 1023px) {
+  .page-container { padding: 16px 14px; }
 }
 </style>

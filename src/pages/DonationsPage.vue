@@ -1,83 +1,103 @@
 <template>
   <q-page padding class="donations-page">
-    <!-- Form Donasi -->
-    <q-card class="my-card serene-card q-pa-md">
-      <q-card-section>
-        <q-form @submit.prevent="submitForm" ref="formRef" class="q-gutter-md">
-          <q-input v-model="form.account_name" label="Nama Pemilik Rekening" filled class="serene-input" color="serene-primary" />
-          <q-input v-model="form.bank_name" label="Nama Bank Asal" filled class="serene-input" color="serene-primary" />
-          <q-input v-model="form.source_bank" label="Nomor Rekening Bank Asal" filled class="serene-input" color="serene-primary" />
-          <q-input
-            v-model="form.amount"
-            label="Nominal Transfer"
-            type="number"
-            filled
-            prefix="Rp"
-            class="serene-input"
-            color="serene-primary"
-          />
+    <div class="page-container q-pa-md">
+      <div class="welcome-section serene-card">
+        <div class="welcome-content">
+          <h4 class="welcome-title">Form Donasi</h4>
+          <p class="welcome-subtitle">Kirim bukti transfer untuk mendukung perkembangan aplikasi.</p>
+        </div>
+      </div>
 
-          <q-uploader
-            label="Upload Bukti Transfer"
-            v-model="form.proof"
-            accept="image/*"
-            @added="onFileChange"
-            :auto-upload="false"
-            class="q-mt-md serene-uploader"
-          />
+      <div class="row q-col-gutter-lg">
+        <div class="col-12 col-md-5">
+          <q-card class="serene-card q-pa-md">
+            <q-card-section>
+              <q-form @submit.prevent="submitForm" ref="formRef" class="q-gutter-md">
+                <q-input v-model="form.account_name" label="Nama Pemilik Rekening" filled class="serene-input" color="serene-primary" />
+                <q-input v-model="form.bank_name" label="Nama Bank Asal" filled class="serene-input" color="serene-primary" />
+                <q-input v-model="form.source_bank" label="Nomor Rekening Bank Asal" filled class="serene-input" color="serene-primary" />
+                <q-input
+                  v-model="form.amount"
+                  label="Nominal Transfer"
+                  type="number"
+                  filled
+                  prefix="Rp"
+                  class="serene-input"
+                  color="serene-primary"
+                />
 
-          <div class="row justify-end q-gutter-sm">
-            <q-btn label="Kirim Donasi" class="serene-btn-primary" type="submit" :loading="loading" />
-          </div>
-        </q-form>
-      </q-card-section>
-    </q-card>
+                <q-uploader
+                  label="Upload Bukti Transfer"
+                  v-model="form.proof"
+                  accept="image/*"
+                  @added="onFileChange"
+                  :auto-upload="false"
+                  class="q-mt-md serene-uploader"
+                />
 
-    <q-separator spaced />
+                <div class="row justify-end q-gutter-sm q-mt-md">
+                  <q-btn label="Kirim Donasi" class="serene-btn-primary" type="submit" :loading="loading" />
+                </div>
+              </q-form>
+            </q-card-section>
+          </q-card>
+        </div>
 
-    <!-- History -->
-    <q-card class="my-card q-mt-md serene-card q-pa-md">
-      <q-card-section>
-        <div class="text-h6 q-mb-md text-serene-on-surface">Riwayat Donasi Anda</div>
-        <q-list bordered separator>
-          <q-item v-for="item in history" :key="item.id" class="q-mb-sm">
-            <q-item-section avatar>
-              <q-avatar rounded size="56px">
-                <q-img :src="`${API_UPLOADS_URL}/${item.proof_image}`" />
-              </q-avatar>
-            </q-item-section>
+        <div class="col-12 col-md-7">
+          <q-card class="serene-card q-pa-md">
+            <q-card-section>
+              <div class="text-h6 q-mb-md text-serene-on-surface">Riwayat Donasi Anda</div>
 
-            <q-item-section>
-              <q-item-label class="text-bold text-serene-on-surface">{{ item.account_name }}</q-item-label>
-              <q-item-label caption class="text-serene-variant">
-                {{ item.bank_name }} - {{ item.source_bank }}
-              </q-item-label>
-              <q-item-label caption class="text-serene-primary">
-                Rp {{ Number(item.amount).toLocaleString('id-ID') }}
-              </q-item-label>
-              <q-item-label caption class="text-serene-variant">
-                {{ formatDate(item.created_at) }}
-              </q-item-label>
-
-              <q-badge
-                outline
-                :color="item.is_verified == 1 ? 'green' :
-                        item.is_verified == 2 ? 'red' : 'orange'"
-                class="q-mt-sm"
-                align="left"
-              >
-                {{ item.is_verified == 1? 'Terverifikasi' :
-                        item.is_verified == 2 ? 'Ditolak' : 'Menunggu Verifikasi' }}
-              </q-badge>
-
-              <div v-if="item.reject_reason" class="text-negative q-mt-sm">
-                Alasan Penolakan: {{ item.reject_reason }}
+              <div v-if="loadingHistory" class="text-center q-py-md text-serene-variant">
+                Memuat riwayat...
               </div>
-            </q-item-section>
-          </q-item>
-        </q-list>
-      </q-card-section>
-    </q-card>
+
+              <div v-else-if="history.length === 0" class="empty-state text-serene-variant q-py-lg text-center">
+                Belum ada donasi.
+              </div>
+
+              <q-list v-else bordered separator>
+                <q-item v-for="item in history" :key="item.id" class="q-mb-sm">
+                  <q-item-section avatar>
+                    <q-avatar rounded size="56px">
+                      <q-img :src="`${API_UPLOADS_URL}/${item.proof_image}`" />
+                    </q-avatar>
+                  </q-item-section>
+
+                  <q-item-section>
+                    <q-item-label class="text-bold text-serene-on-surface">{{ item.account_name }}</q-item-label>
+                    <q-item-label caption class="text-serene-variant">
+                      {{ item.bank_name }} - {{ item.source_bank }}
+                    </q-item-label>
+                    <q-item-label caption class="text-serene-primary">
+                      Rp {{ Number(item.amount).toLocaleString('id-ID') }}
+                    </q-item-label>
+                    <q-item-label caption class="text-serene-variant">
+                      {{ formatDate(item.created_at) }}
+                    </q-item-label>
+
+                    <q-badge
+                      outline
+                      :color="item.is_verified == 1 ? 'green' :
+                              item.is_verified == 2 ? 'red' : 'orange'"
+                      class="q-mt-sm"
+                      align="left"
+                    >
+                      {{ item.is_verified == 1 ? 'Terverifikasi' :
+                              item.is_verified == 2 ? 'Ditolak' : 'Menunggu Verifikasi' }}
+                    </q-badge>
+
+                    <div v-if="item.reject_reason" class="text-negative q-mt-sm">
+                      Alasan Penolakan: {{ item.reject_reason }}
+                    </div>
+                  </q-item-section>
+                </q-item>
+              </q-list>
+            </q-card-section>
+          </q-card>
+        </div>
+      </div>
+    </div>
   </q-page>
 </template>
 
@@ -91,11 +111,11 @@ import { useQuasar } from 'quasar'
 const $q = useQuasar()
 const formRef = ref(null)
 const loading = ref(false)
+const loadingHistory = ref(false)
 
 const API_BASE_URL = api.API_BASE_URL
 const API_UPLOADS_URL = api.API_UPLOADS_URL
 const userId = localStorage.getItem('id')
-const accessToken = localStorage.getItem('token')
 
 const form = ref({
   account_name: '',

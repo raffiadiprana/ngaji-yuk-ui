@@ -4,41 +4,62 @@
     <div class="row items-center hp-profil-header q-mb-md serene-card q-pa-md">
       <div class="col">
         <h5 class="text-bold text-serene-on-surface">
-          Welcome <span class="text-serene-primary">{{ profile.display_name || 'Guest' }}</span>
+          Assalamu'alaikum, {{ profile.display_name || 'Admin' }}
         </h5>
+        <p class="text-serene-variant" style="margin-top:4px;">Kelola data santri dan akun pengguna aplikasi.</p>
       </div>
-      <q-btn flat dense round icon="notifications" class="q-mr-sm" />
     </div>
 
-    <!-- Guru Header -->
+    <!-- Filters / Actions -->
     <div class="row items-center justify-between q-mb-md">
-      <h6 class="text-bold text-serene-on-surface">Daftar Guru</h6>
-      <q-btn label="Tambah Guru" color="serene-primary" flat rounded dense @click="onAddGuru" />
+      <h6 class="text-bold text-serene-on-surface">Daftar Santri</h6>
+      <q-btn label="Tambah Santri" color="serene-primary" flat rounded dense @click="onAddSantri" />
     </div>
 
-    <!-- List Guru -->
-    <div class="q-gutter-md">
+    <!-- Loading -->
+    <div v-if="loadingUsers" class="text-center q-py-md text-serene-variant">
+      Memuat data pengguna...
+    </div>
+
+    <!-- Empty -->
+    <div v-else-if="users.length === 0" class="empty-state text-serene-variant q-py-lg text-center">
+      Belum ada data santri.
+    </div>
+
+    <!-- Users List -->
+    <div v-else class="q-gutter-md">
       <q-item
-        v-for="guru in gurus"
-        :key="guru.id"
+        v-for="user in users"
+        :key="user.id"
         class="q-mb-md serene-card hover-lift"
         clickable
-        @click="editGuru(guru)"
+        @click="editSantri(user)"
         bordered
       >
+        <q-item-section avatar>
+          <q-avatar size="48px">
+            <img :src="user.avatar ? `${API_UPLOADS_URL}/${user.avatar}` : 'https://placehold.co/100?text=👤'" />
+          </q-avatar>
+        </q-item-section>
+
         <q-item-section>
-          <q-item-label class="text-h6 text-weight-medium text-serene-on-surface">{{ guru.email }}</q-item-label>
+          <q-item-label class="text-h6 text-weight-medium text-serene-on-surface">{{ user.display_name || 'Santri' }}</q-item-label>
+          <q-item-label caption class="text-serene-variant">{{ user.email }}</q-item-label>
+          <div class="q-mt-xs">
+            <q-badge :color="user.role === 'guru' ? 'primary' : 'secondary'" :label="user.role" />
+            <q-badge v-if="user.is_verified" color="positive" label="Terverifikasi" class="q-ml-xs" />
+          </div>
         </q-item-section>
 
         <q-item-section side>
           <q-btn flat dense round size="xs" icon="more_vert" @click.stop>
             <q-menu auto-close>
               <q-list style="min-width: 100px;">
-                <q-item clickable @click="editGuru(guru)">
+                <q-item clickable @click="editSantri(user)">
                   <q-item-section>Edit</q-item-section>
                 </q-item>
-                <q-item clickable @click="deleteGuru(guru)">
-                  <q-item-section>Delete</q-item-section>
+                <q-item clickable @click="deleteSantri(user)">
+                  <q-item-section>Hapus</q-item-section>
                 </q-item>
               </q-list>
             </q-menu>
@@ -48,75 +69,45 @@
     </div>
 
     <q-btn
-      v-if="false"
+      v-if="hasMore && !loadingUsers"
       label="Tampilkan lebih banyak"
-      flat
-      class="full-width q-mt-md serene-btn-ghost"
-      @click="loadMoreCourses"
-      :loading="loadingGuru"
-      :disable="loadingGuru || !hasMoreGuru"
+      outline
+      class="full-width q-mt-md serene-btn-outline"
+      @click="loadMore"
+      :loading="loadingMore"
     />
-
-    <!-- Riwayat Donasi -->
-    <div class="q-mt-lg">
-      <div class="row items-center justify-between">
-        <h6 class="text-bold text-serene-on-surface">Riwayat Donasi</h6>
-      </div>
-
-      <q-list bordered separator class="serene-card q-mt-sm" style="border-radius: 16px; overflow: hidden;">
-        <q-item v-for="donation in donations" :key="donation.id" class="q-mb-sm">
-          <q-item-section avatar>
-            <q-avatar rounded size="56px">
-              <q-img :src="`${API_UPLOADS_URL}/${donation.proof_image}`" />
-            </q-avatar>
-          </q-item-section>
-
-          <q-item-section>
-            <q-item-label class="text-bold text-serene-on-surface">{{ donation.account_name }}</q-item-label>
-            <q-item-label caption class="text-serene-variant">
-              {{ donation.bank_name }} - {{ donation.source_bank }}
-            </q-item-label>
-            <q-item-label caption class="text-serene-primary">
-              Rp {{ Number(donation.amount).toLocaleString('id-ID') }}
-            </q-item-label>
-            <q-item-label caption class="text-serene-variant">
-              {{ formatDate(donation.created_at) }}
-            </q-item-label>
-          </q-item-section>
-
-          <q-item-section side>
-            <q-btn flat round icon="visibility" @click="viewDonation(donation)" />
-          </q-item-section>
-        </q-item>
-      </q-list>
-    </div>
   </div>
 </template>
   
 <script setup>
   import { useQuasar } from 'quasar'
-  import { ref, onMounted } from 'vue'
+  const $q = useQuasar()
+  import { ref, onMounted, onBeforeUnmount } from 'vue'
   import { useRouter } from 'vue-router'
   import axios from 'axios'
   import api from 'src/config/api'
-import { authHeader } from 'src/config/auth'
-  
-  const $q = useQuasar()
+  import { authHeader } from 'src/config/auth'
+
   const router = useRouter()
-  
+
   const profile = ref({})
-  const gurus = ref([])
-  const donations = ref([])
-  
-  const accessToken = localStorage.getItem('token')
-  const API_UPLOADS_URL = api.API_UPLOADS_URL
-  
-  const skipGurus = ref(0)
-  const limitGurus = 10
-  const loadingGuru = ref(false)
-  const hasMoreGuru = ref(true)
-  
-  // Fetch profile + guru + donasi
+  const users = ref([])
+
+  const loadingUsers = ref(false)
+  const loadingMore = ref(false)
+  const hasMore = ref(true)
+  const skipUsers = ref(0)
+  const limitUsers = 20
+
+  let abortController = null
+
+  const cancelPending = () => {
+    if (abortController) {
+      try { abortController.abort() } catch {}
+      abortController = null
+    }
+  }
+
   onMounted(async () => {
     const profileData = localStorage.getItem('profile')
     if (profileData) {
@@ -126,166 +117,92 @@ import { authHeader } from 'src/config/auth'
         console.error('Error parsing profile from localStorage', e)
       }
     }
-  
-    await fetchGuru()
-    await fetchDonations()
+    await loadUsers()
   })
-  
-  // Fetch Guru
-  const fetchGuru = async () => {
-    if (loadingGuru.value) return
-    loadingGuru.value = true
-  
+
+  const loadUsers = async () => {
+    cancelPending()
+    abortController = new AbortController()
+    loadingUsers.value = true
+
     try {
       const res = await axios.get(`${api.API_BASE_URL}/users`, {
         headers: authHeader(),
         params: {
-          role: 'guru',
-          '$limit': 100
-        }
+          role: 'santri',
+          '$limit': limitUsers,
+          '$skip': skipUsers.value
+        },
+        signal: abortController.signal
       })
-      gurus.value = (res.data.data || []).filter(u => !u.is_deleted)
-    } catch (err) {
-      console.error('Failed to fetch gurus:', err)
-    } finally {
-      loadingGuru.value = false
-    }
-  }
-  
-  const loadMoreCourses = () => {
-    if (!loadingGuru.value && hasMoreGuru.value) {
-      skipGurus.value += limitGurus
-      fetchGuru()
-    }
-  }
-  
-  // Fetch Donasi
-  const fetchDonations = async () => {
-    try {
-      const res = await axios.get(`${api.API_BASE_URL}/donations?`, {
-        headers: authHeader(),
-        params: {
-          $sort: {
-            created_at: -1 // urutkan dari terbaru ke terlama
-          }
-        }
-      })
-      donations.value = res.data.data || res.data
-    } catch (err) {
-      console.error('Gagal mengambil donasi:', err)
-    }
-  }
-  
-  const formatDate = (dateStr) => {
-    return new Date(dateStr).toLocaleString('id-ID', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    })
-  }
-  
-  const viewDonation = (donation) => {
-    $q.dialog({
-      title: 'Detail Donasi',
-      message: `
-        <div>
-          <strong>Nama:</strong> ${donation.account_name}<br>
-          <strong>Bank:</strong> ${donation.bank_name}<br>
-          <strong>Rekening:</strong> ${donation.source_bank}<br>
-          <strong>Nominal:</strong> Rp ${Number(donation.amount).toLocaleString('id-ID')}<br>
-          <strong>Status:</strong> ${donation.is_verified ? '<span style="color:green">Terverifikasi</span>' : '<span style="color:red">Belum diverifikasi</span>'}
-          <br><br>
-          <img
-            src="${API_UPLOADS_URL}/${donation.proof_image}"
-            alt="Bukti Transfer"
-            style="max-width: 100%; border-radius: 8px;"
-          />
-        </div>
-      `,
-      html: true,
-      ok: {
-        label: 'Tutup',
-        color: 'primary'
-      },
-      cancel: !donation.is_verified
-        ? {
-            label: 'Verifikasi Donasi',
-            color: 'green'
-          }
-        : undefined
-    }).onCancel(async () => {
-      // Jalankan verifikasi saat tombol cancel ditekan (karena dipakai untuk tombol hijau)
-      try {
-        await axios.patch(`${api.API_BASE_URL}/donations/${donation.id}`, {
-          is_verified: 1
-        }, {
-          headers: {
-            headers: authHeader()
-          }
-        })
 
-        $q.notify({ type: 'positive', message: 'Donasi berhasil diverifikasi' })
-        fetchDonations()
-      } catch (err) {
-        console.error('Gagal verifikasi donasi:', err)
-        $q.notify({ type: 'negative', message: 'Gagal memverifikasi donasi' })
+      const data = res.data.data || []
+      const filtered = data.filter((u) => !u.is_deleted)
+
+      if (skipUsers.value === 0) {
+        users.value = filtered
+      } else {
+        users.value.push(...filtered)
       }
-    })
+
+      hasMore.value = filtered.length === limitUsers
+    } catch (e) {
+      if (!axios.isCancel(e)) {
+        console.error('Gagal memuat pengguna:', e)
+      }
+    } finally {
+      loadingUsers.value = false
+      loadingMore.value = false
+    }
   }
 
-  // Actions
-  const onAddGuru = () => router.push('/user-form')
-  const editGuru = (guru) => router.push(`/user-form/${guru.id}`)
-  const deleteGuru = async (guru) => {
+  const loadMore = async () => {
+    if (loadingMore.value || !hasMore.value) return
+    loadingMore.value = true
+    skipUsers.value += limitUsers
+    await loadUsers()
+  }
+
+  const onAddSantri = () => router.push('/user-form')
+  const editSantri = (user) => router.push(`/user-form/${user.id}`)
+
+  const deleteSantri = async (user) => {
     $q.dialog({
       title: 'Konfirmasi Hapus',
-      message: `Apakah Anda yakin ingin menghapus guru <strong>${guru.email}</strong>?`,
+      message: `Apakah Anda yakin ingin menghapus <strong>${user.display_name || user.email}</strong>?`,
       html: true,
-      cancel: {
-        label: 'Batal',
-        color: 'grey'
-      },
-      ok: {
-        label: 'Hapus',
-        color: 'red'
-      },
+      cancel: { label: 'Batal', color: 'grey' },
+      ok: { label: 'Hapus', color: 'red' },
       persistent: true
     }).onOk(async () => {
       try {
-        // 1. Ambil profile guru berdasarkan user_id
         const profileRes = await axios.get(`${api.API_BASE_URL}/profiles`, {
           headers: authHeader(),
-          params: { user_id: guru.id }
+          params: { user_id: user.id }
         })
-
         const profileId = profileRes.data.data?.[0]?.id
         if (profileId) {
-          // 2. Hapus profile berdasarkan ID
           await axios.delete(`${api.API_BASE_URL}/profiles/${profileId}`, {
-            headers: authHeader(),
+            headers: authHeader()
           })
         }
 
-        // 3. Hapus akun user guru
-        await axios.delete(`${api.API_BASE_URL}/users/${guru.id}`, {
-          headers: authHeader(),
+        await axios.delete(`${api.API_BASE_URL}/users/${user.id}`, {
+          headers: authHeader()
         })
 
-        // 4. Update tampilan lokal
-        gurus.value = gurus.value.filter(g => g.id !== guru.id)
-
-        $q.notify({ type: 'positive', message: 'Guru berhasil dihapus' })
+        users.value = users.value.filter((u) => u.id !== user.id)
+        $q.notify({ type: 'positive', message: 'Pengguna berhasil dihapus' })
       } catch (err) {
-        console.error('Gagal menghapus guru:', err)
-        $q.notify({ type: 'negative', message: 'Gagal menghapus guru' })
+        console.error('Gagal menghapus pengguna:', err)
+        $q.notify({ type: 'negative', message: 'Gagal menghapus pengguna' })
       }
     })
   }
 
-
-
+  onBeforeUnmount(() => {
+    cancelPending()
+  })
 </script>
   
 <style scoped>

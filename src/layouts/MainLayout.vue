@@ -148,7 +148,7 @@
       <div class="row no-wrap items-center justify-around q-py-xs">
         <q-btn flat round dense size="md" icon="home" :to="dashboardUrl" />
         <q-btn v-if="!isAdmin" flat round dense size="md" icon="email" :to="inboxUrl" />
-        <q-btn v-if="!isAdmin" flat round dense size="md" icon="wallet" :to="'/donasi'" />
+        <q-btn flat round dense size="md" icon="wallet" :to="'/donasi'" />
         <q-btn v-if="isSantri || isGuru" flat round dense size="md" icon="person" :to="'/profile'" />
         <q-btn flat round dense size="md" icon="settings" :to="'/settings'" />
       </div>

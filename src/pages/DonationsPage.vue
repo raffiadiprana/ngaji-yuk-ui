@@ -3,9 +3,7 @@
     <div class="page-container q-pa-md">
       <div class="welcome-section serene-card">
         <div class="welcome-content">
-          <h4 class="welcome-title">
-            Assalamu'alaikum
-          </h4>
+          <h4 class="welcome-title">Form Donasi</h4>
           <p class="welcome-subtitle">Kirim bukti transfer untuk mendukung perkembangan aplikasi.</p>
         </div>
       </div>
@@ -207,14 +205,12 @@ const submitForm = async () => {
       proof_image: proofFilename,
       is_verified: 0
     }
-    console.log('[DONATIONS_DEBUG] POST payload', payload)
-    console.log('[DONATIONS_DEBUG] headers', _AUTH_HEADER_)
+
     const post = await axios.post(`${_API_BASE_URL_}/donations`, payload, {
       headers: {
         ..._AUTH_HEADER_
       }
     })
-    console.log('[DONATIONS_DEBUG] POST status', post.status)
 
     $q.notify({ type: 'positive', message: 'Donasi berhasil dikirim', timeout: 2000 })
     await loadHistory()
@@ -227,7 +223,6 @@ const submitForm = async () => {
       is_verified: 0
     }
     amountText.value = ''
-    amountFormatted.value = ''
 
     await nextTick()
     if (formRef.value) formRef.value.resetValidation()

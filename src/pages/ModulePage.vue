@@ -19,8 +19,8 @@
         <div class="text-caption text-serene-variant q-mt-xs">Modul {{ currentOrder }} dari {{ totalCount }}</div>
       </div>
 
-      <div class="lesson-layout flex justify-center">
-        <div class="col-12 col-md-8 col-lg-7">
+      <div class="lesson-layout row q-col-gutter-md">
+        <div class="col-12 col-md-7">
           <div v-if="currentPage === 1" class="lesson-card video-page">
             <div class="video-wrap">
               <div v-if="videoReady" class="video-player">
@@ -288,7 +288,7 @@ onBeforeUnmount(() => { if (player) { player.dispose(); player = null; } });
 .arabic-display { font-size: 3rem; color: var(--serene-on-surface); line-height: 1.4; margin-top: 16px; font-family: 'Noto Serif', serif; }
 .transliteration { font-size: 1.1rem; color: var(--serene-primary); font-weight: 600; margin-top: 10px; font-style: italic; }
 .meaning-text { font-size: 0.95rem; color: var(--serene-on-surface-variant); margin-top: 8px; }
-.ayah-text { background: #fff; border-radius: 16px; padding: 16px 20px; margin-top: 12px; }
+.ayah-text { background: #fff; border-radius: 16px; padding: 16px 20px; margin-top: 12px; max-width: 640px; margin-inline: auto; }
 .ayah-arabic { font-size: 2rem; color: var(--serene-on-surface); line-height: 1.6; font-family: 'Noto Serif', serif; }
 .highlight-red { color: #d32f2f; font-weight: 800; }
 .ayah-translit { font-size: 1rem; color: var(--serene-primary); font-style: italic; margin-top: 6px; }

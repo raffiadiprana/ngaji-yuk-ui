@@ -66,6 +66,15 @@
             <q-item-section>Settings</q-item-section>
           </q-item>
 
+          <q-item
+            clickable v-ripple to="/donasi"
+            :active="isActive('/donasi')"
+            active-class="serene-nav-active"
+          >
+            <q-item-section avatar><q-icon name="wallet" /></q-item-section>
+            <q-item-section>Donasi</q-item-section>
+          </q-item>
+
           <template v-if="isAdmin">
             <q-separator class="q-my-sm" />
             <q-item clickable v-ripple to="/user-form">

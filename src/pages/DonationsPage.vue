@@ -8,14 +8,35 @@
         </div>
       </div>
 
-      <div class="row q-col-gutter-lg">
+      <div class="donations-layout q-col-gutter-lg">
         <div class="col-12 col-md-5">
           <q-card class="serene-card q-pa-md">
             <q-card-section>
               <q-form @submit.prevent="submitForm" ref="formRef" class="q-gutter-md">
-                <q-input v-model="form.account_name" label="Nama Pemilik Rekening" filled class="serene-input" color="serene-primary" />
-                <q-input v-model="form.bank_name" label="Nama Bank Asal" filled class="serene-input" color="serene-primary" />
-                <q-input v-model="form.source_bank" label="Nomor Rekening Bank Asal" filled class="serene-input" color="serene-primary" />
+                <q-input
+                  v-model="form.account_name"
+                  label="Nama Pemilik Rekening"
+                  filled
+                  class="serene-input"
+                  color="serene-primary"
+                  :rules="[v => !!v || 'Wajib diisi']"
+                />
+                <q-input
+                  v-model="form.bank_name"
+                  label="Nama Bank Asal"
+                  filled
+                  class="serene-input"
+                  color="serene-primary"
+                  :rules="[v => !!v || 'Wajib diisi']"
+                />
+                <q-input
+                  v-model="form.source_bank"
+                  label="Nomor Rekening / Bank Asal"
+                  filled
+                  class="serene-input"
+                  color="serene-primary"
+                  :rules="[v => !!v || 'Wajib diisi']"
+                />
                 <q-input
                   v-model="form.amount"
                   label="Nominal Transfer"
@@ -24,6 +45,7 @@
                   prefix="Rp"
                   class="serene-input"
                   color="serene-primary"
+                  :rules="[v => (Number(v) > 0) || 'Nominal harus lebih dari 0']"
                 />
 
                 <q-uploader
@@ -56,7 +78,7 @@
                 Belum ada donasi.
               </div>
 
-              <q-list v-else bordered separator>
+              <q-list v-else bordered separator class="rounded-borders">
                 <q-item v-for="item in history" :key="item.id" class="q-mb-sm">
                   <q-item-section avatar>
                     <q-avatar rounded size="56px">
@@ -78,13 +100,11 @@
 
                     <q-badge
                       outline
-                      :color="item.is_verified == 1 ? 'green' :
-                              item.is_verified == 2 ? 'red' : 'orange'"
+                      :color="item.is_verified == 1 ? 'green' : item.is_verified == 2 ? 'red' : 'orange'"
                       class="q-mt-sm"
                       align="left"
                     >
-                      {{ item.is_verified == 1 ? 'Terverifikasi' :
-                              item.is_verified == 2 ? 'Ditolak' : 'Menunggu Verifikasi' }}
+                      {{ item.is_verified == 1 ? 'Terverifikasi' : item.is_verified == 2 ? 'Ditolak' : 'Menunggu Verifikasi' }}
                     </q-badge>
 
                     <div v-if="item.reject_reason" class="text-negative q-mt-sm">
@@ -166,10 +186,10 @@ const submitForm = async () => {
       source_bank: form.value.source_bank,
       amount: Number(form.value.amount),
       proof_image: proofFilename,
-      is_verified : form.value.is_verified
+      is_verified: 0
     }, {
       headers: {
-        headers: authHeader()
+        ...authHeader()
       }
     })
 
@@ -218,6 +238,10 @@ onMounted(() => {
   background: var(--serene-bg);
   min-height: 100vh;
 }
+.donations-layout {
+  max-width: 960px;
+  margin: 0 auto;
+}
 .my-card {
   max-width: 700px;
   margin: auto;
@@ -231,7 +255,9 @@ onMounted(() => {
 .serene-uploader .q-uploader__header {
   background-color: var(--serene-primary) !important;
 }
-.q-item-label {
-  line-height: 1.2;
+@media (max-width: 1023px) {
+  .donations-layout > .col-12 {
+    max-width: 100%;
+  }
 }
 </style>

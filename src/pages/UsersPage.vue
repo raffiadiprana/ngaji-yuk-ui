@@ -48,6 +48,7 @@
     </div>
 
     <q-btn
+      v-if="false"
       label="Tampilkan lebih banyak"
       flat
       class="full-width q-mt-md serene-btn-ghost"
@@ -139,18 +140,11 @@ import { authHeader } from 'src/config/auth'
       const res = await axios.get(`${api.API_BASE_URL}/users`, {
         headers: authHeader(),
         params: {
-          role: 'santri',
-          $skip: skipGurus.value,
-          $limit: limitGurus
+          role: 'guru',
+          '$limit': 100
         }
       })
-  
-      const fetchedGuru = res.data.data || []
-      if (fetchedGuru.length > 0) {
-        gurus.value.push(...fetchedGuru)
-      }
-  
-      hasMoreGuru.value = fetchedGuru.length === limitGurus
+      gurus.value = (res.data.data || []).filter(u => !u.is_deleted)
     } catch (err) {
       console.error('Failed to fetch gurus:', err)
     } finally {

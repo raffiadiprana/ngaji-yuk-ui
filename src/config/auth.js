@@ -17,7 +17,7 @@ export function clearAuth () {
 // karena FeathersJS mengharapkan token mentah di header Authorization.
 export function authHeader () {
   const token = getToken()
-  return token ? { Authorization: token } : {}
+  return token ? { Authorization: `Bearer ${token}` } : {}
 }
 
 export function isTokenValid () {

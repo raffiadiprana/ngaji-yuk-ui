@@ -1,0 +1,95 @@
+PROMPT UNTUK GOOGLE STITCH — Serene Path: Kelola Materi Tajwid + Form Materi + Module Detail
+============================================================================
+
+1) RINGKASAN PRODUK
+- Nama aplikasi: Serene Path
+- Platform: web app (single page app)
+- Bahasa: Indonesia
+- Target user: santri belajar tajwid, guru membuat materi, admin mengelola user
+- Design system: kartu dengan border-radius 16px, bayangan tipis, warna hijau-serasi, label netral abu, progress bar membulat, spacing lega
+
+2) DATA MODEL YANG DIGUNAKAN
+- Section/Hukum Tajwid: id, section_name, order_index
+- Module/Materi: id, section_id, title, description, category, is_locked, is_completed, order_index
+- Lesson: id, module_id, title, youtube_url, order_index
+- Attributes: id, module_id, title, content
+- Quiz: id, module_id, question, options, answer
+
+3) HAL YANG SUDAH DITENTUKAN OLEH BACKEND/FE
+- Ilmu referensi/dikumen rujukan DISABLED untuk sekarang
+- Hanya alur pembelajaran inti
+- Role access:
+  * Admin: CRUD Section (Hukum Tajwid), Module, Lesson, Attributes, Quiz
+  * Guru: CRUD Module, Lesson, Attributes, Quiz di bawah Section yang sudah ada
+  * Santri: view Module, Lesson, Quiz sesuai progres
+- Hukum Tajwid bersifat mutlak/patent; hanya admin yang boleh mengelola Section
+
+4) HAL YANG PERLU DIDESAIN OLEH STITCH
+A. Halaman /tajwid
+   - Guru:
+     * Tidak boleh melihat/mengelola Section/Hukum Tajwid
+     * Hanya boleh menambah/edit/hapus materi (Module) di bawah section yang sudah ada
+   - Admin:
+     * Bisa CRUD Section/Hukum Tajwid
+     * Bisa CRUD Module, Lesson, Attributes, Quiz
+   - Santri:
+     * Hanya melihat daftar module sesuai progres
+
+B. Halaman Form Materi (/module-form)
+   - Basic Info:
+     * Judul Materi
+     * Section + Kategori (Core / Advanced)
+     * Nomor Urut
+   - Konten Visual:
+     * Teks Arab (RTL) + Transliterasi + Makna
+     * Live preview ayat
+   - Aturan Tajwid (The Rule):
+     * Penjelasan detail aturan
+     * Video Header (YouTube URL)
+   - Contoh Ayat Al-Quran:
+     * Ayat Lengkap
+     * Kata yang Disorot (pisah koma)
+   - Suara Guru:
+     * rekam langsung browser + preview audio
+   - Atribut Tajwid:
+     * tidak pakai label contoh statis seperti “Contoh 01”
+     * dalam Bahasa Indonesia
+     * form dinamis: bisa tambah/hapus atribut
+   - Media Referensi:
+     * upload thumbnail/audio
+   - Action bar: Batal / Simpan Draft / Terbitkan Materi
+   - Catatan: kategori “referensi” tidak ditampilkan/dipakai sekarang
+
+C. Halaman Module Detail untuk belajar
+   - Header module: judul + status
+   - Halaman 1: video pembelajaran YouTube
+   - Halaman 2+: konten materi tajwid + contoh ayat
+   - Navigasi: Next / Previous antar halaman
+   - Attributes ditampilkan sebagai info card, bukan editable
+   - Tombol aksi prev/next eksplisit
+
+5) KONVENSUI UI YANG HARUS DIPATUHI
+- Tombol utama: lipat pill, warna --serene-primary, radius besar
+- Secondary/netral: ghost style dengan label outlin
+- Kartu: surface putih, padding 18-20px
+- Badge/chip: primary/locked/warning, bukan semaphore kasar
+- Typography: headline utama kuat, caption abu transparan
+- Responsif: desktop + mobile konsisten
+
+6) TUGAS STITCH
+- Buat mockup halaman /tajwid untuk guru/admin
+- Buat mockup halaman form materi
+- Buat mockup halaman module detail belajar
+- Maintain single source of truth: light Zustand tidak perlu, karena masih statis
+- Pastikan empty state dan loading state tampil rapi
+- Jangan gunakan tab Referensi atau label statis “Contoh 01”
+
+7) KALAU STITCH BINGUNG
+- Fokus dulu ke kartu Section + module list
+- Lalu alur form materi yang rapi
+- Terakhir module detail belajar
+
+- Catatan khusus:
+  - Guru tidak boleh mengubah Section/Hukum Tajwid
+  - Admin yang mengatur struktur Section
+  - Santri hanya akses Module/Lesson/Quiz

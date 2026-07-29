@@ -13,7 +13,7 @@
         <!-- Brand -->
         <div class="q-px-md q-mb-lg q-mt-sm">
           <div class="headline-font text-h6 text-serene-primary text-weight-bold">Serene Path</div>
-          <div class="text-caption text-serene-variant">Student Portal</div>
+          <div class="text-caption text-serene-variant">{{ roleLabel }}</div>
         </div>
 
         <!-- Nav -->
@@ -176,7 +176,13 @@ export default {
     const leftDrawerOpen = ref(false)
     const router = useRouter()
 
-    const role = localStorage.getItem('role')
+    const role = (localStorage.getItem('role') || '').trim()
+    const roleLabel = computed(() => {
+      const r = role
+      if (r === 'guru') return 'Teacher Portal'
+      if (r === 'admin') return 'Admin Portal'
+      return 'Student Portal'
+    })
     const displayName = localStorage.getItem('displayName') || localStorage.getItem('email') || 'User'
     const avatarUrl = localStorage.getItem('avatar') || ''
     const initial = (displayName || 'U').charAt(0).toUpperCase()

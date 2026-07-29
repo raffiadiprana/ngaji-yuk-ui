@@ -121,7 +121,7 @@
       <q-card class="serene-card q-mb-lg">
         <q-card-section>
           <h2 class="headline-font section-h2 q-mb-md">Riwayat Video Pembelajaran</h2>
-          <q-list bordered separator class="rounded-borders">
+          <q-list v-if="!loadingHistory && history.length" bordered separator class="rounded-borders">
             <q-item v-for="item in history" :key="item.id" class="q-mb-sm hover-lift rounded-borders" clickable @click="openModule(item)">
               <q-item-section>
                 <q-item-label class="text-bold">{{ item.module_detail?.title || 'Tanpa Judul' }}</q-item-label>
@@ -131,10 +131,15 @@
               </q-item-section>
             </q-item>
           </q-list>
+          <div v-if="!loadingHistory && history.length === 0" class="text-center q-py-lg text-serene-variant">Belum ada riwayat video.</div>
           <q-btn
-            v-if="hasMoreHistory" class="full-width q-mt-md serene-btn-ghost"
-            label="Tampilkan lebih banyak" :loading="loadingHistory"
-            :disable="loadingHistory" flat @click="loadVideoHistory"
+            v-if="hasMoreHistory"
+            class="full-width q-mt-md serene-btn-ghost"
+            label="Tampilkan lebih banyak"
+            :loading="loadingHistory"
+            :disable="loadingHistory"
+            flat
+            @click="loadVideoHistory"
           />
         </q-card-section>
       </q-card>
@@ -143,10 +148,12 @@
       <q-card class="serene-card">
         <q-card-section>
           <h2 class="headline-font section-h2 q-mb-md">Riwayat Chat</h2>
-          <q-list bordered separator class="rounded-borders">
+          <div v-if="loadingQuizHistory" class="text-center q-py-md text-serene-variant">Memuat...</div>
+          <div v-else-if="groupedQuizzes.length === 0" class="text-center q-py-lg text-serene-variant">Belum ada riwayat chat.</div>
+          <q-list v-else bordered separator class="rounded-borders">
             <q-item v-for="quiz in groupedQuizzes" :key="quiz.quiz_id" class="q-mb-sm hover-lift rounded-borders" clickable @click="openAnswer(quiz)">
               <q-item-section>
-                <q-item-label class="text-bold">{{ quiz.quiz_detail.question }}</q-item-label>
+                <q-item-label class="text-bold">{{ quiz.quiz_detail?.question || 'Percakapan' }}</q-item-label>
                 <q-item-label caption class="text-serene-variant">{{ quiz.quiz_detail?.module_detail?.title }}</q-item-label>
                 <q-item-label caption>{{ quiz.is_passed ? '✅ Selesai' : '⏳ Belum Selesai' }}</q-item-label>
               </q-item-section>
@@ -172,10 +179,12 @@ const API_BASE_URL = api.API_BASE_URL
 const API_UPLOADS_URL = api.API_UPLOADS_URL
 
 const userId = localStorage.getItem('id')
-const accessToken = localStorage.getItem('token')
 
 const formRef = ref(null)
 const loading = ref(false)
+const pwdLoading = ref(false)
+const loadingHistory = ref(false)
+const loadingQuizHistory = ref(false)
 
 const form = ref({
   id: null,
@@ -309,9 +318,9 @@ const loadVideoHistory = async () => {
   if (loadingHistory.value || !hasMoreHistory.value) return
   loadingHistory.value = true
   try {
-    const res = await axios.get(`${API_BASE_URL}/videologs`, {
+    const res = await axios.get(`${api.API_BASE_URL}/videologs`, {
       headers: authHeader(),
-      params: { user_id: userId, $skip: skipHistory.value, $limit: limitHistory }
+      params: { user_id: Number(userId), $skip: skipHistory.value, $limit: limitHistory }
     })
     const fetched = res.data.data || res.data
     if (fetched.length) {
@@ -329,10 +338,11 @@ const loadVideoHistory = async () => {
 
 const groupedQuizzes = ref([])
 const loadQuizHistory = async () => {
+  loadingQuizHistory.value = true
   try {
-    const res = await axios.get(`${API_BASE_URL}/answers`, {
+    const res = await axios.get(`${api.API_BASE_URL}/answers`, {
       headers: authHeader(),
-      params: { $or: [{ user_id: userId }, { reply_to: userId }] }
+      params: { $or: [{ user_id: Number(userId) }, { reply_to: Number(userId) }] }
     })
     const rawAnswers = res.data.data || res.data
     const quizMap = new Map()
@@ -345,6 +355,8 @@ const loadQuizHistory = async () => {
   } catch (err) {
     console.error('Gagal memuat riwayat quiz:', err)
     $q.notify({ type: 'negative', message: 'Gagal memuat riwayat quiz' })
+  } finally {
+    loadingQuizHistory.value = false
   }
 }
 

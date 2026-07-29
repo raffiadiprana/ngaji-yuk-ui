@@ -256,8 +256,8 @@
         headers: authHeader(),
         params: { 
           instructor_id: instructorId,
-          $skip: skipCourses.value, 
-          $limit: limitCourses
+          is_deleted: 0,
+          '$limit': 100
         }
       });
       

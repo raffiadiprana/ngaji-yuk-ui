@@ -325,11 +325,11 @@ const computeHomeCards = () => {
 
 const fetchSections = async () => {
   try {
-    const params = {};
+    const params = { '$limit': 100 };
     if (searchText.value.trim()) params['section_name[$like]'] = `%${String(searchText.value.trim())}%`;
     const sectionsRes = await axios.get(`${api.API_BASE_URL}/sections`, { headers: authHeader(), params });
     const secs = sectionsRes.data.data || [];
-    secs.sort((a, b) => (a.order_index || 0) - (b.order_index || 0));
+    secs.sort((a, b) => (a.order_index ?? 0) - (b.order_index ?? 0));
     sections.value = secs;
   } catch (e) {
     console.error('Failed to fetch sections:', e);

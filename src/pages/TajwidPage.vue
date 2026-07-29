@@ -8,7 +8,7 @@
           <p class="text-serene-variant">Ikuti perjalanan belajarmu melewati setiap checkpoint hukum tajwid.</p>
         </div>
         <div class="row q-gutter-sm">
-          <q-btn v-if="isGuru || isAdmin" class="serene-btn-primary" label="Tambah Hukum Tajwid" icon="add" rounded @click="onAddTajwid" />
+          <q-btn v-if="isAdmin" class="serene-btn-primary" label="Tambah Hukum Tajwid" icon="add" rounded @click="onAddTajwid" />
         </div>
       </header>
 
@@ -52,8 +52,8 @@
                 <q-menu auto-close>
                   <q-list style="min-width: 170px;">
                     <q-item clickable @click="addMaterial(sec)"><q-item-section avatar><q-icon name="note_add" /></q-item-section><q-item-section>Tambah Materi</q-item-section></q-item>
-                    <q-item clickable @click="editTajwid(sec)" class="text-serene-primary"><q-item-section avatar><q-icon name="edit" /></q-item-section><q-item-section>Edit Nama Hukum</q-item-section></q-item>
-                    <q-item clickable @click="deleteTajwid(sec)" class="text-negative"><q-item-section avatar><q-icon name="delete" /></q-item-section><q-item-section>Delete</q-item-section></q-item>
+                    <q-item v-if="isAdmin" clickable @click="editTajwid(sec)" class="text-serene-primary"><q-item-section avatar><q-icon name="edit" /></q-item-section><q-item-section>Edit Nama Hukum</q-item-section></q-item>
+                    <q-item v-if="isAdmin" clickable @click="deleteTajwid(sec)" class="text-negative"><q-item-section avatar><q-icon name="delete" /></q-item-section><q-item-section>Delete</q-item-section></q-item>
                   </q-list>
                 </q-menu>
               </q-btn>
@@ -111,8 +111,7 @@ const router = useRouter()
 const sections = ref([])
 const allModules = ref([])
 
-const role = localStorage.getItem('role')
-const isGuru = computed(() => role === 'guru' || role === 'admin')
+const isGuru = computed(() => role === 'guru')
 const isAdmin = computed(() => role === 'admin')
 
 const totalModules = computed(() => allModules.value.filter(m => m.category !== 'reference').length)

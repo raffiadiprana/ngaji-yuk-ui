@@ -253,6 +253,7 @@ const submitForm = async (mode) => {
       duration: Number(form.value.duration || 2),
       voice_note_url: form.value.voice_note_url || ''
     }
+    console.log('[ModulesForm] submit payload:', payload)
     if (isEdit.value) {
       await axios.patch(`${api.API_BASE_URL}/modules/${form.value.id}`, payload, { headers: authHeader() })
     } else {

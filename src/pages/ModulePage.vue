@@ -147,6 +147,13 @@ const isPassed = ref(false);
 const sectionName = ref('');
 const startingChat = ref(false);
 const nextModuleId = ref(null);
+const ruleLetters = computed(() => {
+  try {
+    return Array.isArray(moduleData.value?.rule_letters) ? moduleData.value.rule_letters : [];
+  } catch {
+    return [];
+  }
+});
 
 const currentPage = ref(1);
 const videoReady = ref(false);

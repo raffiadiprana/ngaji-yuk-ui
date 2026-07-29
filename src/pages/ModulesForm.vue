@@ -249,6 +249,8 @@ const submitForm = async (mode) => {
       highlight_words: form.value.highlight_words_input
         ? form.value.highlight_words_input.split(',').map(s => s.trim()).filter(Boolean)
         : [],
+      ghunnah: form.value.ghunnah || false,
+      duration: Number(form.value.duration || 2),
       voice_note_url: form.value.voice_note_url || ''
     }
     if (isEdit.value) {

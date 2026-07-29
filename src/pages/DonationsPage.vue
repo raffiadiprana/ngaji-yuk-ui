@@ -100,16 +100,12 @@
 
                     <q-badge
                       outline
-                      :color="item.is_verified == 1 ? 'green' : item.is_verified == 2 ? 'red' : 'orange'"
+                      color="green"
                       class="q-mt-sm"
                       align="left"
                     >
-                      {{ item.is_verified == 1 ? 'Terverifikasi' : item.is_verified == 2 ? 'Ditolak' : 'Menunggu Verifikasi' }}
+                      Donasi Terkirim
                     </q-badge>
-
-                    <div v-if="item.reject_reason" class="text-negative q-mt-sm">
-                      Alasan Penolakan: {{ item.reject_reason }}
-                    </div>
                   </q-item-section>
                 </q-item>
               </q-list>

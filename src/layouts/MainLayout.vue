@@ -82,9 +82,13 @@
               <q-item-section avatar><q-icon name="person_add" /></q-item-section>
               <q-item-section>Pendaftaran Guru</q-item-section>
             </q-item>
+          </template>
+
+          <template v-if="isGuru || isAdmin">
+            <q-separator class="q-my-sm" />
             <q-item clickable v-ripple to="/tajwid">
               <q-item-section avatar><q-icon name="menu_book" /></q-item-section>
-              <q-item-section>Hukum Tajwid</q-item-section>
+              <q-item-section>Kelola Materi</q-item-section>
             </q-item>
           </template>
 

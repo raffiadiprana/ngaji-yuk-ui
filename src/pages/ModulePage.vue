@@ -41,9 +41,6 @@
           </div>
 
           <div v-else class="lesson-card content-page">
-            <div class="arabic-display arabic-font" dir="rtl">{{ displayArabic || 'مِنْ بَعْدِ' }}</div>
-            <div class="transliteration">{{ displayTransliteration || 'Min Ba’di' }}</div>
-            <div v-if="displayMeaning" class="meaning-text q-mt-sm">{{ displayMeaning }}</div>
             <div v-if="displayAyat" class="ayah-text q-mt-md">
               <div class="ayah-arabic arabic-font" dir="rtl" v-html="highlightedAyah"></div>
               <div class="ayah-translit">{{ displayAyahTranslit }}</div>
@@ -84,7 +81,7 @@
         <div class="col-12 col-md-5">
           <div class="rule-stack">
             <q-card class="rule-card serene-card">
-              <div class="card-title"><q-icon name="menu_book" color="serene-primary" size="sm" class="q-mr-sm" />The Rule</div>
+              <div class="card-title">Atribut</div>
               <div class="rule-text">{{ moduleData?.description || 'Belum ada penjelasan untuk modul ini.' }}</div>
               <div v-if="ruleLetters.length" class="letter-chips q-mt-sm">
                 <q-chip v-for="ch in ruleLetters" :key="ch" dense outline color="serene-primary" text-color="serene-primary" class="letter-chip">{{ ch }}</q-chip>
@@ -92,7 +89,7 @@
             </q-card>
 
             <q-card class="attr-card serene-card q-mt-md">
-              <div class="card-title"><q-icon name="tune" color="serene-primary" size="sm" class="q-mr-sm" />Atribut</div>
+              <div class="card-title">Atribut</div>
               <div class="info-cards row q-col-gutter-sm">
                 <div class="col-12">
                   <div class="info-card ghunnah-card">
@@ -153,17 +150,6 @@ const totalPages = computed(() => 2); // Page 1: Video, Page 2: Konten Materi (s
 const hasPrevContent = computed(() => currentPage.value > 1);
 const hasNextContent = computed(() => currentPage.value < totalPages.value);
 
-const displayArabic = computed(() => moduleData.value?.arabic_text || '');
-const displayTransliteration = computed(() => moduleData.value?.transliteration || '');
-const displayMeaning = computed(() => moduleData.value?.meaning || '');
-const ruleLetters = computed(() => {
-  const desc = moduleData.value?.description || '';
-  const names = desc.match(/[A-Z][a-z]+/g) || [];
-  return names.filter(n => !['Nun','Mim','Ham','Wau','Ya','Ra','Lam'].includes(n)).slice(0,4);
-});
-const ghunnahFull = computed(() => moduleData.value?.ghunnah ? 'Suara digabung ke dalam hidung untuk menghasilkan dengung lembut.' : 'Baca jelas tanpa dengung nasal.');
-const proTipText = computed(() => 'Coba tahan napas sedikit saat menghafal aturan ini; konsistensi lebih penting dari kecepatan.');
-
 const ayahMap = {
   10: { arabic: 'إِنَّا أَنْزَلْنَاهُ قُرْآنًا عَرَبِيًّا', translit: 'Inna anzalnahu quranan arabiyyan', ref: 'QS. Yusuf: 2' },
   11: { arabic: 'وَلَرَبُّكَ أَكْرَمٌ عَظِيمٌ', translit: 'Wa rabbuka akramun adzimun', ref: 'QS. Al-Kautsar: 1' },
@@ -171,10 +157,33 @@ const ayahMap = {
   13: { arabic: 'لَا يُحِبُّ اللَّهُ الْجَهْرَ بِالسُّوءِ', translit: 'La yuhabbullahul-jahras-sui', ref: 'QS. An-Nisa: 148' },
   14: { arabic: 'فَاقْرَءُوا مَا تَيَسَّرَ مِنَ الْقُرْآنِ', translit: 'Faqrau maa yayassara minal-quran', ref: 'QS. Al-Muzzammil: 20' }
 };
-const displayAyahArabic = computed(() => ayahMap[moduleData.value?.id]?.arabic || '');
+const highlightWordsByModule = {
+  10: ['قُرْآنًا'],
+  11: ['أَكْرَمٌ'],
+  12: ['لَهْوَ'],
+  13: ['الْجَهْرَ'],
+  14: ['مَا تَيَسَّرَ']
+};
 const displayAyahTranslit = computed(() => ayahMap[moduleData.value?.id]?.translit || '');
 const displayAyahRef = computed(() => ayahMap[moduleData.value?.id]?.ref || '');
 const displayAyat = computed(() => !!(ayahMap[moduleData.value?.id]?.arabic));
+const highlightedAyah = computed(() => {
+  const raw = ayahMap[moduleData.value?.id]?.arabic || '';
+  const words = highlightWordsByModule[moduleData.value?.id] || [];
+  if (!words.length) return raw;
+  let html = raw;
+  words.forEach(w => {
+    html = html.replace(new RegExp(w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g'), `<span class="highlight-red">${w}</span>`);
+  });
+  return html;
+});
+const voiceNoteUrl = computed(() => moduleData.value?.voice_note_url || '');
+const playVoiceNote = () => {
+  const url = voiceNoteUrl.value;
+  if (!url) return;
+  const audio = new Audio(`${api.API_UPLOADS_URL}/${url}`);
+  audio.play().catch(() => $q.notify({ type: 'negative', message: 'Gagal memutar suara.' }));
+};
 
 const goPrevContent = () => { if (currentPage.value > 1) currentPage.value--; };
 const goNextContent = () => { if (currentPage.value < totalPages.value) currentPage.value++; };
@@ -281,6 +290,7 @@ onBeforeUnmount(() => { if (player) { player.dispose(); player = null; } });
 .meaning-text { font-size: 0.95rem; color: var(--serene-on-surface-variant); margin-top: 8px; }
 .ayah-text { background: #fff; border-radius: 16px; padding: 16px 20px; margin-top: 12px; }
 .ayah-arabic { font-size: 2rem; color: var(--serene-on-surface); line-height: 1.6; font-family: 'Noto Serif', serif; }
+.highlight-red { color: #d32f2f; font-weight: 800; }
 .ayah-translit { font-size: 1rem; color: var(--serene-primary); font-style: italic; margin-top: 6px; }
 .ayah-ref { font-size: 0.85rem; color: var(--serene-on-surface-variant); margin-top: 4px; }
 .ayah-row { width: 100%; margin-top: auto; padding-top: 20px; }

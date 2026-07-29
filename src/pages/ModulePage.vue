@@ -1,4 +1,5 @@
 <template>
+  <!-- ModulePage v2026-07-29 -->
   <q-page class="module-page">
     <div class="page-container">
       <div class="lesson-header q-mb-md">
@@ -40,14 +41,14 @@
           </div>
 
           <div v-else class="lesson-card content-page">
-            <div class="example-chip">Contoh 01</div>
             <div class="arabic-display arabic-font" dir="rtl">{{ displayArabic || 'مِنْ بَعْدِ' }}</div>
             <div class="transliteration">{{ displayTransliteration || 'Min Ba’di' }}</div>
             <div v-if="displayMeaning" class="meaning-text q-mt-sm">{{ displayMeaning }}</div>
             <div v-if="displayAyat" class="ayah-text q-mt-md">
-              <div class="ayah-arabic arabic-font" dir="rtl">{{ displayAyahArabic }}</div>
+              <div class="ayah-arabic arabic-font" dir="rtl" v-html="highlightedAyah"></div>
               <div class="ayah-translit">{{ displayAyahTranslit }}</div>
               <div class="ayah-ref">{{ displayAyahRef }}</div>
+              <q-btn v-if="voiceNoteUrl" outline round color="serene-primary" icon="volume_up" class="q-mt-md" @click="playVoiceNote" />
             </div>
             <div class="ayah-row q-mt-lg row items-center justify-between">
               <q-btn flat round dense icon="chevron_left" :disable="!hasPrevContent" @click="goPrevContent" />
@@ -168,7 +169,7 @@ const ayahMap = {
   11: { arabic: 'وَلَرَبُّكَ أَكْرَمٌ عَظِيمٌ', translit: 'Wa rabbuka akramun adzimun', ref: 'QS. Al-Kautsar: 1' },
   12: { arabic: 'وَمِنَ النَّاسِ مَن يَشْتَرِي لَهْوَ الْحَدِيثِ', translit: 'Wa minan-nasi man yasytari lahwal-hadits', ref: 'QS. Luqman: 6' },
   13: { arabic: 'لَا يُحِبُّ اللَّهُ الْجَهْرَ بِالسُّوءِ', translit: 'La yuhabbullahul-jahras-sui', ref: 'QS. An-Nisa: 148' },
-  14: { arabic: 'فَاقْرَءُوا مَا تَيَسَّرَ مِنَ الْقُرْآنِ', translit: ' Faqrau maa yayassara minal-quran', ref: 'QS. Al-Muzzammil: 20' }
+  14: { arabic: 'فَاقْرَءُوا مَا تَيَسَّرَ مِنَ الْقُرْآنِ', translit: 'Faqrau maa yayassara minal-quran', ref: 'QS. Al-Muzzammil: 20' }
 };
 const displayAyahArabic = computed(() => ayahMap[moduleData.value?.id]?.arabic || '');
 const displayAyahTranslit = computed(() => ayahMap[moduleData.value?.id]?.translit || '');

@@ -228,9 +228,11 @@ const submitForm = async () => {
 const loadHistory = async () => {
   try {
     const res = await axios.get(`${API_BASE_URL}/donations`, {
-      headers: authHeader()
+      headers: authHeader(),
+      params: { user_id: Number(userId) }
     })
-    history.value = res.data.data || res.data
+    const list = res.data.data || res.data
+    history.value = list.filter(item => Number(item.user_id) === Number(userId))
   } catch (err) {
     console.error('Gagal ambil history donasi:', err)
   }

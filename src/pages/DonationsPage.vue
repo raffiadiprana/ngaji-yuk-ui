@@ -1,10 +1,17 @@
 <template>
   <q-page padding class="donations-page">
     <div class="page-container q-pa-md">
-      <div class="welcome-section serene-card">
-        <div class="welcome-content">
-          <h4 class="welcome-title">Form Donasi</h4>
-          <p class="welcome-subtitle">Kirim bukti transfer untuk mendukung perkembangan aplikasi.</p>
+      <div class="welcome-section">
+        <div class="row items-center no-wrap">
+          <div class="col-auto">
+            <q-icon name="volunteer_activism" size="md" color="serene-primary" />
+          </div>
+          <div class="col">
+            <div class="text-h5 welcome-title q-mb-xs">Form Donasi</div>
+            <div class="text-subtitle2 welcome-subtitle text-serene-variant">
+              Kirim bukti transfer untuk mendukung perkembangan aplikasi.
+            </div>
+          </div>
         </div>
       </div>
 
@@ -43,7 +50,7 @@
                   filled
                   class="serene-input"
                   color="serene-primary"
-                  :rules="[v => amountNumber(v) > 0 || 'Nominal harus lebih dari 0']"
+                  :rules="[v => v === '' || amountNumber(v) > 0 || 'Nominal harus lebih dari 0']"
                   @update:model-value="onAmountChange"
                 >
                   <template #prepend>

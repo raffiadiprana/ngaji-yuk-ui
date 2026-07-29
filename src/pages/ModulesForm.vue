@@ -259,9 +259,7 @@ const submitForm = async (mode) => {
     $q.dialog({ title: 'Berhasil', message: 'Data berhasil disimpan.', ok: { label: 'OK', color: 'primary' } }).onOk(() => router.back())
   } catch (error) {
     console.error('Gagal simpan materi:', error)
-    if (error.response?.data) {
-      console.error('[ModulesForm] backend validation error:', error.response.data)
-    }
+    console.error('[ModulesForm] full error data:', JSON.stringify(error.response?.data || error.message, null, 2))
     $q.notify({ type: 'negative', message: 'Gagal menyimpan materi.' })
   } finally {
     loading.value = false

@@ -200,11 +200,7 @@ const submitForm = async () => {
 const loadHistory = async () => {
   try {
     const res = await axios.get(`${API_BASE_URL}/donations`, {
-      headers: authHeader(),
-      params: { 
-        user_id: userId,
-        '$limit': 100
-      }
+      headers: authHeader()
     })
     history.value = res.data.data || res.data
   } catch (err) {

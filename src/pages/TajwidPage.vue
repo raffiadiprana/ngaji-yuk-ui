@@ -48,7 +48,7 @@
             </div>
 
             <!-- Module Grid -->
-            <div v-if="sec._modules.length" class="row q-col-gutter-md q-mt-md">
+            <div v-if="(sec._modules || []).length" class="row q-col-gutter-md q-mt-md">
               <div
                 v-for="(m, i) in sec._modules"
                 :key="m.id"

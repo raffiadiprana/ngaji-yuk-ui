@@ -202,22 +202,25 @@
               v-for="module in modulesMap[section.id]"
               :key="module.id"
               clickable
-              @click="$router.push(`/module/${module.id}`)"
               class="module-item"
             >
               <q-item-section avatar>
-                <q-icon :name="module.is_completed ? 'check_circle' : (module.is_locked ? 'lock' : 'play_circle')"
-                  :color="module.is_completed ? 'serene-secondary' : (module.is_locked ? 'grey' : 'serene-primary')" />
+                <q-icon :name="module.is_completed ? 'check_circle' : 'play_circle'"
+                  :color="module.is_completed ? 'serene-secondary' : 'serene-primary'" />
               </q-item-section>
               <q-item-section>
                 <q-item-label class="module-title text-serene-on-surface">{{ module.title }}</q-item-label>
                 <q-item-label caption>
                   <q-chip v-if="module.is_completed" color="serene-secondary-container" text-color="serene-on-secondary-container" size="xs" dense>Lulus</q-chip>
-                  <q-chip v-else-if="module.is_locked" color="grey-3" text-color="grey-8" size="xs" dense>Terkunci</q-chip>
                   <q-chip v-else color="serene-primary-container" text-color="serene-on-primary-container" size="xs" dense>Siap</q-chip>
                 </q-item-label>
               </q-item-section>
-              <q-item-section side><q-icon name="chevron_right" color="serene-outline-variant" /></q-item-section>
+              <q-item-section side>
+                <q-btn unelevated dense rounded :color="module.is_completed ? 'serene-secondary-container' : 'serene-primary'"
+                  :text-color="module.is_completed ? 'serene-on-secondary-container' : 'white'"
+                  :label="module.is_completed ? 'Review' : 'Mulai'" size="sm"
+                  @click.stop="$router.push(`/module/${module.id}`)" />
+              </q-item-section>
             </q-item>
           </q-list>
         </q-expansion-item>

@@ -73,6 +73,16 @@ body {
 }
 .serene-btn-primary:hover { opacity: 0.9; }
 .serene-btn-primary:active { transform: scale(0.95); }
+/* Secondary button */
+.serene-btn-secondary {
+  background-color: var(--serene-secondary);
+  color: #ffffff;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition: opacity 0.2s ease, transform 0.15s ease;
+}
+.serene-btn-secondary:hover { opacity: 0.9; }
+.serene-btn-secondary:active { transform: scale(0.95); }
 
 /* Text colors */
 .text-serene-primary { color: var(--serene-primary); }

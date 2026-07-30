@@ -216,10 +216,13 @@
                 </q-item-label>
               </q-item-section>
               <q-item-section side>
-                <q-btn unelevated dense rounded :color="module.is_completed ? 'serene-secondary-container' : 'serene-primary'"
-                  :text-color="module.is_completed ? 'serene-on-secondary-container' : 'white'"
-                  :label="module.is_completed ? 'Review' : 'Mulai'" size="sm"
-                  @click.stop="$router.push(`/module/${module.id}`)" />
+                <button
+                  class="serene-btn"
+                  :class="module.is_completed ? 'serene-btn-secondary' : 'serene-btn-primary'"
+                  @click.stop="$router.push(`/module/${module.id}`)"
+                >
+                  {{ module.is_completed ? 'Review' : 'Mulai' }}
+                </button>
               </q-item-section>
             </q-item>
           </q-list>

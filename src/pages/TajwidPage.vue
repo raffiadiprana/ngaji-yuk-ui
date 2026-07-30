@@ -55,17 +55,15 @@
                       </div>
                     </div>
                   </q-card-section>
-                  <q-card-actions align="right">
-                    <q-btn
-                      unelevated
-                      dense
-                      rounded
-                      :color="m.is_completed ? 'serene-secondary-container' : 'serene-primary'"
-                      :text-color="m.is_completed ? 'serene-on-secondary-container' : 'white'"
-                      :label="m.is_completed ? 'Review' : 'Mulai'"
+                  <div class="row justify-end q-gutter-sm">
+                    <button
+                      class="serene-btn"
+                      :class="m.is_completed ? 'serene-btn-secondary' : 'serene-btn-primary'"
                       @click="goModule(m.id)"
-                    />
-                  </q-card-actions>
+                    >
+                      {{ m.is_completed ? 'Review' : 'Mulai' }}
+                    </button>
+                  </div>
                 </q-card>
               </div>
             </div>

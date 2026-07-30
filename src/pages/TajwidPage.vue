@@ -8,7 +8,7 @@
           <p class="text-serene-variant">Kelola materi pembelajaran untuk murid-murid Anda.</p>
         </div>
         <div class="row q-gutter-sm">
-          <q-btn v-if="isGuru || isAdmin" class="serene-btn-primary" label="Tambah Hukum Tajwid" icon="add" rounded @click="onAddTajwid" />
+          <q-btn v-if="isAdmin" class="serene-btn-primary" label="Tambah Hukum Tajwid" icon="add" rounded @click="onAddTajwid" />
         </div>
       </header>
 

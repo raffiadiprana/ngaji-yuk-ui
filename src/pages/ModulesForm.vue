@@ -246,9 +246,7 @@ const submitForm = async (mode) => {
       instructor_id: Number(form.value.instructor_id),
       is_draft: mode === 'draft' ? 1 : 0,
       marked_ayah: form.value.marked_ayah || '',
-      highlight_words: form.value.highlight_words_input
-        ? form.value.highlight_words_input.split(',').map(s => s.trim()).filter(Boolean)
-        : [],
+      highlight_words: JSON.stringify((form.value.highlight_words_input || '').split(',').map(s => s.trim()).filter(Boolean)),
       ghunnah: form.value.ghunnah || false,
       duration: Number(form.value.duration || 2),
       voice_note_url: form.value.voice_note_url || ''

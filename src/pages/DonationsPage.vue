@@ -50,7 +50,7 @@
                   filled
                   class="serene-input"
                   color="serene-primary"
-                  :rules="[v => v === '' || amountNumber(v) > 0 || 'Nominal harus lebih dari 0']"
+                  :rules="[v => amountNumber(v) > 0 || 'Nominal harus lebih dari 0']"
                   @update:model-value="onAmountChange"
                 >
                   <template #prepend>

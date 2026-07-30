@@ -66,7 +66,7 @@
                       </div>
                     </div>
                   </q-card-section>
-                  <q-card-actions v-if="!m.is_locked" align="right">
+                  <q-card-actions align="right">
                     <q-btn
                       unelevated
                       dense

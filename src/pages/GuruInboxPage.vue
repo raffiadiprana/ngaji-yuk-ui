@@ -87,23 +87,11 @@ import { authHeader } from 'src/config/auth'
   const fetchAnswers = async () => {
     loading.value = true
     try {
-      // 1) Ambil module milik guru untuk mendapatkan quiz_id-nya
-      const modRes = await axios.get(`${api.API_BASE_URL}/modules`, {
+      const res = await axios.get(`${api.API_BASE_URL}/answers/inbox`, {
         headers: authHeader(),
-        params: { instructor_id: Number(instructorId), is_deleted: 0, $limit: 200 }
+        params: { instructor_id: Number(instructorId), $limit: 200 }
       })
-      const modules = (modRes.data.data || []).filter(m => m.instructor_id === Number(instructorId))
-      const quizIds = [...new Set(modules.map(m => m.id))].filter(Boolean)
-
-      // 2) Ambil jawaban hanya untuk quiz milik guru ini
-      let answers = []
-      if (quizIds.length) {
-        const ansRes = await axios.get(`${api.API_BASE_URL}/answers`, {
-          headers: authHeader(),
-          params: { quiz_id: { $in: quizIds }, $limit: 200, $sort: { created_date: -1 } }
-        })
-        answers = ansRes.data.data || []
-      }
+      const answers = (res.data.data || [])
       // Group by quiz_id (1 thread = 1 item), ambil pesan terakhir + hitung tumpukan
       const map = {}
       for (const a of answers) {

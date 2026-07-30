@@ -71,7 +71,7 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted } from 'vue'
+  import { ref, computed, onMounted, onUnmounted } from 'vue'
   import axios from 'axios'
   import api from 'src/config/api'
 import { authHeader } from 'src/config/auth'
@@ -127,6 +127,10 @@ import { authHeader } from 'src/config/auth'
   
   onMounted(() => {
     fetchAnswers()
+    window._guruInboxTimer = setInterval(fetchAnswers, 3000)
+  })
+  onUnmounted(() => {
+    if (window._guruInboxTimer) clearInterval(window._guruInboxTimer)
   })
   
   const filteredThreads = computed(() => {

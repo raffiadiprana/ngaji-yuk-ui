@@ -61,7 +61,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import axios from 'axios'
 import api from 'src/config/api'
 import { authHeader } from 'src/config/auth'
@@ -129,6 +129,10 @@ const openAnswer = (item) => {
 
 onMounted(() => {
   fetchAnswers()
+  window._santriInboxTimer = setInterval(fetchAnswers, 3000)
+})
+onUnmounted(() => {
+  if (window._santriInboxTimer) clearInterval(window._santriInboxTimer)
 })
 </script>
 

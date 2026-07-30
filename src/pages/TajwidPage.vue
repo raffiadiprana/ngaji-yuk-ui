@@ -74,7 +74,7 @@
                       :color="m.is_completed ? 'serene-secondary-container' : 'serene-primary'"
                       :text-color="m.is_completed ? 'serene-on-secondary-container' : 'white'"
                       :label="m.is_completed ? 'Review' : 'Mulai'"
-                      @click="router.push(`/module/${m.id}`)"
+                      @click="goModule(m.id)"
                     />
                   </q-card-actions>
                 </q-card>
@@ -154,6 +154,10 @@ const fetchSection = async () => {
 const onAddTajwid = () => router.push('/tajwid-form')
 const editTajwid = (tajwid) => router.push(`/tajwid-form/${tajwid.id}`)
 const addMaterial = (tajwid) => router.push(`/module-form?section_id=${tajwid.id}`)
+
+const goModule = (id) => {
+  location.hash = `/module/${id}`
+}
 
 const deleteTajwid = (section) => {
   $q.dialog({

@@ -27,24 +27,13 @@
           <q-card class="serene-card timeline-card">
             <div class="row items-start no-wrap">
               <div class="col min-width-0">
-                <div class="row items-center justify-between">
-                  <div class="text-weight-bold text-serene-on-surface text-subtitle1 ellipsis">{{ sec.section_name }}</div>
-                  <q-chip :color="sectionStatus(sec).chipColor" text-color="white" size="sm" class="q-ml-sm">{{ sectionStatus(sec).label }}</q-chip>
-                </div>
+                <div class="text-weight-bold text-serene-on-surface text-subtitle1 ellipsis">{{ sec.section_name }}</div>
                 <div class="text-caption text-serene-variant q-mt-xs">
                   {{ sec._done }}/{{ sec._total }} modul · {{ sec._percent }}%
                 </div>
                 <q-linear-progress :value="sec._percent / 100" color="serene-primary" class="q-mt-xs rounded-borders" style="height:6px;" />
               </div>
-              <q-btn v-if="isGuru || isAdmin" flat round dense icon="more_vert" @click.stop class="q-ml-sm">
-                <q-menu auto-close>
-                  <q-list style="min-width: 170px;">
-                    <q-item clickable @click="addMaterial(sec)"><q-item-section avatar><q-icon name="note_add" /></q-item-section><q-item-section>Tambah Materi</q-item-section></q-item>
-                    <q-item v-if="isAdmin" clickable @click="editTajwid(sec)" class="text-serene-primary"><q-item-section avatar><q-icon name="edit" /></q-item-section><q-item-section>Edit Nama Hukum</q-item-section></q-item>
-                    <q-item v-if="isAdmin" clickable @click="deleteTajwid(sec)" class="text-negative"><q-item-section avatar><q-icon name="delete" /></q-item-section><q-item-section>Delete</q-item-section></q-item>
-                  </q-list>
-                </q-menu>
-              </q-btn>
+              <q-chip :color="sectionStatus(sec).chipColor" text-color="white" size="sm" class="q-ml-sm">{{ sectionStatus(sec).label }}</q-chip>
             </div>
 
             <!-- Module Grid -->

@@ -87,28 +87,30 @@ import { authHeader } from 'src/config/auth'
   const fetchAnswers = async () => {
     loading.value = true
     try {
-      const res = await axios.get(`${api.API_BASE_URL}/answers`, {
+      // 1) Ambil module milik guru untuk mendapatkan quiz_id-nya
+      const modRes = await axios.get(`${api.API_BASE_URL}/modules`, {
         headers: authHeader(),
-        params: {
-          '$or': [
-            { instructor_id: Number(instructorId) },
-            { user_id: Number(instructorId) },
-            { reply_to: Number(instructorId) }
-          ],
-          '$limit': 100
-        }
+        params: { instructor_id: Number(instructorId), is_deleted: 0, $limit: 200 }
       })
-      const all = (res.data.data || []).filter(answer =>
-        !answer.checked_by
-      )
+      const modules = (modRes.data.data || []).filter(m => m.instructor_id === Number(instructorId))
+      const quizIds = [...new Set(modules.map(m => m.id))].filter(Boolean)
+
+      // 2) Ambil jawaban hanya untuk quiz milik guru ini
+      let answers = []
+      if (quizIds.length) {
+        const ansRes = await axios.get(`${api.API_BASE_URL}/answers`, {
+          headers: authHeader(),
+          params: { quiz_id: { $in: quizIds }, $limit: 200, $sort: { created_date: -1 } }
+        })
+        answers = ansRes.data.data || []
+      }
       // Group by quiz_id (1 thread = 1 item), ambil pesan terakhir + hitung tumpukan
       const map = {}
-      for (const a of all) {
+      for (const a of answers) {
         if (!map[a.quiz_id]) {
           map[a.quiz_id] = { quiz_id: a.quiz_id, count: 0, lastAnswer: a }
         }
         map[a.quiz_id].count++
-        // pakai pesan dgn created_date terbaru sebagai preview
         if (new Date(a.created_date) > new Date(map[a.quiz_id].lastAnswer.created_date)) {
           map[a.quiz_id].lastAnswer = a
         }

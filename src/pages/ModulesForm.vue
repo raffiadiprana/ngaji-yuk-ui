@@ -248,6 +248,7 @@ const submitForm = async (mode) => {
       highlight_words: JSON.stringify((form.value.highlight_words_input || '').split(',').map(s => s.replace(/['"]+/g, '').trim()).filter(Boolean)),
       ghunnah: form.value.ghunnah || false,
       duration: Number(form.value.duration || 2),
+      is_locked: false,
       voice_note_url: form.value.voice_note_url || ''
     }
     console.log('[ModulesForm] submit payload:', payload)

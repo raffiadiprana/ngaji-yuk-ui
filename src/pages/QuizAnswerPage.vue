@@ -207,29 +207,33 @@ const fetchAnswers = async () => {
 };
 
 const submitTextAnswer = async () => {
-  const instructorId = Number(quiz.value?.module_detail?.instructor_id);
-  if (!answerInput.value.trim()) return;
-  try {
-    await axios.post(`${api.API_BASE_URL}/answers`, {
-      quiz_id: quizId,
-      user_id: userId,
-      answer_type: 'text',
-      answer_value: answerInput.value.trim(),
-      is_passed: 0,
-      score: 0,
-      review_notes: ""
-    }, {
-      headers: authHeader(),
-    });
-    answerInput.value = '';
-
-    // Refresh percakapan
-    await fetchAnswers();
-  } catch (err) {
-    alert("Failed to submit answer. Please try again.");
-    console.error('Submit text answer failed:', err);
+  const payload = {
+    quiz_id: quizId,
+    user_id: userId,
+    answer_type: 'text',
+    answer_value: answerInput.value.trim(),
+    is_passed: 0,
+    score: 0,
+    review_notes: ''
   }
-};
+  if (!payload.answer_value) return;
+  try {
+    const base = (api.API_BASE_URL || '').replace(/\/$/, '');
+    await axios.post(`${base}/answers`, payload, {
+      headers: {
+        ...authHeader(),
+        'Content-Type': 'application/json'
+      }
+    })
+    answerInput.value = ''
+    await fetchAnswers()
+  } catch (err) {
+    const data = err?.response?.data
+    const msg = data?.message || err.message || 'Gagal mengirim jawaban'
+    alert(msg)
+    console.error('Submit text answer failed:', err.response?.data || err)
+  }
+}
 
 const startTimer = () => {
   recordingDuration.value = 0;

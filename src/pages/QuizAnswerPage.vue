@@ -195,11 +195,13 @@ const getAudioUrl = (filename) => filename ? `${api.API_BASE_URL}/uploads/${file
 
 const fetchAnswers = async () => {
   const instructorId = Number(quiz.value?.module_detail?.instructor_id);
+  const userIds = [userId];
+  if (Number.isFinite(instructorId)) userIds.push(instructorId)
   const res = await axios.get(`${api.API_BASE_URL}/answers`, {
     headers: authHeader(),
     params: {
       quiz_id: quizId,
-      'user_id[$in]': [userId, instructorId],
+      'user_id[$in]': userIds,
       '$sort[created_date]': '1'
     }
   });

@@ -120,7 +120,6 @@ import { authHeader } from 'src/config/auth'
   
   onMounted(() => {
     fetchAnswers()
-    window._guruInboxTimer = setInterval(fetchAnswers, 3000)
   })
   onUnmounted(() => {
     if (window._guruInboxTimer) clearInterval(window._guruInboxTimer)

@@ -87,9 +87,11 @@ import { authHeader } from 'src/config/auth'
   const fetchAnswers = async () => {
     loading.value = true
     try {
-      const res = await axios.get(`${api.API_BASE_URL}/answers/inbox`, {
+      const res = await axios.post(`${api.API_BASE_URL}/answers/inbox`, {
+        instructor_id: Number(instructorId)
+      }, {
         headers: authHeader(),
-        params: { instructor_id: Number(instructorId), $limit: 200 }
+        params: { $limit: 200 }
       })
       const answers = (res.data.data || [])
       // Group by quiz_id (1 thread = 1 item), ambil pesan terakhir + hitung tumpukan

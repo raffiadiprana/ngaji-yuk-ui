@@ -93,7 +93,7 @@ import { authHeader } from 'src/config/auth'
         headers: authHeader(),
         params: { $limit: 200 }
       })
-      const answers = (res.data.data || [])
+      const answers = Array.isArray(res.data) ? res.data : (res.data.data || [])
       // Group by quiz_id (1 thread = 1 item), ambil pesan terakhir + hitung tumpukan
       const map = {}
       for (const a of answers) {

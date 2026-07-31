@@ -212,6 +212,7 @@ const submitTextAnswer = async () => {
   const payload = {
     quiz_id: quizId,
     user_id: userId,
+    instructor_id: instructorId,
     answer_type: 'text',
     answer_value: answerInput.value.trim(),
     is_passed: 0,

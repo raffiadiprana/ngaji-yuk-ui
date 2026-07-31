@@ -41,7 +41,7 @@
 
             <q-item-section>
               <q-item-label lines="1" class="text-weight-bold text-serene-on-surface" style="font-size: 16px;">
-                {{ (thread.lastAnswer.user_detail?.display_name || ('User ' + thread.lastAnswer.user_id)) }} - {{ (thread.lastAnswer.quiz_detail?.module_detail?.title || ('Module #' + thread.quiz_id)) }}
+                {{ (thread.lastAnswer.user_detail?.display_name || ('User ' + (thread.lastAnswer.user_id || thread.quiz_id))) }} - {{ (thread.lastAnswer.quiz_detail?.module_detail?.title || ('Module #' + thread.quiz_id)) }}
               </q-item-label>
               <q-item-label caption lines="1" class="text-serene-variant" style="font-size: 13px;">
                 {{ thread.lastAnswer.answer_type === 'file' ? 'Voice Note' : thread.lastAnswer.answer_value }}

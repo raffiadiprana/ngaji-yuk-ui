@@ -180,23 +180,20 @@ const checkVoiceGuide = () => {
   return true;
 };
 
-const closeVoiceDialog = () => {
-  if (dontShowAgain.value) {
-    localStorage.setItem('voiceGuideDismissed', 'true');
-  }
-  showVoiceDialog.value = false;
-  startRecording();
-};
-
 const goBack = () => router.go(-1);
 const capitalize = (str) => str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : '';
 const formatDate = (str) => new Date(str).toLocaleString();
 const getAudioUrl = (filename) => filename ? `${api.API_BASE_URL}/uploads/${filename}` : '';
 
+const getInstructorId = () => {
+  const id = Number(quiz.value?.module_detail?.instructor_id);
+  return Number.isFinite(id) ? id : null;
+};
+
 const fetchAnswers = async () => {
-  const instructorId = Number(quiz.value?.module_detail?.instructor_id);
+  const instructorId = getInstructorId();
   const userIds = [userId];
-  if (Number.isFinite(instructorId)) userIds.push(instructorId)
+  if (instructorId !== null) userIds.push(instructorId);
   const res = await axios.get(`${api.API_BASE_URL}/answers`, {
     headers: authHeader(),
     params: {
@@ -212,7 +209,7 @@ const submitTextAnswer = async () => {
   const payload = {
     quiz_id: quizId,
     user_id: userId,
-    instructor_id: instructorId,
+    instructor_id: getInstructorId(),
     answer_type: 'text',
     answer_value: answerInput.value.trim(),
     is_passed: 0,
@@ -300,13 +297,12 @@ const handleRecordingStop = async () => {
     });
     const upload = await uploadRes.json();
     const uploadedFilename = upload?.filename || filename;
-    const instructorId = Number(quiz.value?.module_detail?.instructor_id);
 
     await axios.post(`${api.API_BASE_URL}/answers`, {
       quiz_id: quizId,
       user_id: userId,
-      instructor_id: instructorId,
-      reply_to: instructorId,
+      instructor_id: getInstructorId(),
+      reply_to: getInstructorId(),
       answer_type: 'file',
       answer_value: uploadedFilename,
       is_passed: 0,

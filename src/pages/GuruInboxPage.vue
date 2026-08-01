@@ -105,6 +105,7 @@ import { authHeader } from 'src/config/auth'
           }
         }
       }
+      console.log('[GuruInbox] fetchAnswers raw:', JSON.stringify({ threadsCount: Object.keys(map).length, firstKey: Object.keys(map)[0] }).slice(0, 300))
       threads.value = Object.values(map).sort((a, b) => new Date(b.lastAnswer?.created_date || 0) - new Date(a.lastAnswer?.created_date || 0))
     } catch (error) {
       console.error('Failed to fetch answers:', error)
@@ -126,10 +127,14 @@ import { authHeader } from 'src/config/auth'
   const filteredThreads = computed(() => {
     if (!search.value) return threads.value
     const lower = search.value.toLowerCase()
-    return threads.value.filter(t =>
-      (t.lastAnswer.user_detail?.display_name || ('User ' + t.lastAnswer.user_id)).toLowerCase().includes(lower) ||
-      (t.lastAnswer.answer_value || '').toLowerCase().includes(lower)
-    )
+    return threads.value.filter(t => {
+      const label = t.lastAnswer.user_detail?.display_name || t.lastAnswer.user_detail?.email || ('User ' + (t.lastAnswer.user_id ?? t.user_id))
+      return (
+        label.toLowerCase().includes(lower) ||
+        ((t.lastAnswer.quiz_detail?.module_detail?.title || '').toLowerCase().includes(lower)) ||
+        ((t.lastAnswer.answer_value || '').toLowerCase().includes(lower))
+      )
+    })
   })
 
   const getInitials = (name) => {

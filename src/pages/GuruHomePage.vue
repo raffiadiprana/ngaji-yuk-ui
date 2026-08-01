@@ -67,7 +67,7 @@
               </q-avatar>
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-weight-bold text-serene-on-surface">{{ item.user_detail?.display_name || ('User ' + item.user_id) }}</q-item-label>
+              <q-item-label class="text-weight-bold text-serene-on-surface">{{ item.user_detail?.username || item.user_detail?.email || ('User ' + item.user_id) }}</q-item-label>
               <q-item-label caption class="text-serene-variant ellipsis-text">
                 Menonton modul: {{ item.module_title || 'Modul' }}
               </q-item-label>
@@ -105,7 +105,7 @@
               </q-avatar>
             </q-item-section>
             <q-item-section>
-              <q-item-label class="text-weight-bold text-serene-on-surface">{{ item.user_detail?.display_name || ('User ' + item.user_id) }}</q-item-label>
+              <q-item-label class="text-weight-bold text-serene-on-surface">{{ item.user_detail?.username || item.user_detail?.email || ('User ' + item.user_id) }}</q-item-label>
               <q-item-label caption class="text-serene-variant ellipsis-text">{{ item.answer_type === 'file' ? 'Voice Note' : (item.answer_value || 'Chat baru') }}</q-item-label>
             </q-item-section>
             <q-item-section side>

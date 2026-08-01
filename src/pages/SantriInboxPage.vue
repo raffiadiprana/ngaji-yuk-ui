@@ -32,7 +32,7 @@
 
           <q-item-section>
             <q-item-label lines="1" class="text-weight-bold text-serene-on-surface" style="font-size: 16px;">
-              {{ item.user_detail?.display_name || item.instructor_detail?.display_name || ('User ' + (item.user_id || item.reply_to)) }} — {{ item.quiz_detail?.module_detail?.title || 'Chat' }}
+              {{ item.user_detail?.username || item.user_detail?.email || item.instructor_detail?.username || item.instructor_detail?.email || ('User ' + (item.user_id || item.reply_to)) }} — {{ item.quiz_detail?.module_detail?.title || 'Chat' }}
             </q-item-label>
             <q-item-label caption lines="1" class="text-serene-variant" style="font-size: 13px;">
               {{ item.answer_type === 'file' ? 'Voice Note' : (item.answer_value || 'Percakapan baru') }}
@@ -109,7 +109,7 @@ const filteredItems = computed(() => {
   if (!search.value) return items.value
   const lower = search.value.toLowerCase()
   return items.value.filter(item =>
-    (item.user_detail?.display_name || item.instructor_detail?.display_name || '').toLowerCase().includes(lower) ||
+    (item.user_detail?.username || item.user_detail?.email || item.instructor_detail?.username || item.instructor_detail?.email || '').toLowerCase().includes(lower) ||
     (item.answer_value || '').toLowerCase().includes(lower) ||
     (item.quiz_detail?.module_detail?.title || '').toLowerCase().includes(lower)
   )

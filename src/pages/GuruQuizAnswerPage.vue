@@ -60,7 +60,7 @@
           <q-chat-message
             :sent="answer.user_id === userId"
             :label="formatDate(answer.created_date)"
-            :name="capitalize(answer.user_detail?.user_role || 'Unknown') + ' ' + (answer.user_detail?.display_name || 'Unknown')"
+            :name="capitalize(answer.user_detail?.role || 'Unknown') + ' ' + (answer.user_detail?.username || answer.user_detail?.email || 'Unknown')"
             :bg-color="answer.user_id === userId ? 'green-3' : 'grey-3'"
             text-color="black"
           >

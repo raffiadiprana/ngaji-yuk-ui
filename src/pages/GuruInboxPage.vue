@@ -41,7 +41,7 @@
 
             <q-item-section>
               <q-item-label lines="1" class="text-weight-bold text-serene-on-surface" style="font-size: 16px;">
-                {{ (thread.lastAnswer.user_detail?.display_name || thread.lastAnswer.user_detail?.email || ('User ' + (thread.lastAnswer.user_id || thread.quiz_id))) }} - {{ (thread.lastAnswer.quiz_detail?.module_detail?.title || ('Module #' + thread.quiz_id)) }}
+                {{ (thread.lastAnswer.user_detail?.username || thread.lastAnswer.user_detail?.email || ('User ' + (thread.lastAnswer.user_id || thread.quiz_id))) }} - {{ (thread.lastAnswer.quiz_detail?.module_detail?.title || ('Module #' + thread.quiz_id)) }}
               </q-item-label>
               <q-item-label caption lines="1" class="text-serene-variant" style="font-size: 13px;">
                 {{ thread.lastAnswer.answer_type === 'file' ? 'Voice Note' : thread.lastAnswer.answer_value }}
@@ -128,7 +128,7 @@ import { authHeader } from 'src/config/auth'
     if (!search.value) return threads.value
     const lower = search.value.toLowerCase()
     return threads.value.filter(t => {
-      const label = t.lastAnswer.user_detail?.display_name || t.lastAnswer.user_detail?.email || ('User ' + (t.lastAnswer.user_id ?? t.user_id))
+      const label = t.lastAnswer.user_detail?.username || t.lastAnswer.user_detail?.email || ('User ' + (t.lastAnswer.user_id ?? t.user_id))
       return (
         label.toLowerCase().includes(lower) ||
         ((t.lastAnswer.quiz_detail?.module_detail?.title || '').toLowerCase().includes(lower)) ||

@@ -105,7 +105,6 @@ import { authHeader } from 'src/config/auth'
           }
         }
       }
-      console.log('[GuruInbox] fetchAnswers raw:', JSON.stringify({ threadsCount: Object.keys(map).length, firstKey: Object.keys(map)[0] }).slice(0, 300))
       threads.value = Object.values(map).sort((a, b) => new Date(b.lastAnswer?.created_date || 0) - new Date(a.lastAnswer?.created_date || 0))
     } catch (error) {
       console.error('Failed to fetch answers:', error)

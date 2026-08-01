@@ -97,7 +97,7 @@ import { authHeader } from 'src/config/auth'
       const map = {}
       for (const a of answers) {
         const key = a.quiz_id
-        if (!map[key]) map[key] = { quiz_id: key, count: a.count || 0, lastAnswer: a }
+        if (!map[key]) map[key] = { quiz_id: key, count: a.count || 0, lastAnswer: a.lastAnswer }
         else {
           map[key].count = a.count || map[key].count
           if (a.lastAnswer && (!map[key].lastAnswer || new Date(a.lastAnswer.created_date) > new Date(map[key].lastAnswer.created_date))) {

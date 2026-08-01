@@ -325,13 +325,8 @@ onMounted(async () => {
   quiz.value = quizRes.data?.data?.[0] || null;
   await fetchAnswers();
   if (isPassedByGuru.value) await fetchNextModule();
-
-  setInterval(async () => {
-    if (quiz.value) {
-     await fetchAnswers();
-    }
-  }, 3000)
 });
+
 </script>
 
 <style scoped>

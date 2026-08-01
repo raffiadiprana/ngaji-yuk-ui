@@ -129,7 +129,6 @@ const openAnswer = (item) => {
 
 onMounted(() => {
   fetchAnswers()
-  window._santriInboxTimer = setInterval(fetchAnswers, 3000)
 })
 onUnmounted(() => {
   if (window._santriInboxTimer) clearInterval(window._santriInboxTimer)

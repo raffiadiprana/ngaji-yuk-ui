@@ -395,13 +395,8 @@ onMounted(async () => {
   });
   quiz.value = quizRes.data?.data?.[0] || null;
   await fetchAnswers();
-
-  setInterval(() => {
-    if (quiz.value) {
-      fetchAnswers()
-    }
-  }, 1000);
 });
+
 </script>
 
 <style scoped>

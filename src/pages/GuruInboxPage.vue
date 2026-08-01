@@ -85,29 +85,27 @@ import { authHeader } from 'src/config/auth'
   const instructorId = localStorage.getItem('id')
   
   const fetchAnswers = async () => {
-    loading.value = true
     try {
+      const instructorId = Number(localStorage.getItem('id'))
       const res = await axios.post(`${api.API_BASE_URL}/answers/inbox`, {
-        instructor_id: Number(instructorId)
+        instructor_id: Number.isFinite(instructorId) ? instructorId : null
       }, {
         headers: authHeader(),
         params: { $limit: 200 }
       })
       const answers = Array.isArray(res.data) ? res.data : (res.data.data || [])
-      // Group by quiz_id (1 thread = 1 item), ambil pesan terakhir + hitung tumpukan
       const map = {}
       for (const a of answers) {
-        if (!map[a.quiz_id]) {
-          map[a.quiz_id] = { quiz_id: a.quiz_id, count: 0, lastAnswer: a }
-        }
-        map[a.quiz_id].count++
-        if (new Date(a.created_date) > new Date(map[a.quiz_id].lastAnswer.created_date)) {
-          map[a.quiz_id].lastAnswer = a
+        const key = a.quiz_id
+        if (!map[key]) map[key] = { quiz_id: key, count: a.count || 0, lastAnswer: a }
+        else {
+          map[key].count = a.count || map[key].count
+          if (a.lastAnswer && (!map[key].lastAnswer || new Date(a.lastAnswer.created_date) > new Date(map[key].lastAnswer.created_date))) {
+            map[key].lastAnswer = a.lastAnswer
+          }
         }
       }
-      threads.value = Object.values(map).sort((x, y) => 
-        new Date(y.lastAnswer.created_date) - new Date(x.lastAnswer.created_date)
-      )
+      threads.value = Object.values(map).sort((a, b) => new Date(b.lastAnswer?.created_date || 0) - new Date(a.lastAnswer?.created_date || 0))
     } catch (error) {
       console.error('Failed to fetch answers:', error)
       threads.value = []

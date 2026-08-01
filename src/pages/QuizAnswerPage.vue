@@ -37,7 +37,7 @@
           <q-chat-message
             :sent="answer.user_id === userId"
             :label="formatDate(answer.created_date)"
-            :name="capitalize(answer.user_detail?.user_role || 'Unknown') + ' ' + (answer.user_detail?.display_name || 'Unknown')"
+            :name="(answer.user_detail?.username || answer.user_detail?.email || ('User ' + (answer.user_detail?.id ?? answer.user_id)))"
             :bg-color="answer.user_id === userId ? 'serene-sent' : 'serene-recv'"
             text-color="black"
           >
@@ -198,11 +198,11 @@ const fetchAnswers = async () => {
     headers: authHeader(),
     params: {
       quiz_id: quizId,
-      'user_id[$in]': userIds,
       '$sort[created_date]': '1'
     }
   });
-  answers.value = res.data?.data || [];
+  const all = res.data?.data || [];
+  answers.value = all.filter(a => userIds.includes(a.user_id));
 };
 
 const submitTextAnswer = async () => {

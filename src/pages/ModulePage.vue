@@ -147,6 +147,8 @@ const isPassed = ref(false);
 const sectionName = ref('');
 const startingChat = ref(false);
 const nextModuleId = ref(null);
+const userId = Number(localStorage.getItem('id') || 0);
+const hasChatted = ref(false);
 const ruleLetters = computed(() => {
   try {
     return Array.isArray(moduleData.value?.rule_letters) ? moduleData.value.rule_letters : [];

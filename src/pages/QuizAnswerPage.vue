@@ -33,7 +33,8 @@
       <!-- Answer List -->
       <div class="q-mt-lg">
         <div class="text-h6 q-mb-sm text-serene-on-surface">Percakapan:</div>
-        <div v-for="answer in answers" :key="answer.id" class="q-mb-sm">
+        <div class="chat-container" aria-live="polite">
+          <div v-for="answer in answers" :key="answer.id" class="q-mb-sm">
           <q-chat-message
             :sent="answer.user_id === userId"
             :label="formatDate(answer.created_date)"
@@ -51,6 +52,7 @@
             </template>
           </q-chat-message>
         </div>
+      </div>
       </div>
 
       <!-- Tombol Materi Selanjutnya (muncul hanya kalau lulus guru) -->

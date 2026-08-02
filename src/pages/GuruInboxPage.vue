@@ -88,18 +88,19 @@ import { authHeader } from 'src/config/auth'
     try {
       const instructorId = Number(localStorage.getItem('id'))
       const res = await axios.get(`${api.API_BASE_URL}/answers/inbox`, {
-        instructor_id: Number.isFinite(instructorId) ? instructorId : null
-      }, {
         headers: authHeader(),
-        params: { $limit: 200 }
+        params: {
+          instructor_id: Number.isFinite(instructorId) ? instructorId : null,
+          $limit: 200
+        }
       })
       const answers = Array.isArray(res.data) ? res.data : (res.data.data || [])
       const map = {}
       for (const a of answers) {
-        const key = a.quiz_id
-        if (!map[key]) map[key] = { quiz_id: key, count: a.count || 0, lastAnswer: a.lastAnswer }
+        const key = `${a.quiz_id}-${a.user_id}`
+        if (!map[key]) map[key] = { quiz_id: a.quiz_id, user_id: a.user_id, count: a.count || 1, lastAnswer: a }
         else {
-          map[key].count = a.count || map[key].count
+          map[key].count = (a.count || 0) + map[key].count
           if (a.lastAnswer && (!map[key].lastAnswer || new Date(a.lastAnswer.created_date) > new Date(map[key].lastAnswer.created_date))) {
             map[key].lastAnswer = a.lastAnswer
           }
@@ -118,6 +119,7 @@ import { authHeader } from 'src/config/auth'
   
   onMounted(() => {
     fetchAnswers()
+    window._guruInboxTimer = setInterval(fetchAnswers, 3000)
   })
   onUnmounted(() => {
     if (window._guruInboxTimer) clearInterval(window._guruInboxTimer)

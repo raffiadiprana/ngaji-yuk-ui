@@ -81,9 +81,9 @@ const fetchAnswers = async () => {
       params: {
         '$or': [
           { user_id: userId },
-          { '$or': [{ reply_to: userId }, { reply_to: null }] }
+          { reply_to: userId }
         ],
-        '$limit': 100
+        '$limit': 200
       }
     })
     const data = res.data.data || []

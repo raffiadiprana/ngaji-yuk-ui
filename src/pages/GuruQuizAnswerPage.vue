@@ -194,7 +194,14 @@ const fetchAnswers = async () => {
     }
   });
   const all = res.data?.data || [];
-  answers.value = all.filter(a => a.user_id === santriId || a.user_id === instructorId);
+  answers.value = all.filter(a => {
+    if (a.user_id === santriId) return true
+    if (a.user_id === instructorId) {
+      const replyTo = Number(a.reply_to)
+      return !Number.isFinite(replyTo) || replyTo === 0 || replyTo === santriId
+    }
+    return false
+  });
 };
 
 const updateCheckedBy = async () => {

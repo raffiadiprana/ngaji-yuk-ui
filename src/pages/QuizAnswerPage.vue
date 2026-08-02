@@ -192,8 +192,6 @@ const getInstructorId = () => {
 
 const fetchAnswers = async () => {
   const instructorId = getInstructorId();
-  const userIds = [userId];
-  if (instructorId !== null) userIds.push(instructorId);
   const res = await axios.get(`${api.API_BASE_URL}/answers`, {
     headers: authHeader(),
     params: {
@@ -202,7 +200,14 @@ const fetchAnswers = async () => {
     }
   });
   const all = res.data?.data || [];
-  answers.value = all.filter(a => userIds.includes(a.user_id));
+  answers.value = all.filter(a => {
+    if (a.user_id === userId) return true
+    if (instructorId !== null && a.user_id === instructorId) {
+      const replyTo = Number(a.reply_to)
+      return Number.isFinite(replyTo) && replyTo === userId
+    }
+    return false
+  });
 };
 
 const submitTextAnswer = async () => {

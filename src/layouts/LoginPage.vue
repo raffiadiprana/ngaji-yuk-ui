@@ -105,7 +105,7 @@ const handleLogin = async () => {
         headers: authHeader()
       });
       profileData = res2.data.data?.[0] || {};
-      if (profileData.avatar) localStorage.setItem("avatar", api.API_UPLOADS_URL + profileData.avatar);
+      if (profileData.avatar) localStorage.setItem("avatar", `${api.API_UPLOADS_URL}/${profileData.avatar}`);
       if (profileData.display_name) localStorage.setItem("displayName", profileData.display_name);
     } catch (e) {
       console.error("Gagal ambil profil:", e);

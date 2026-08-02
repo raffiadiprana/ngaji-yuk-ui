@@ -87,7 +87,7 @@ import { authHeader } from 'src/config/auth'
   const fetchAnswers = async () => {
     try {
       const instructorId = Number(localStorage.getItem('id'))
-      const res = await axios.post(`${api.API_BASE_URL}/answers/inbox`, {
+      const res = await axios.get(`${api.API_BASE_URL}/answers/inbox`, {
         instructor_id: Number.isFinite(instructorId) ? instructorId : null
       }, {
         headers: authHeader(),

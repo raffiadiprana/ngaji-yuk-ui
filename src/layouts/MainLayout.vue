@@ -118,6 +118,7 @@
         <!-- Hamburger (mobile) -->
         <q-btn
           flat round dense icon="menu" class="lt-lg"
+          aria-label="Buka Menu Utama"
           @click="leftDrawerOpen = !leftDrawerOpen"
         />
         <q-space />
@@ -139,10 +140,10 @@
 
         <q-space />
 
-        <q-btn flat round dense icon="notifications" class="text-serene-variant" />
-        <q-btn flat round dense icon="help" class="text-serene-variant" />
+        <q-btn flat round dense icon="notifications" class="text-serene-variant" aria-label="Notifikasi" />
+        <q-btn flat round dense icon="help" class="text-serene-variant" aria-label="Bantuan" />
         <q-avatar size="32px" class="q-ml-sm">
-          <img v-if="avatarUrl" :src="avatarUrl" />
+          <img v-if="avatarUrl" :src="avatarUrl" :alt="displayName" />
           <div v-else class="bg-serene-primary text-white text-weight-bold full-height flex flex-center">
             {{ initial }}
           </div>
@@ -160,11 +161,11 @@
     <!-- ============ BOTTOM NAV (MOBILE < lg) ============ -->
     <q-footer elevated class="bg-serene text-serene-primary lt-lg">
       <div class="row no-wrap items-center justify-around q-py-xs">
-        <q-btn flat round dense size="md" icon="home" :to="dashboardUrl" />
-        <q-btn v-if="!isAdmin" flat round dense size="md" icon="email" :to="inboxUrl" />
-        <q-btn flat round dense size="md" icon="wallet" :to="'/donasi'" />
-        <q-btn v-if="isSantri || isGuru" flat round dense size="md" icon="person" :to="'/profile'" />
-        <q-btn flat round dense size="md" icon="settings" :to="'/settings'" />
+        <q-btn flat round dense size="md" icon="home" :to="dashboardUrl" aria-label="Beranda" />
+        <q-btn v-if="!isAdmin" flat round dense size="md" icon="email" :to="inboxUrl" aria-label="Kotak Masuk" />
+        <q-btn flat round dense size="md" icon="wallet" :to="'/donasi'" aria-label="Donasi" />
+        <q-btn v-if="isSantri || isGuru" flat round dense size="md" icon="person" :to="'/profile'" aria-label="Profil" />
+        <q-btn flat round dense size="md" icon="settings" :to="'/settings'" aria-label="Pengaturan" />
       </div>
     </q-footer>
   </q-layout>

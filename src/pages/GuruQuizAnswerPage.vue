@@ -275,31 +275,19 @@ const closeConfirmDialog = () => {
 
 const tandaiLulus= async () => {
   try {
-    await axios.post(`${api.API_BASE_URL}/answers`, {
-      quiz_id: quizId,
-      user_id: userId,
-      answer_type: 'text',
-      answer_value: "Selamat anda telah lulus Quiz ini",
-      is_passed: 1,
-      score: 100,
-      review_notes: ""
-    }, {
-      headers: authHeader(),
-    });
-
-    answerInput.value = '';
-
-    // Tandai quiz sebagai selesai -> memicu modul completed & unlock modul berikutnya
+    // Update quiz completion status instead of sending system text as chat
     await axios.patch(`${api.API_BASE_URL}/quiz/${quizId}`, {
       is_completed: 1
     }, {
       headers: authHeader(),
     });
 
+    answerInput.value = '';
+
     // Update checked_by after submit
     await updateCheckedBy();
     await fetchAnswers();
-    closeConfirmDialog(); // Close the dialog after submission
+    closeConfirmDialog();
   } catch (err) {
     console.error('Submit text answer failed:', err);
   }

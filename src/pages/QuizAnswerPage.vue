@@ -3,7 +3,7 @@
 
     <q-header elevated class="serene-header">
       <q-toolbar>
-        <q-btn flat round dense icon="arrow_back" @click="goBack" />
+        <q-btn flat round dense icon="arrow_back" aria-label="Kembali" @click="goBack" />
         <q-toolbar-title>{{ quiz?.module_detail.title || 'Quiz Detail' }}</q-toolbar-title>
       </q-toolbar>
     </q-header>
@@ -369,7 +369,7 @@ onMounted(async () => {
 
 .serene-assign-banner {
   background: var(--serene-primary-container);
-  color: var(--serene-on-primary-container);
+  color: #ffffff;
   border-radius: var(--serene-radius);
 }
 

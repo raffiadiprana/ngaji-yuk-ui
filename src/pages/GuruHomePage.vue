@@ -246,12 +246,12 @@
           recentActivity.value = (res.data.data || []).slice(0, 8)
         })(),
         (async () => {
-          const res = await axios.get(`${api.API_BASE_URL}/answers`, {
+          const res = await axios.get(`${api.API_BASE_URL}/answers/inbox`, {
             headers: authHeader(),
-            params: { instructor_id: instructorId, 'user_id[$ne]': instructorId },
+            params: { instructor_id: instructorId, $limit: 200 },
             signal: abortController.signal
           })
-          const data = res.data.data || []
+          const data = Array.isArray(res.data) ? res.data : (res.data.data || [])
           incomingChats.value = data.filter((answer) => !answer.checked_by)
           metrics.unreadMessages = incomingChats.value.length
         })()
